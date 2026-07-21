@@ -2,139 +2,106 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAuthenticated() {
+    function isAuth() {
       return request.auth != null;
     }
 
-    function isRoomMember(roomId) {
+    function isMember(roomId) {
       return exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid));
     }
 
-    function isRoomAdmin(roomId) {
+    function isAdmin(roomId) {
       return get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid)).data.role == 'admin';
     }
 
-    function isRoomPengurus(roomId, jabatan) {
-      let doc = get(/databases/$(database)/documents/rooms/$(roomId)/pengurus/$(request.auth.uid));
-      return doc.exists && doc.data.jabatan.toLowerCase() == jabatan;
-    }
-
-    function canManageKas(roomId) {
-      return isRoomAdmin(roomId) || isRoomPengurus(roomId, 'bendahara');
-    }
-
-    function canViewKasManagement(roomId) {
-      return isRoomAdmin(roomId)
-        || isRoomPengurus(roomId, 'bendahara')
-        || isRoomPengurus(roomId, 'ketua')
-        || isRoomPengurus(roomId, 'sekretaris');
-    }
-
-    // ============== ROOMS ==============
+    // ===== ROOMS =====
     match /rooms/{roomId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAuthenticated();
+      allow read: if isAuth();
+      allow write: if isAuth();
 
       match /members/{userId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated() && (
-          request.auth.uid == userId ||
-          get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid)).data.role == 'admin'
-        );
+        allow read: if isAuth();
+        allow write: if request.auth.uid == userId || isAdmin(roomId);
       }
     }
 
-    // ============== ROOM-LEVEL COLLECTIONS ==============
-    function roomDataRules(roomId) {
-      return [
-        // Read: any authenticated room member
-        // Write: varies by collection
-        { collections: ['kas', 'transactions', 'bills', 'paymentPeriods', 'payments'],
-          writeCheck: function() { return canManageKas(roomId); } },
-        { collections: ['pengurus', 'subjectPJ', 'deployments', 'tugas'],
-          writeCheck: function() { return isRoomAdmin(roomId); } }
-      ];
+    // ===== ROOM DATA (hanya member yg bisa akses) =====
+    function roomDataRead(roomId) {
+      return isAuth() && isMember(roomId);
     }
 
-    // kas
+    function roomDataWrite(roomId) {
+      return isAuth() && isAdmin(roomId);
+    }
+
     match /kas/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create: if isAuthenticated() && canManageKas(request.resource.data.roomId);
-      allow update, delete: if isAuthenticated() && canManageKas(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow create: if roomDataWrite(request.resource.data.roomId);
+      allow update, delete: if roomDataWrite(resource.data.roomId);
     }
 
-    // transactions
     match /transactions/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create: if isAuthenticated() && canManageKas(request.resource.data.roomId);
-      allow update, delete: if isAuthenticated() && canManageKas(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow create: if roomDataWrite(request.resource.data.roomId);
+      allow update, delete: if roomDataWrite(resource.data.roomId);
     }
 
-    // bills
     match /bills/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create: if isAuthenticated() && canManageKas(request.resource.data.roomId);
-      allow update, delete: if isAuthenticated() && canManageKas(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow create: if roomDataWrite(request.resource.data.roomId);
+      allow update, delete: if roomDataWrite(resource.data.roomId);
     }
 
-    // paymentPeriods
     match /paymentPeriods/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create, update, delete: if isAuthenticated() && canManageKas(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow write: if roomDataWrite(resource.data.roomId);
     }
 
-    // payments
     match /payments/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create, update, delete: if isAuthenticated() && canManageKas(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow write: if roomDataWrite(resource.data.roomId);
     }
 
-    // assignments (tugas)
     match /tugas/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create: if isAuthenticated() && isRoomAdmin(request.resource.data.roomId);
-      allow update, delete: if isAuthenticated() && isRoomAdmin(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow create: if roomDataWrite(request.resource.data.roomId);
+      allow update, delete: if roomDataWrite(resource.data.roomId);
 
       match /submissions/{subId} {
-        allow read: if isAuthenticated();
-        allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
-        allow update: if isAuthenticated() && (
+        allow read: if isAuth();
+        allow create: if isAuth() && request.auth.uid == request.resource.data.userId;
+        allow update: if isAuth() && (
           request.auth.uid == resource.data.userId ||
-          isRoomAdmin(resource.data.roomId)
+          roomDataWrite(resource.data.roomId)
         );
-        allow delete: if isAuthenticated() && isRoomAdmin(resource.data.roomId);
+        allow delete: if roomDataWrite(resource.data.roomId);
       }
     }
 
-    // pengurus
     match /pengurus/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create, update, delete: if isAuthenticated() && isRoomAdmin(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow write: if roomDataWrite(resource.data.roomId);
     }
 
-    // subjectPJ
     match /subjectPJ/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create, update, delete: if isAuthenticated() && isRoomAdmin(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow write: if roomDataWrite(resource.data.roomId);
     }
 
-    // deployments
     match /deployments/{docId} {
-      allow read: if isAuthenticated() && isRoomMember(resource.data.roomId);
-      allow create: if isAuthenticated() && isRoomAdmin(request.resource.data.roomId);
-      allow update, delete: if isAuthenticated() && isRoomAdmin(resource.data.roomId);
+      allow read: if roomDataRead(resource.data.roomId);
+      allow create: if roomDataWrite(request.resource.data.roomId);
+      allow update, delete: if roomDataWrite(resource.data.roomId);
     }
 
-    // ============== USER-LEVEL COLLECTIONS ==============
-    // notifications
-    match /notifications/{userId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // users
+    // ===== USER DATA =====
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuth();
+      allow write: if request.auth.uid == userId;
+    }
+
+    match /notifications/{userId}/items/{notifId} {
+      allow read, write: if request.auth.uid == userId;
     }
   }
 }
