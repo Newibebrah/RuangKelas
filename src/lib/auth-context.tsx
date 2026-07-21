@@ -39,15 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchUserData = async (uid: string) => {
-    try {
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        setUser({ id: userDoc.id, ...userDoc.data() } as User);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setError("Gagal memuat data user");
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      setUser({ id: userDoc.id, ...userDoc.data() } as User);
+    } else {
+      setUser(null);
     }
   };
 
@@ -73,7 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
-        await fetchUserData(fbUser.uid);
+        try {
+          await createUserIfNotExists(fbUser);
+          await fetchUserData(fbUser.uid);
+        } catch {
+          setError("Gagal memuat data user. Periksa Firestore security rules di Firebase Console.");
+        }
       } else {
         setUser(null);
       }
@@ -139,7 +140,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     if (firebaseUser) {
-      await fetchUserData(firebaseUser.uid);
+      try {
+        await fetchUserData(firebaseUser.uid);
+      } catch {
+        setError("Gagal memuat data user");
+      }
     }
   };
 
