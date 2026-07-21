@@ -52,26 +52,20 @@ function getNestedValue(obj: Messages, path: string): string {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
-function getInitialLocale(): Locale {
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("locale") as Locale | null;
-    if (stored === "id" || stored === "en") return stored;
-    const lang = navigator.language || "";
-    if (lang.startsWith("id")) return "id";
-  }
-  return "id";
-}
-
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("id");
 
   useEffect(() => {
-    setLocaleState(getInitialLocale());
+    const stored = localStorage.getItem("locale") as Locale | null;
+    const detected = stored === "id" || stored === "en" ? stored : navigator.language?.startsWith("id") ? "id" : "en";
+    setLocaleState(detected);
+    document.documentElement.lang = detected;
   }, []);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     localStorage.setItem("locale", l);
+    document.documentElement.lang = l;
   }, []);
 
   const t = useCallback(
