@@ -27,6 +27,15 @@ const schema = z
       return new Date(data.deadline) > new Date();
     },
     { message: "Deadline harus berupa waktu yang akan datang", path: ["deadline"] }
+  )
+  .refine(
+    (data) => {
+      if (!data.deadline) return true;
+      const maxDate = new Date();
+      maxDate.setFullYear(maxDate.getFullYear() + 1);
+      return new Date(data.deadline) <= maxDate;
+    },
+    { message: "Deadline maksimal 1 tahun dari sekarang", path: ["deadline"] }
   );
 
 type FormData = z.infer<typeof schema>;

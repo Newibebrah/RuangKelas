@@ -7,7 +7,7 @@ import { usePengurus } from "@/hooks/usePengurus";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { Button } from "@/components/ui/Button";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { AssignmentCard } from "@/components/tugas/AssignmentCard";
@@ -96,7 +96,7 @@ export default function TugasPage() {
       </div>
 
       {loading ? (
-        <LoadingSpinner size="lg" message="Memuat tugas..." />
+        <LoadingSkeleton variant="card" count={3} />
       ) : error ? (
         <ErrorMessage message={error} />
       ) : assignments.length === 0 ? (

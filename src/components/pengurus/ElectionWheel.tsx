@@ -61,17 +61,26 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
     }, 4000);
   }, [spinning, N, members]);
 
-  const handleConfirm = async () => {
-    if (!winner) return;
+  const handleConfirm = async (member?: Member) => {
+    const target = member || winner;
+    if (!target) return;
     setSaving(true);
     try {
-      await onConfirm(winner);
+      await onConfirm(target);
     } finally {
       setSaving(false);
     }
   };
 
-  if (N === 0) return null;
+  if (N === 0) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-8">
+        <p className="text-sm text-gray-400">Belum ada anggota untuk dipilih</p>
+      </div>
+    );
+  }
+
+  const singleMember = N === 1 ? members[0] : null;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -134,17 +143,19 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
       )}
 
       <div className="flex gap-3">
-        <Button
-          onClick={spin}
-          isLoading={spinning}
-          disabled={spinning}
-        >
-          <HiRefresh className="h-4 w-4 mr-1" />
-          {spinning ? "Memutar…" : winner ? "Putar Ulang" : "Putar"}
-        </Button>
-        {winner && !spinning && (
+        {!singleMember && (
           <Button
-            onClick={handleConfirm}
+            onClick={spin}
+            isLoading={spinning}
+            disabled={spinning}
+          >
+            <HiRefresh className="h-4 w-4 mr-1" />
+            {spinning ? "Memutar…" : winner ? "Putar Ulang" : "Putar"}
+          </Button>
+        )}
+        {((winner && !spinning) || singleMember) && (
+          <Button
+            onClick={singleMember ? () => handleConfirm(singleMember) : () => handleConfirm()}
             isLoading={saving}
             variant="primary"
           >

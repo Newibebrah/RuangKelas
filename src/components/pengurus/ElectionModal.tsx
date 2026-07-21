@@ -87,11 +87,17 @@ export function ElectionModal({
               onChange={(e) => setTarget(e.target.value)}
             >
               <option value="">-- Pilih --</option>
-              {(type === "pj" ? pjTargets : pengurusTargets).map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              {(type === "pj" ? pjTargets : pengurusTargets).length === 0 ? (
+                <option value="" disabled>
+                  {type === "pj" ? "Belum ada mata pelajaran" : "Tidak ada opsi"}
                 </option>
-              ))}
+              ) : (
+                (type === "pj" ? pjTargets : pengurusTargets).map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))
+              )}
             </select>
           </div>
           <div className="flex justify-end gap-3 pt-2">

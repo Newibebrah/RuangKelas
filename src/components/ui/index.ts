@@ -3,5 +3,6 @@ export { Input } from "./Input";
 export { Modal } from "./Modal";
 export { Card, CardHeader, CardBody } from "./Card";
 export { LoadingSpinner } from "./LoadingSpinner";
+export { LoadingSkeleton } from "./LoadingSkeleton";
 export { EmptyState } from "./EmptyState";
 export { ErrorMessage } from "./ErrorMessage";

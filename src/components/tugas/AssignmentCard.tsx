@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { formatDistanceToNow, isAfter, differenceInHours } from "date-fns";
 import { id } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
@@ -15,15 +16,24 @@ interface AssignmentCardProps {
   onDelete: (assignment: Assignment) => void;
 }
 
-function isNew(createdAt: Timestamp) {
-  return differenceInHours(new Date(), createdAt.toDate()) < 24;
+function isNew(createdAt?: Timestamp) {
+  if (!createdAt) return false;
+  try {
+    return differenceInHours(new Date(), createdAt.toDate()) < 24;
+  } catch {
+    return false;
+  }
 }
 
 function isPastDeadline(deadline: Timestamp) {
-  return !isAfter(deadline.toDate(), new Date());
+  try {
+    return !isAfter(deadline.toDate(), new Date());
+  } catch {
+    return false;
+  }
 }
 
-export function AssignmentCard({
+export const AssignmentCard = memo(function AssignmentCard({
   assignment,
   canManage,
   isDeleting,
@@ -38,7 +48,7 @@ export function AssignmentCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="font-semibold text-gray-900 truncate">
-              {assignment.subject}
+              {assignment.subject ?? "Tanpa judul"}
             </h3>
             {isNew(assignment.createdAt) && !past && (
               <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 rounded-full">
@@ -51,6 +61,7 @@ export function AssignmentCard({
               <button
                 onClick={() => onEdit(assignment)}
                 className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                aria-label="Edit tugas"
               >
                 <HiPencil className="h-4 w-4" />
               </button>
@@ -58,6 +69,7 @@ export function AssignmentCard({
                 onClick={() => onDelete(assignment)}
                 disabled={isDeleting}
                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                aria-label="Hapus tugas"
               >
                 <HiTrash className="h-4 w-4" />
               </button>
@@ -67,24 +79,26 @@ export function AssignmentCard({
       </CardHeader>
       <CardBody>
         <p className="text-sm text-gray-500 mb-3 line-clamp-3">
-          {assignment.description}
+          {assignment.description ?? "Tidak ada deskripsi"}
         </p>
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-xs">
-            <span
-              className={`font-medium ${
-                past ? "text-red-600" : "text-gray-700"
-              }`}
-            >
-              {past ? "Terlewat" : "Deadline"}
-            </span>
-            <span className={past ? "text-red-500" : "text-gray-400"}>
-              {formatDistanceToNow(assignment.deadline.toDate(), {
-                addSuffix: true,
-                locale: id,
-              })}
-            </span>
-          </div>
+          {assignment.deadline && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span
+                className={`font-medium ${
+                  past ? "text-red-600" : "text-gray-700"
+                }`}
+              >
+                {past ? "Terlewat" : "Deadline"}
+              </span>
+              <span className={past ? "text-red-500" : "text-gray-400"}>
+                {formatDistanceToNow(assignment.deadline.toDate(), {
+                  addSuffix: true,
+                  locale: id,
+                })}
+              </span>
+            </div>
+          )}
           {assignment.teacherNote && (
             <div className="text-xs text-gray-400 italic">
               Catatan: {assignment.teacherNote}
@@ -94,4 +108,4 @@ export function AssignmentCard({
       </CardBody>
     </Card>
   );
-}
+});

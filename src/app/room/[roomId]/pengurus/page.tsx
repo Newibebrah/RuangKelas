@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { SubjectPJSection } from "@/components/pengurus/SubjectPJSection";
@@ -100,7 +100,7 @@ export default function PengurusPage() {
       </div>
 
       {loading ? (
-        <LoadingSpinner size="lg" message="Memuat data pengurus..." />
+        <LoadingSkeleton variant="card" count={3} />
       ) : hasError ? (
         <ErrorMessage message={pengurusError || ""} />
       ) : (

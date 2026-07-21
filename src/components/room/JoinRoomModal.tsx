@@ -11,7 +11,10 @@ import { Button } from "@/components/ui/Button";
 import { useRoom } from "@/lib/room-context";
 
 const schema = z.object({
-  code: z.string().min(4, "Kode kelas tidak valid").max(10),
+  code: z
+    .string()
+    .length(6, "Kode kelas harus 6 karakter")
+    .regex(/^[a-zA-Z0-9]+$/, "Kode kelas hanya boleh huruf dan angka"),
 });
 
 type FormData = z.infer<typeof schema>;

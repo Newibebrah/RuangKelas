@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSubjectPJ } from "@/hooks/useSubjectPJ";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Modal } from "@/components/ui/Modal";
@@ -87,7 +87,7 @@ export function SubjectPJSection({
     }
   };
 
-  if (loading) return <LoadingSpinner message="Memuat PJ..." />;
+  if (loading) return <LoadingSkeleton variant="card" count={2} />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
