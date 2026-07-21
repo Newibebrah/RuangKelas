@@ -133,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await firebaseSignOut(auth);
       setUser(null);
       setFirebaseUser(null);
+      window.location.href = "/";
     } catch {
       setError("Gagal logout");
     }
