@@ -18,9 +18,12 @@ import {
 import { db } from "@/lib/firebase";
 import { Kas, KasSummary } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useQueryClient } from "@tanstack/react-query";
+import { kasKeys } from "@/lib/query-keys";
 
 export function useKas(roomId: string) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [transactions, setTransactions] = useState<Kas[]>([]);
   const [summary, setSummary] = useState<KasSummary>({
     totalPemasukan: 0,
@@ -77,16 +80,23 @@ export function useKas(roomId: string) {
         .filter((t) => t.type === "pengeluaran")
         .reduce((sum, t) => sum + t.amount, 0);
 
-      setSummary({
+      const summaryData = {
         totalPemasukan,
         totalPengeluaran,
         saldo: totalPemasukan - totalPengeluaran,
-      });
+      };
+
+      setSummary(summaryData);
       setLoading(false);
+
+      queryClient.setQueryData(kasKeys.all(roomId), {
+        transactions: data,
+        summary: summaryData,
+      });
     }
 
     return unsubscribe;
-  }, [roomId]);
+  }, [roomId, queryClient]);
 
   const addTransaction = async (data: Omit<Kas, "id" | "createdAt">) => {
     if (!user) throw new Error("Harus login");

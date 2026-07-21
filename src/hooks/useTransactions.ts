@@ -17,9 +17,12 @@ import {
 import { db } from "@/lib/firebase";
 import { Transaction } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+import { useQueryClient } from "@tanstack/react-query";
+import { txKeys } from "@/lib/query-keys";
 
 export function useTransactions(roomId: string) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +45,7 @@ export function useTransactions(roomId: string) {
         );
         setTransactions(data);
         setLoading(false);
+        queryClient.setQueryData(txKeys.all(roomId), data);
       },
       async () => {
         try {
@@ -60,6 +64,7 @@ export function useTransactions(roomId: string) {
             });
           setTransactions(data);
           setLoading(false);
+          queryClient.setQueryData(txKeys.all(roomId), data);
         } catch {
           setError("Gagal memuat transaksi. Periksa Firestore indexes.");
           setLoading(false);
@@ -68,7 +73,7 @@ export function useTransactions(roomId: string) {
     );
 
     return unsubscribe;
-  }, [roomId]);
+  }, [roomId, queryClient]);
 
   const addTransaction = async (data: {
     type: "income" | "expense";

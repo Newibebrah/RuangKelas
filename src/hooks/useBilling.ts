@@ -19,9 +19,12 @@ import { db } from "@/lib/firebase";
 import { Bill, PaymentPeriod, Payment } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { notifyAllMembers } from "@/lib/notifications";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { billingKeys } from "@/lib/query-keys";
 
 export function useBilling(roomId: string, memberCount?: number) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [bill, setBill] = useState<Bill | null>(null);
   const [periods, setPeriods] = useState<PaymentPeriod[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -43,13 +46,15 @@ export function useBilling(roomId: string, memberCount?: number) {
         const bills = snapshot.docs.map(
           (d) => ({ id: d.id, ...d.data() }) as Bill
         );
-        setBill(bills[0] || null);
+        const activeBill = bills[0] || null;
+        setBill(activeBill);
+        queryClient.setQueryData(billingKeys.bill(roomId), activeBill);
       },
       () => setError("Gagal memuat tagihan. Periksa Firestore indexes.")
     );
 
     return unsubBill;
-  }, [roomId]);
+  }, [roomId, queryClient]);
 
   useEffect(() => {
     if (!bill?.id) return;
@@ -68,6 +73,7 @@ export function useBilling(roomId: string, memberCount?: number) {
         );
         setPeriods(data);
         setLoading(false);
+        queryClient.setQueryData(billingKeys.periods(bill.id), data);
       },
       async () => {
         try {
@@ -78,6 +84,7 @@ export function useBilling(roomId: string, memberCount?: number) {
             .sort((a, b) => a.periodNumber - b.periodNumber);
           setPeriods(data);
           setLoading(false);
+          queryClient.setQueryData(billingKeys.periods(bill.id), data);
         } catch {
           setError("Gagal memuat periode. Periksa Firestore indexes.");
           setLoading(false);
@@ -86,7 +93,7 @@ export function useBilling(roomId: string, memberCount?: number) {
     );
 
     return unsubPeriods;
-  }, [bill?.id]);
+  }, [bill?.id, queryClient]);
 
   useEffect(() => {
     if (!bill?.id) return;
@@ -105,6 +112,7 @@ export function useBilling(roomId: string, memberCount?: number) {
         );
         setPayments(data);
         setLoading(false);
+        queryClient.setQueryData(billingKeys.payments(bill.id), data);
       },
       () => {
         setError("Gagal memuat pembayaran");
@@ -113,7 +121,7 @@ export function useBilling(roomId: string, memberCount?: number) {
     );
 
     return unsubPayments;
-  }, [bill?.id]);
+  }, [bill?.id, queryClient]);
 
   const createBill = useCallback(
     async (data: {
@@ -183,10 +191,8 @@ export function useBilling(roomId: string, memberCount?: number) {
     [roomId, user]
   );
 
-  const togglePayment = useCallback(
-    async (userId: string, periodId: string, displayName: string) => {
-      if (!bill) throw new Error("Tidak ada tagihan aktif");
-
+  const mutation = useMutation({
+    mutationFn: async ({ userId, periodId, displayName, billId }: { userId: string; periodId: string; displayName: string; billId: string }) => {
       const existing = payments.find(
         (p) => p.userId === userId && p.periodId === periodId
       );
@@ -199,7 +205,7 @@ export function useBilling(roomId: string, memberCount?: number) {
         });
       } else {
         await addDoc(collection(db, "payments"), {
-          billId: bill.id,
+          billId,
           periodId,
           roomId,
           userId,
@@ -209,7 +215,39 @@ export function useBilling(roomId: string, memberCount?: number) {
         });
       }
     },
-    [bill, payments, roomId]
+    onMutate: async ({ userId, periodId, billId }) => {
+      await queryClient.cancelQueries({ queryKey: billingKeys.payments(billId) });
+      const previous = queryClient.getQueryData(billingKeys.payments(billId));
+      queryClient.setQueryData(billingKeys.payments(billId), (old: Payment[] | undefined) => {
+        if (!old) return old;
+        return old.map(p =>
+          p.userId === userId && p.periodId === periodId
+            ? { ...p, status: p.status === 'paid' ? 'unpaid' : 'paid', paidAt: p.status === 'paid' ? null : Timestamp.now() }
+            : p
+        );
+      });
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(billingKeys.payments(vars.billId), context.previous);
+      }
+    },
+    onSettled: (data, err, vars) => {
+      queryClient.invalidateQueries({ queryKey: billingKeys.payments(vars.billId) });
+    },
+  });
+
+  const togglePayment = useCallback(
+    async (userId: string, periodId: string, displayName: string) => {
+      if (!bill) throw new Error("Tidak ada tagihan aktif");
+      try {
+        await mutation.mutateAsync({ userId, periodId, displayName, billId: bill.id });
+      } catch (error) {
+        throw error;
+      }
+    },
+    [mutation, bill]
   );
 
   const summary = useMemo(() => {
