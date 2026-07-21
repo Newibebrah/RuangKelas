@@ -57,15 +57,20 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("locale") as Locale | null;
-    const detected = stored === "id" || stored === "en" ? stored : navigator.language?.startsWith("id") ? "id" : "en";
-    setLocaleState(detected);
-    document.documentElement.lang = detected;
+    if (stored === "id" || stored === "en") {
+      document.documentElement.lang = stored;
+      setLocaleState(stored);
+    } else {
+      const detected = navigator.language?.startsWith("id") ? "id" : "en";
+      document.documentElement.lang = detected;
+      setLocaleState(detected);
+    }
   }, []);
 
   const setLocale = useCallback((l: Locale) => {
-    setLocaleState(l);
     localStorage.setItem("locale", l);
     document.documentElement.lang = l;
+    setLocaleState(l);
   }, []);
 
   const t = useCallback(

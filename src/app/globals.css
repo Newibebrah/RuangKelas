@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
   --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
@@ -50,7 +50,7 @@
   --shadow-glass: 0 8px 32px rgb(0 0 0 / 0.08);
 }
 
-.dark {
+[data-theme="dark"] {
   --color-primary-50: #1e1b4b;
   --color-primary-100: #312e81;
   --color-primary-200: #3730a3;
@@ -108,7 +108,7 @@ body {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-.dark .animate-shimmer {
+[data-theme="dark"] .animate-shimmer {
   background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
   background-size: 200% 100%;
 }
@@ -156,7 +156,7 @@ body {
   border: 1px solid rgba(226, 232, 240, 0.5);
 }
 
-.dark .glass {
+[data-theme="dark"] .glass {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(51, 65, 85, 0.5);
 }
