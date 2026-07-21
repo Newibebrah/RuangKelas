@@ -39,14 +39,34 @@ export function useAssignments(roomId: string) {
       q,
       (snapshot) => {
         const data = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as Assignment)
+          (d) => ({ id: d.id, ...d.data() }) as Assignment
         );
         setAssignments(data);
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat tugas");
-        setLoading(false);
+      async () => {
+        try {
+          const q2 = query(
+            collection(db, "tugas"),
+            where("roomId", "==", roomId)
+          );
+          const snap = await getDocs(q2);
+          const data = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }) as Assignment)
+            .sort((a, b) => {
+              const aTime = a.deadline?.toMillis?.() || 0;
+              const bTime = b.deadline?.toMillis?.() || 0;
+              return aTime - bTime;
+            });
+          setAssignments(data);
+          setLoading(false);
+        } catch {
+          setError(
+            "Gagal memuat tugas. Buat composite index di Firebase Console: " +
+            "Firestore > Indexes > Add index: tugas, roomId ASC, deadline ASC"
+          );
+          setLoading(false);
+        }
       }
     );
 
