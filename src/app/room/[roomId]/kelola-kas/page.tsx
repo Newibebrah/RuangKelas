@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useRoom } from "@/lib/room-context";
 import { useKas } from "@/hooks/useKas";
 import { useBilling } from "@/hooks/useBilling";
@@ -12,7 +13,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { BillSetupModal } from "@/components/kas/BillSetupModal";
 import { PaymentTable } from "@/components/kas/PaymentTable";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -28,7 +28,19 @@ import {
   HiArrowLeft,
 } from "react-icons/hi";
 import { Kas } from "@/types";
-import * as XLSX from "xlsx";
+
+const BillSetupModal = dynamic(
+  () => import("@/components/kas/BillSetupModal").then((m) => ({ default: m.BillSetupModal })),
+  { ssr: false }
+);
+
+let xlsxModule: typeof import("xlsx") | null = null;
+async function getXlsx() {
+  if (!xlsxModule) {
+    xlsxModule = await import("xlsx");
+  }
+  return xlsxModule;
+}
 
 export default function KelolaKasPage() {
   const params = useParams();
@@ -125,7 +137,8 @@ export default function KelolaKasPage() {
     [togglePayment, addNewTx, bill, payments]
   );
 
-  const handleDownloadExcel = () => {
+  const handleDownloadExcel = async () => {
+    const XLSX = await getXlsx();
     const rows: Record<string, unknown>[] = [];
 
     legacyTx.forEach((t) => {

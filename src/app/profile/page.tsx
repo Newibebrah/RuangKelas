@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/Button";
@@ -90,9 +91,9 @@ export default function ProfilePage() {
             <div className="relative">
               <div className="h-24 w-24 rounded-full overflow-hidden bg-surface-hover flex items-center justify-center ring-4 ring-border">
                 {photoPreview ? (
-                  <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
+                  <Image src={photoPreview} alt="Preview" width={96} height={96} className="h-full w-full object-cover" />
                 ) : user.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
+                  <Image src={user.photoURL} alt={user.displayName} width={96} height={96} className="h-full w-full object-cover" />
                 ) : (
                   <HiUser className="h-10 w-10 text-text-muted" />
                 )}

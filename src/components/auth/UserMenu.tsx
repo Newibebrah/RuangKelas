@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { HiLogout, HiUser, HiPencil } from "react-icons/hi";
 
@@ -19,10 +20,12 @@ export function UserMenu() {
         className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-hover transition-colors"
       >
         {user.photoURL ? (
-          <img
+          <Image
             src={user.photoURL}
             alt={user.displayName}
-            className="h-8 w-8 rounded-full object-cover ring-2 ring-border"
+            width={32}
+            height={32}
+            className="rounded-full object-cover ring-2 ring-border"
           />
         ) : (
           <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center ring-2 ring-primary-200">

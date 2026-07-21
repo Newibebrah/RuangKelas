@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { RoomMember } from "@/types";
 import { useManageMembers } from "@/hooks/useManageMembers";
 import { Card } from "@/components/ui/Card";
@@ -75,9 +76,11 @@ export function MemberList({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-10 w-10 rounded-full bg-surface-hover flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-border">
                     {member.photoURL ? (
-                      <img
+                      <Image
                         src={member.photoURL}
                         alt={member.displayName}
+                        width={40}
+                        height={40}
                         className="h-full w-full object-cover"
                       />
                     ) : (

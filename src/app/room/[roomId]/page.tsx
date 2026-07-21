@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRoom } from "@/lib/room-context";
@@ -98,9 +99,11 @@ export default function RoomHomePage() {
                   >
                     <div className="h-8 w-8 rounded-full bg-surface-hover flex items-center justify-center overflow-hidden ring-2 ring-border">
                       {member.photoURL ? (
-                        <img
+                        <Image
                           src={member.photoURL}
                           alt={member.displayName}
+                          width={32}
+                          height={32}
                           className="h-full w-full object-cover"
                         />
                       ) : (
