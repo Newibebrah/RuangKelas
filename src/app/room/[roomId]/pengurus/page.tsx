@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { usePengurus } from "@/hooks/usePengurus";
 import { useSubjectPJ } from "@/hooks/useSubjectPJ";
@@ -30,7 +30,7 @@ export default function PengurusPage() {
   const params = useParams();
   const roomId = params.roomId as string;
   const { user } = useAuth();
-  const { members, subscribeMembers } = useRoom();
+  const { members } = useRoom();
   const {
     pengurus,
     loading: pengurusLoading,
@@ -40,11 +40,6 @@ export default function PengurusPage() {
     deletePengurus,
   } = usePengurus(roomId);
   const { subjects, assignPJ } = useSubjectPJ(roomId);
-
-  useEffect(() => {
-    const unsub = subscribeMembers(roomId);
-    return () => unsub();
-  }, [roomId, subscribeMembers]);
 
   const [roleModal, setRoleModal] = useState<Pengurus | null>(null);
   const [electionOpen, setElectionOpen] = useState(false);

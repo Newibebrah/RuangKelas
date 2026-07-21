@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useAssignments } from "@/hooks/useAssignments";
 import { usePengurus } from "@/hooks/usePengurus";
@@ -22,13 +22,8 @@ export default function TugasPage() {
   const roomId = params.roomId as string;
   const { assignments, loading, error, createAssignment, updateAssignment, deleteAssignment } =
     useAssignments(roomId);
-  const { members, subscribeMembers } = useRoom();
+  const { members } = useRoom();
   const { pengurus } = usePengurus(roomId);
-
-  useEffect(() => {
-    const unsub = subscribeMembers(roomId);
-    return () => unsub();
-  }, [roomId, subscribeMembers]);
   const { user } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);

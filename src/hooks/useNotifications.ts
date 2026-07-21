@@ -20,11 +20,7 @@ export function useNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!user) {
-      setNotifications([]);
-      setUnreadCount(0);
-      return;
-    }
+    if (!user) return;
 
     const q = query(
       collection(db, "notifications", user.id, "items"),

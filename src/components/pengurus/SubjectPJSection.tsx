@@ -2,20 +2,23 @@
 
 import { useState } from "react";
 import { useSubjectPJ } from "@/hooks/useSubjectPJ";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { HiBookOpen, HiPlus, HiTrash, HiUserAdd, HiUser } from "react-icons/hi";
+import {
+  HiBookOpen,
+  HiPlus,
+  HiTrash,
+  HiUserAdd,
+  HiUser,
+  HiPencil,
+} from "react-icons/hi";
+import { MemberOption } from "./types";
 import toast from "react-hot-toast";
-
-interface MemberOption {
-  userId: string;
-  displayName: string;
-}
 
 interface SubjectPJSectionProps {
   roomId: string;
@@ -28,25 +31,57 @@ export function SubjectPJSection({
   canManage,
   members,
 }: SubjectPJSectionProps) {
-  const { subjects, loading, error, addSubject, assignPJ, deleteSubject } =
+  const { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject } =
     useSubjectPJ(roomId);
 
   const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState<string | null>(null);
   const [assignOpen, setAssignOpen] = useState<string | null>(null);
   const [subjectName, setSubjectName] = useState("");
+  const [kkm, setKkm] = useState("");
+  const [semester, setSemester] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const resetForm = () => {
+    setSubjectName("");
+    setKkm("");
+    setSemester("");
+  };
 
   const handleAdd = async () => {
     if (!subjectName.trim()) return;
     setIsLoading(true);
     try {
-      await addSubject(subjectName.trim());
+      await addSubject({
+        subjectName: subjectName.trim(),
+        kkm: kkm ? parseInt(kkm) : undefined,
+        semester: semester || undefined,
+      });
       toast.success("Mata pelajaran ditambahkan!");
-      setSubjectName("");
+      resetForm();
       setAddOpen(false);
     } catch {
       toast.error("Gagal menambah mata pelajaran");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!editOpen || !subjectName.trim()) return;
+    setIsLoading(true);
+    try {
+      await updateSubject(editOpen, {
+        subjectName: subjectName.trim(),
+        kkm: kkm ? parseInt(kkm) : undefined,
+        semester: semester || undefined,
+      });
+      toast.success("Mata pelajaran diperbarui!");
+      setEditOpen(null);
+      resetForm();
+    } catch {
+      toast.error("Gagal memperbarui mata pelajaran");
     } finally {
       setIsLoading(false);
     }
@@ -77,14 +112,21 @@ export function SubjectPJSection({
     }
   };
 
-  const handleDelete = async (subjectId: string, subjectName: string) => {
-    if (!window.confirm(`Hapus mata pelajaran "${subjectName}"?`)) return;
+  const handleDelete = async (subjectId: string, name: string) => {
+    if (!window.confirm(`Hapus mata pelajaran "${name}"?`)) return;
     try {
       await deleteSubject(subjectId);
       toast.success("Mata pelajaran dihapus!");
     } catch {
       toast.error("Gagal menghapus mata pelajaran");
     }
+  };
+
+  const openEdit = (s: typeof subjects[0]) => {
+    setSubjectName(s.subjectName);
+    setKkm(s.kkm?.toString() || "");
+    setSemester(s.semester || "");
+    setEditOpen(s.id);
   };
 
   if (loading) return <LoadingSkeleton variant="card" count={2} />;
@@ -97,7 +139,7 @@ export function SubjectPJSection({
           PJ Mata Pelajaran
         </h3>
         {canManage && (
-          <Button size="sm" onClick={() => setAddOpen(true)}>
+          <Button size="sm" onClick={() => { resetForm(); setAddOpen(true); }}>
             <HiPlus className="h-4 w-4 mr-1" />
             Tambah Mapel
           </Button>
@@ -130,22 +172,41 @@ export function SubjectPJSection({
                         <p className="font-medium text-gray-900 truncate">
                           {s.subjectName}
                         </p>
-                        {s.userId && member ? (
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <HiUser className="h-3 w-3 text-gray-400" />
-                            <span className="text-xs text-gray-500 truncate">
-                              {member.displayName}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {s.userId && member ? (
+                            <div className="flex items-center gap-1">
+                              <HiUser className="h-3 w-3 text-gray-400" />
+                              <span className="text-xs text-gray-500 truncate">
+                                {member.displayName}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">
+                              Belum ada PJ
                             </span>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            Belum ada PJ
-                          </p>
-                        )}
+                          )}
+                          {s.kkm && (
+                            <span className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                              KKM: {s.kkm}
+                            </span>
+                          )}
+                          {s.semester && (
+                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                              {s.semester}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     {canManage && (
                       <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => openEdit(s)}
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit mapel"
+                        >
+                          <HiPencil className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => {
                             setAssignOpen(s.id);
@@ -182,12 +243,10 @@ export function SubjectPJSection({
         </div>
       )}
 
+      {/* Add Modal */}
       <Modal
         isOpen={addOpen}
-        onClose={() => {
-          setAddOpen(false);
-          setSubjectName("");
-        }}
+        onClose={() => { setAddOpen(false); resetForm(); }}
         title="Tambah Mata Pelajaran"
       >
         <div className="space-y-4">
@@ -197,14 +256,21 @@ export function SubjectPJSection({
             value={subjectName}
             onChange={(e) => setSubjectName(e.target.value)}
           />
+          <Input
+            label="KKM (opsional)"
+            type="number"
+            placeholder="Contoh: 75"
+            value={kkm}
+            onChange={(e) => setKkm(e.target.value)}
+          />
+          <Input
+            label="Semester (opsional)"
+            placeholder="Contoh: Ganjil 2025"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          />
           <div className="flex justify-end gap-3">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setAddOpen(false);
-                setSubjectName("");
-              }}
-            >
+            <Button variant="ghost" onClick={() => { setAddOpen(false); resetForm(); }}>
               Batal
             </Button>
             <Button onClick={handleAdd} isLoading={isLoading}>
@@ -214,12 +280,47 @@ export function SubjectPJSection({
         </div>
       </Modal>
 
+      {/* Edit Modal */}
+      <Modal
+        isOpen={!!editOpen}
+        onClose={() => { setEditOpen(null); resetForm(); }}
+        title="Edit Mata Pelajaran"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Nama Mata Pelajaran"
+            placeholder="Contoh: Matematika"
+            value={subjectName}
+            onChange={(e) => setSubjectName(e.target.value)}
+          />
+          <Input
+            label="KKM (opsional)"
+            type="number"
+            placeholder="Contoh: 75"
+            value={kkm}
+            onChange={(e) => setKkm(e.target.value)}
+          />
+          <Input
+            label="Semester (opsional)"
+            placeholder="Contoh: Ganjil 2025"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => { setEditOpen(null); resetForm(); }}>
+              Batal
+            </Button>
+            <Button onClick={handleEdit} isLoading={isLoading}>
+              Simpan
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Assign Modal */}
       <Modal
         isOpen={!!assignOpen}
-        onClose={() => {
-          setAssignOpen(null);
-          setSelectedUser("");
-        }}
+        onClose={() => { setAssignOpen(null); setSelectedUser(""); }}
         title="Tugaskan PJ"
       >
         <div className="space-y-4">
@@ -243,10 +344,7 @@ export function SubjectPJSection({
           <div className="flex justify-end gap-3">
             <Button
               variant="ghost"
-              onClick={() => {
-                setAssignOpen(null);
-                setSelectedUser("");
-              }}
+              onClick={() => { setAssignOpen(null); setSelectedUser(""); }}
             >
               Batal
             </Button>

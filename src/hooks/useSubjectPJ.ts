@@ -11,6 +11,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { SubjectPJ } from "@/types";
@@ -40,9 +42,19 @@ export function useSubjectPJ(roomId: string) {
         setSubjects(data);
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat data PJ");
-        setLoading(false);
+      async () => {
+        try {
+          const q2 = query(collection(db, "subjectPJ"), where("roomId", "==", roomId));
+          const snap = await getDocs(q2);
+          const data = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }) as SubjectPJ)
+            .sort((a, b) => a.subjectName.localeCompare(b.subjectName));
+          setSubjects(data);
+          setLoading(false);
+        } catch {
+          setError("Gagal memuat data PJ. Periksa Firestore indexes.");
+          setLoading(false);
+        }
       }
     );
 
@@ -50,16 +62,34 @@ export function useSubjectPJ(roomId: string) {
   }, [roomId]);
 
   const addSubject = useCallback(
-    async (subjectName: string) => {
+    async (data: {
+      subjectName: string;
+      kkm?: number;
+      semester?: string;
+    }) => {
       if (!user) throw new Error("Harus login");
       await addDoc(collection(db, "subjectPJ"), {
         roomId,
-        subjectName,
+        subjectName: data.subjectName,
+        kkm: data.kkm || null,
+        semester: data.semester || null,
         userId: null,
         displayName: null,
+        createdBy: user.id,
+        createdAt: serverTimestamp(),
       });
     },
     [roomId, user]
+  );
+
+  const updateSubject = useCallback(
+    async (
+      subjectId: string,
+      data: Partial<{ subjectName: string; kkm: number; semester: string }>
+    ) => {
+      await updateDoc(doc(db, "subjectPJ", subjectId), data);
+    },
+    []
   );
 
   const assignPJ = useCallback(
@@ -77,5 +107,5 @@ export function useSubjectPJ(roomId: string) {
     await deleteDoc(doc(db, "subjectPJ", subjectId));
   }, []);
 
-  return { subjects, loading, error, addSubject, assignPJ, deleteSubject };
+  return { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject };
 }

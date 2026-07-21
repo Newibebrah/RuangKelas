@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   collection,
   query,
@@ -12,6 +12,7 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Kas, KasSummary } from "@/types";
@@ -43,27 +44,44 @@ export function useKas(roomId: string) {
         const data = snapshot.docs.map(
           (doc) => ({ id: doc.id, ...doc.data() } as Kas)
         );
-        setTransactions(data);
-
-        const totalPemasukan = data
-          .filter((t) => t.type === "pemasukan")
-          .reduce((sum, t) => sum + t.amount, 0);
-        const totalPengeluaran = data
-          .filter((t) => t.type === "pengeluaran")
-          .reduce((sum, t) => sum + t.amount, 0);
-
-        setSummary({
-          totalPemasukan,
-          totalPengeluaran,
-          saldo: totalPemasukan - totalPengeluaran,
-        });
-        setLoading(false);
+        processData(data);
       },
-      () => {
-        setError("Gagal memuat data kas");
-        setLoading(false);
+      async () => {
+        try {
+          const q2 = query(collection(db, "kas"), where("roomId", "==", roomId));
+          const snap = await getDocs(q2);
+          const data = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }) as Kas)
+            .sort((a, b) => {
+              const aTime = a.date?.toMillis?.() || 0;
+              const bTime = b.date?.toMillis?.() || 0;
+              return bTime - aTime;
+            });
+          processData(data);
+        } catch {
+          setError("Gagal memuat data kas. Periksa Firestore indexes.");
+          setLoading(false);
+        }
       }
     );
+
+    function processData(data: Kas[]) {
+      setTransactions(data);
+
+      const totalPemasukan = data
+        .filter((t) => t.type === "pemasukan")
+        .reduce((sum, t) => sum + t.amount, 0);
+      const totalPengeluaran = data
+        .filter((t) => t.type === "pengeluaran")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      setSummary({
+        totalPemasukan,
+        totalPengeluaran,
+        saldo: totalPemasukan - totalPengeluaran,
+      });
+      setLoading(false);
+    }
 
     return unsubscribe;
   }, [roomId]);
@@ -77,6 +95,13 @@ export function useKas(roomId: string) {
     return docRef.id;
   };
 
+  const updateTransaction = async (
+    transactionId: string,
+    data: Partial<Omit<Kas, "id" | "createdAt">>
+  ) => {
+    await updateDoc(doc(db, "kas", transactionId), data);
+  };
+
   const deleteTransaction = async (transactionId: string) => {
     await deleteDoc(doc(db, "kas", transactionId));
   };
@@ -87,6 +112,7 @@ export function useKas(roomId: string) {
     loading,
     error,
     addTransaction,
+    updateTransaction,
     deleteTransaction,
   };
 }

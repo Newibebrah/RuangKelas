@@ -34,34 +34,6 @@ export interface RoomMember {
   email: string;
 }
 
-export interface Tugas {
-  id: string;
-  roomId: string;
-  title: string;
-  description: string;
-  deadline: Timestamp;
-  createdBy: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  attachments: string[];
-  maxScore: number;
-}
-
-export interface TugasSubmission {
-  id: string;
-  tugasId: string;
-  roomId: string;
-  userId: string;
-  content: string;
-  attachments: string[];
-  submittedAt: Timestamp;
-  score?: number;
-  feedback?: string;
-  gradedBy?: string;
-  gradedAt?: Timestamp;
-  status: "submitted" | "graded" | "late";
-}
-
 export interface Kas {
   id: string;
   roomId: string;
@@ -91,13 +63,6 @@ export interface Pengurus {
   periode: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-}
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
 }
 
 export interface Assignment {
@@ -149,11 +114,28 @@ export interface SubjectPJ {
   subjectName: string;
   userId: string | null;
   displayName: string | null;
+  kkm?: number;
+  semester?: string;
+  createdBy?: string;
+  createdAt?: Timestamp;
+}
+
+export interface Deployment {
+  id: string;
+  roomId: string;
+  title: string;
+  description: string;
+  attachments: string[];
+  attachmentPaths: string[];
+  createdBy: string;
+  createdAt: Timestamp;
+  displayName?: string;
+  subject?: string;
 }
 
 export interface AppNotification {
   id: string;
-  type: "assignment" | "bill" | "role";
+  type: "assignment" | "bill" | "role" | "materi";
   title: string;
   message: string;
   roomId: string;

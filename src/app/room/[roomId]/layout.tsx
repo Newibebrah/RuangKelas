@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -13,36 +12,8 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { NotificationBell } from "@/components/NotificationBell";
-import {
-  HiAcademicCap,
-  HiClipboardList,
-  HiCash,
-  HiUsers,
-  HiArrowLeft,
-} from "react-icons/hi";
-
-const tabs = [
-  {
-    label: "Beranda",
-    icon: HiAcademicCap,
-    exact: true,
-  },
-  {
-    label: "Tugas",
-    icon: HiClipboardList,
-    exact: false,
-  },
-  {
-    label: "Kas",
-    icon: HiCash,
-    exact: false,
-  },
-  {
-    label: "Pengurus",
-    icon: HiUsers,
-    exact: false,
-  },
-];
+import { HiArrowLeft } from "react-icons/hi";
+import { roomTabs } from "@/lib/navigation";
 
 export default function RoomLayout({
   children,
@@ -126,11 +97,8 @@ export default function RoomLayout({
         <nav className="hidden md:block bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex gap-1 -mb-px overflow-x-auto">
-              {tabs.map((tab) => {
-                const href = `/room/${roomId}/${tab.label.toLowerCase() === "beranda" ? "" : tab.label.toLowerCase() === "tugas" ? "tugas" : tab.label.toLowerCase() === "kas" ? "kas" : "pengurus"}`;
-                const displayHref = tab.label === "Beranda"
-                  ? `/room/${roomId}`
-                  : `/room/${roomId}/${tab.label.toLowerCase()}`;
+              {roomTabs.map((tab) => {
+                const displayHref = tab.getHref(roomId);
                 const isActive = tab.exact
                   ? pathname === displayHref
                   : pathname.startsWith(displayHref);

@@ -8,17 +8,12 @@ import { HiUsers, HiClipboardList, HiCash } from "react-icons/hi";
 
 export default function RoomHomePage() {
   const params = useParams();
-  const roomId = params.roomId as string;
   const { currentRoom, members } = useRoom();
   const { user } = useAuth();
 
-  const isAdmin =
-    members.find((m) => m.userId === user?.id)?.role === "admin" ||
-    members.find((m) => m.userId === user?.id)?.role === "pengurus";
-
   const guruCount = members.filter((m) => m.role === "guru").length;
   const siswaCount = members.filter((m) => m.role === "siswa").length;
-  const pengurusCount = members.filter((m) => m.role === "pengurus").length;
+  const adminCount = members.filter((m) => m.role === "admin").length;
 
   return (
     <div className="space-y-6">
@@ -46,7 +41,7 @@ export default function RoomHomePage() {
               <p className="text-xs text-gray-400">
                 {guruCount > 0 && `${guruCount} guru `}
                 {siswaCount > 0 && `${siswaCount} siswa `}
-                {pengurusCount > 0 && `${pengurusCount} pengurus`}
+                {adminCount > 0 && `${adminCount} admin`}
               </p>
             </div>
           </CardBody>

@@ -2,14 +2,36 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/Button";
-import { HiLogout, HiUser } from "react-icons/hi";
+import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { HiLogout, HiUser, HiPencil } from "react-icons/hi";
+import toast from "react-hot-toast";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const { updateProfile } = useProfile();
   const [isOpen, setIsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
+  const [saving, setSaving] = useState(false);
 
   if (!user) return null;
+
+  const handleSaveProfile = async () => {
+    if (!displayName.trim()) return;
+    setSaving(true);
+    try {
+      await updateProfile({ displayName: displayName.trim() });
+      toast.success("Profil berhasil diperbarui!");
+      setProfileOpen(false);
+    } catch {
+      toast.error("Gagal memperbarui profil");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -51,6 +73,17 @@ export function UserMenu() {
             </div>
             <button
               onClick={() => {
+                setDisplayName(user.displayName);
+                setProfileOpen(true);
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <HiPencil className="h-4 w-4" />
+              Edit Profil
+            </button>
+            <button
+              onClick={() => {
                 signOut();
                 setIsOpen(false);
               }}
@@ -62,6 +95,30 @@ export function UserMenu() {
           </div>
         </>
       )}
+
+      <Modal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        title="Edit Profil"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Nama Tampilan"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Nama Anda"
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setProfileOpen(false)}>
+              Batal
+            </Button>
+            <Button onClick={handleSaveProfile} isLoading={saving}>
+              Simpan
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

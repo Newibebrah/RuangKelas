@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
 import {
   User as FirebaseUser,
@@ -16,7 +17,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { User } from "@/types";
 
@@ -38,16 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUserData = async (uid: string) => {
+  const fetchUserData = useCallback(async (uid: string) => {
     const userDoc = await getDoc(doc(db, "users", uid));
     if (userDoc.exists()) {
       setUser({ id: userDoc.id, ...userDoc.data() } as User);
     } else {
       setUser(null);
     }
-  };
+  }, []);
 
-  const createUserIfNotExists = async (fbUser: FirebaseUser) => {
+  const createUserIfNotExists = useCallback(async (fbUser: FirebaseUser) => {
     const userDoc = await getDoc(doc(db, "users", fbUser.uid));
     if (!userDoc.exists()) {
       const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
@@ -59,11 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       await setDoc(doc(db, "users", fbUser.uid), {
         ...newUser,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
     }
-  };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return unsubscribe;
-  }, []);
+  }, [createUserIfNotExists, fetchUserData]);
 
   useEffect(() => {
     getRedirectResult(auth)
@@ -95,14 +96,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Redirect login error:", err.code, err.message);
         if (err.code === "auth/unauthorized-domain") {
           setError("Domain belum terdaftar. Admin: tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");
-        } else if (err.code === "auth/operation-not-supported") {
-        } else {
+        } else if (err.code && err.code !== "auth/operation-not-supported") {
           setError(err.message || "Gagal login. Cek console browser untuk detail.");
         }
       });
-  }, []);
+  }, [createUserIfNotExists, fetchUserData]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogleFn = useCallback(async () => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
@@ -126,9 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setError(e.message || "Gagal login");
       }
     }
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOutFn = useCallback(async () => {
     try {
       await firebaseSignOut(auth);
       setUser(null);
@@ -136,9 +136,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       setError("Gagal logout");
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (firebaseUser) {
       try {
         await fetchUserData(firebaseUser.uid);
@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setError("Gagal memuat data user");
       }
     }
-  };
+  }, [firebaseUser, fetchUserData]);
 
   return (
     <AuthContext.Provider
@@ -155,8 +155,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         firebaseUser,
         loading,
         error,
-        signInWithGoogle,
-        signOut,
+        signInWithGoogle: signInWithGoogleFn,
+        signOut: signOutFn,
         refreshUser,
       }}
     >

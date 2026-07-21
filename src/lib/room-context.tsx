@@ -36,7 +36,6 @@ interface RoomContextType {
   joinRoom: (code: string) => Promise<void>;
   leaveRoom: (roomId: string) => Promise<void>;
   deleteRoom: (roomId: string) => Promise<void>;
-  subscribeMembers: (roomId: string) => () => void;
 }
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -49,12 +48,9 @@ export function RoomProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Subscribe to user's rooms
   useEffect(() => {
-    if (!user) {
-      setRooms([]);
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
     const q = query(
       collection(db, "rooms"),
@@ -65,12 +61,12 @@ export function RoomProvider({ children }: { children: ReactNode }) {
       q,
       (snapshot) => {
         const roomList = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as Room)
+          (doc) => ({ id: doc.id, ...doc.data() }) as Room
         );
         setRooms(roomList);
         setLoading(false);
       },
-      (err) => {
+      () => {
         setError("Gagal memuat daftar kelas");
         setLoading(false);
       }
@@ -78,6 +74,25 @@ export function RoomProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, [user]);
+
+  // Subscribe to members of current room
+  useEffect(() => {
+    if (!currentRoom?.id) return;
+
+    const q = query(
+      collection(db, "rooms", currentRoom.id, "members"),
+      where("roomId", "==", currentRoom.id)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const memberList = snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() }) as RoomMember
+      );
+      setMembers(memberList);
+    });
+
+    return unsubscribe;
+  }, [currentRoom?.id]);
 
   const setCurrentRoomId = useCallback(async (roomId: string | null) => {
     if (!roomId) {
@@ -94,22 +109,6 @@ export function RoomProvider({ children }: { children: ReactNode }) {
     } catch {
       setError("Gagal memuat detail kelas");
     }
-  }, []);
-
-  const subscribeMembers = useCallback((roomId: string) => {
-    const q = query(
-      collection(db, "rooms", roomId, "members"),
-      where("roomId", "==", roomId)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const memberList = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as RoomMember)
-      );
-      setMembers(memberList);
-    });
-
-    return unsubscribe;
   }, []);
 
   const createRoom = async (name: string, description: string) => {
@@ -187,7 +186,7 @@ export function RoomProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteRoom = async (roomId: string) => {
+  const deleteRoomFn = async (roomId: string) => {
     await deleteDoc(doc(db, "rooms", roomId));
   };
 
@@ -203,8 +202,7 @@ export function RoomProvider({ children }: { children: ReactNode }) {
         createRoom,
         joinRoom,
         leaveRoom,
-        deleteRoom,
-        subscribeMembers,
+        deleteRoom: deleteRoomFn,
       }}
     >
       {children}
@@ -219,5 +217,3 @@ export function useRoom() {
   }
   return context;
 }
-
-

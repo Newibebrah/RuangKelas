@@ -19,7 +19,7 @@ import { Bill, PaymentPeriod, Payment } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { notifyAllMembers } from "@/lib/notifications";
 
-export function useBilling(roomId: string) {
+export function useBilling(roomId: string, memberCount?: number) {
   const { user } = useAuth();
   const [bill, setBill] = useState<Bill | null>(null);
   const [periods, setPeriods] = useState<PaymentPeriod[]>([]);
@@ -44,17 +44,14 @@ export function useBilling(roomId: string) {
         );
         setBill(bills[0] || null);
       },
-      () => setError("Gagal memuat tagihan")
+      () => setError("Gagal memuat tagihan. Periksa Firestore indexes.")
     );
 
     return unsubBill;
   }, [roomId]);
 
   useEffect(() => {
-    if (!bill?.id) {
-      setPeriods([]);
-      return;
-    }
+    if (!bill?.id) return;
 
     const q = query(
       collection(db, "paymentPeriods"),
@@ -71,9 +68,19 @@ export function useBilling(roomId: string) {
         setPeriods(data);
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat periode");
-        setLoading(false);
+      async () => {
+        try {
+          const q2 = query(collection(db, "paymentPeriods"), where("billId", "==", bill.id));
+          const snap = await getDocs(q2);
+          const data = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }) as PaymentPeriod)
+            .sort((a, b) => a.periodNumber - b.periodNumber);
+          setPeriods(data);
+          setLoading(false);
+        } catch {
+          setError("Gagal memuat periode. Periksa Firestore indexes.");
+          setLoading(false);
+        }
       }
     );
 
@@ -81,10 +88,7 @@ export function useBilling(roomId: string) {
   }, [bill?.id]);
 
   useEffect(() => {
-    if (!bill?.id) {
-      setPayments([]);
-      return;
-    }
+    if (!bill?.id) return;
 
     const q = query(
       collection(db, "payments"),
@@ -108,16 +112,6 @@ export function useBilling(roomId: string) {
 
     return unsubPayments;
   }, [bill?.id]);
-
-  const getPaymentStatus = useCallback(
-    (userId: string, periodId: string): "paid" | "unpaid" => {
-      const payment = payments.find(
-        (p) => p.userId === userId && p.periodId === periodId
-      );
-      return payment?.status || "unpaid";
-    },
-    [payments]
-  );
 
   const createBill = useCallback(
     async (data: {
@@ -226,8 +220,8 @@ export function useBilling(roomId: string) {
       };
     }
     const totalPeriods = periods.length;
-    const uniqueMembers = new Set(payments.map((p) => p.userId));
-    const totalPossible = uniqueMembers.size * totalPeriods;
+    const actualMemberCount = memberCount || new Set(payments.map((p) => p.userId)).size;
+    const totalPossible = actualMemberCount * totalPeriods;
     const paidCount = payments.filter((p) => p.status === "paid").length;
     return {
       totalCollected: paidCount * bill.amount,
@@ -235,7 +229,7 @@ export function useBilling(roomId: string) {
       paidCount,
       totalPossible,
     };
-  }, [bill, periods, payments]);
+  }, [bill, periods, payments, memberCount]);
 
   return {
     bill,
@@ -244,7 +238,6 @@ export function useBilling(roomId: string) {
     loading,
     error,
     summary,
-    getPaymentStatus,
     createBill,
     togglePayment,
   };

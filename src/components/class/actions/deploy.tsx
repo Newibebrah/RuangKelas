@@ -2,11 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { uploadFile, generateFilePath } from "@/lib/upload";
-import { notifyAllMembers } from "@/lib/notifications";
-import { useAuth } from "@/lib/auth-context";
+import { useDeployments } from "@/hooks/useDeployments";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -19,7 +15,7 @@ interface DeployModalProps {
 }
 
 export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
-  const { user } = useAuth();
+  const { createDeployment } = useDeployments(roomId);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -37,6 +33,10 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
       "application/pdf": [],
       "application/msword": [],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "application/vnd.ms-powerpoint": [],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [],
+      "application/vnd.ms-excel": [],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
     },
     maxSize: 10 * 1024 * 1024,
   });
@@ -47,40 +47,20 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !title.trim()) return;
+    if (!title.trim()) {
+      toast.error("Judul harus diisi");
+      return;
+    }
 
     setUploading(true);
     setUploadProgress(0);
 
     try {
-      const attachmentUrls: string[] = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const path = generateFilePath(roomId, "deploy", file.name);
-        const url = await uploadFile(file, path, (progress) => {
-          const overall =
-            ((i + progress.progress / 100) / files.length) * 100;
-          setUploadProgress(Math.round(overall));
-        });
-        attachmentUrls.push(url);
-      }
-
-      await addDoc(collection(db, "deployments"), {
-        roomId,
+      await createDeployment({
         title: title.trim(),
         description: description.trim(),
-        attachments: attachmentUrls,
-        createdBy: user.id,
-        createdAt: serverTimestamp(),
-      });
-
-      await notifyAllMembers(roomId, {
-        type: "assignment",
-        title: "Materi Baru",
-        message: `"${title.trim()}" telah dibagikan`,
-        roomId,
-        link: `/room/${roomId}`,
+        files,
+        onProgress: setUploadProgress,
       });
 
       toast.success("Materi berhasil dibagikan!");
@@ -143,7 +123,7 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
               Seret file ke sini, atau klik untuk pilih file
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              PDF, Word, Gambar (maks 10MB per file)
+              PDF, Word, Excel, PPT, Gambar (maks 10MB per file)
             </p>
           </div>
           {files.length > 0 && (
