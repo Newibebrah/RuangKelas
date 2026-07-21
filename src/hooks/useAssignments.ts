@@ -177,11 +177,15 @@ export function useAssignments(roomId: string) {
   );
 
   const deleteAssignment = useCallback(async (tugasId: string) => {
-    const snap = await getDocs(
-      query(collectionGroup(db, "submissions"), where("assignmentId", "==", tugasId))
-    );
-    const deletePromises = snap.docs.map((d) => deleteDoc(d.ref));
-    await Promise.all(deletePromises);
+    try {
+      const snap = await getDocs(
+        query(collectionGroup(db, "submissions"), where("assignmentId", "==", tugasId))
+      );
+      const deletePromises = snap.docs.map((d) => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+    } catch {
+      // submissions index may not exist; skip
+    }
     await deleteDoc(doc(db, "tugas", tugasId));
   }, []);
 
