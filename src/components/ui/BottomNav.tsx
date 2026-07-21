@@ -13,7 +13,7 @@ export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-lg border-t border-border safe-area-bottom">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-lg border-t border-border safe-area-bottom" aria-label="Navigasi bawah">
       <div className="flex items-center justify-around h-16 px-1">
         {visibleTabs.map((tab) => {
           const href = tab.getHref(roomId);
@@ -24,6 +24,8 @@ export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
             <Link
               key={tab.label}
               href={href}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={tab.label}
               className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
                 isActive
                   ? "text-primary-600"

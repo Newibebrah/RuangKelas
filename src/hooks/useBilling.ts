@@ -101,7 +101,7 @@ export function useBilling(roomId: string, memberCount?: number) {
     const q = query(
       collection(db, "payments"),
       where("billId", "==", bill.id),
-      limit(2000)
+      limit(5000)
     );
 
     const unsubPayments = onSnapshot(

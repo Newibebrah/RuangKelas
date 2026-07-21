@@ -3,6 +3,9 @@
 import { useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useRoom } from "@/lib/room-context";
 import { useKas } from "@/hooks/useKas";
 import { useBilling } from "@/hooks/useBilling";
@@ -29,6 +32,16 @@ import {
 } from "react-icons/hi";
 import { Kas } from "@/types";
 import { FinanceChart } from "@/components/kas/FinanceChart";
+import { formatRupiah, combineKas } from "@/lib/kas-utils";
+
+const txSchema = z.object({
+  type: z.enum(["income", "expense"]),
+  amount: z.coerce.number({ message: "Jumlah harus angka" }).positive("Jumlah harus lebih dari 0"),
+  description: z.string().min(1, "Deskripsi wajib diisi").max(200, "Deskripsi maksimal 200 karakter"),
+  category: z.string().max(100).optional().default(""),
+});
+
+type TxFormData = z.infer<typeof txSchema>;
 
 const BillSetupModal = dynamic(
   () => import("@/components/kas/BillSetupModal").then((m) => ({ default: m.BillSetupModal })),
@@ -79,39 +92,37 @@ export default function KelolaKasPage() {
     error: txError,
     addTransaction: addNewTx,
     deleteTransaction: deleteNewTx,
-    totalIncome: newTotalIncome,
-    totalExpense: newTotalExpense,
-    balance: newBalance,
   } = useTransactions(roomId);
+
+  const { combinedIncome, combinedExpense, combinedBalance } = useMemo(
+    () => combineKas(legacyTx, newTx),
+    [legacyTx, newTx]
+  );
 
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [showAddTx, setShowAddTx] = useState(false);
-  const [txForm, setTxForm] = useState({ type: "income" as "income" | "expense", amount: 0, description: "", category: "" });
   const [deleteNewTxTarget, setDeleteNewTxTarget] = useState<string | null>(null);
   const [legacyDeleteTarget, setLegacyDeleteTarget] = useState<Kas | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<TxFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(txSchema) as any,
+    defaultValues: { type: "income", amount: 0, description: "", category: "" },
+  });
+
+  const watchType = watch("type");
 
   const memberRows = useMemo(
     () => members.map((m) => ({ userId: m.userId, displayName: m.displayName })),
     [members]
   );
-
-  const formatRupiah = (amount: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
-
-  const handleAddTx = async () => {
-    if (!txForm.amount || !txForm.description) {
-      toast.error("Lengkapi semua field");
-      return;
-    }
-    try {
-      await addNewTx(txForm);
-      toast.success("Transaksi berhasil ditambahkan");
-      setTxForm({ type: "income", amount: 0, description: "", category: "" });
-      setShowAddTx(false);
-    } catch {
-      toast.error("Gagal menambahkan transaksi");
-    }
-  };
 
   const handleTogglePayment = useCallback(
     async (userId: string, periodId: string, displayName: string) => {
@@ -170,8 +181,8 @@ export default function KelolaKasPage() {
       return 0;
     });
 
-    const totalIncome = legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0) + newTotalIncome;
-    const totalExpense = legacyTx.filter(t => t.type === "pengeluaran").reduce((s, t) => s + t.amount, 0) + newTotalExpense;
+    const totalIncome = combinedIncome;
+    const totalExpense = combinedExpense;
 
     rows.push({} as Record<string, unknown>);
     rows.push({ Tanggal: "RINGKASAN", Tipe: "", Deskripsi: "", Kategori: "", Jumlah: "", Dicatat: "" } as Record<string, unknown>);
@@ -250,7 +261,7 @@ export default function KelolaKasPage() {
           <CardBody>
             <p className="text-sm text-text-secondary">Total Pemasukan</p>
             <p className="text-2xl font-bold text-success">
-              {formatRupiah(newTotalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0))}
+              {formatRupiah(combinedIncome)}
             </p>
           </CardBody>
         </Card>
@@ -258,7 +269,7 @@ export default function KelolaKasPage() {
               <CardBody>
                 <p className="text-sm text-text-secondary">Total Pengeluaran</p>
                 <p className="text-2xl font-bold text-danger">
-                  {formatRupiah(newTotalExpense + legacyTx.filter(t => t.type === "pengeluaran").reduce((s, t) => s + t.amount, 0))}
+                  {formatRupiah(combinedExpense)}
                 </p>
               </CardBody>
             </Card>
@@ -271,7 +282,7 @@ export default function KelolaKasPage() {
                   <div>
                     <p className="text-sm text-white/80 font-medium">Saldo Kas</p>
                     <p className="text-2xl font-bold text-white">
-                      {formatRupiah(newBalance + kasSummary.saldo)}
+                      {formatRupiah(combinedBalance)}
                     </p>
                   </div>
                 </div>
@@ -281,9 +292,9 @@ export default function KelolaKasPage() {
 
       {/* Grafik Keuangan */}
       <FinanceChart
-        income={newTotalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0)}
-        expense={newTotalExpense + legacyTx.filter(t => t.type === "pengeluaran").reduce((s, t) => s + t.amount, 0)}
-        balance={newBalance + kasSummary.saldo}
+        income={combinedIncome}
+        expense={combinedExpense}
+        balance={combinedBalance}
       />
 
       {/* Billing Section - only if bill exists */}
@@ -505,14 +516,24 @@ export default function KelolaKasPage() {
 
       {/* Modal: Tambah Transaksi Baru */}
       <Modal isOpen={showAddTx} onClose={() => setShowAddTx(false)} title="Tambah Transaksi Baru">
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(async (data) => {
+          try {
+            await addNewTx(data as TxFormData);
+            toast.success("Transaksi berhasil ditambahkan");
+            reset({ type: "income", amount: 0, description: "", category: "" });
+            setShowAddTx(false);
+          } catch {
+            toast.error("Gagal menambahkan transaksi");
+          }
+        })} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-text-primary mb-1.5">Tipe</label>
             <div className="flex gap-2">
               <button
-                onClick={() => setTxForm({ ...txForm, type: "income" })}
+                type="button"
+                onClick={() => setValue("type", "income")}
                 className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all ${
-                  txForm.type === "income"
+                  watchType === "income"
                     ? "bg-success-light text-success ring-2 ring-success"
                     : "bg-surface text-text-secondary hover:bg-surface-hover border border-border"
                 }`}
@@ -520,9 +541,10 @@ export default function KelolaKasPage() {
                 Pemasukan
               </button>
               <button
-                onClick={() => setTxForm({ ...txForm, type: "expense" })}
+                type="button"
+                onClick={() => setValue("type", "expense")}
                 className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all ${
-                  txForm.type === "expense"
+                  watchType === "expense"
                     ? "bg-danger-light text-danger ring-2 ring-danger"
                     : "bg-surface text-text-secondary hover:bg-surface-hover border border-border"
                 }`}
@@ -531,30 +553,31 @@ export default function KelolaKasPage() {
               </button>
             </div>
           </div>
+          <input type="hidden" {...register("type")} />
           <Input
             label="Jumlah"
             type="number"
             placeholder="0"
-            value={txForm.amount || ""}
-            onChange={(e) => setTxForm({ ...txForm, amount: parseInt(e.target.value) || 0 })}
+            error={errors.amount?.message}
+            {...register("amount")}
           />
           <Input
             label="Deskripsi"
             placeholder="Deskripsi transaksi"
-            value={txForm.description}
-            onChange={(e) => setTxForm({ ...txForm, description: e.target.value })}
+            error={errors.description?.message}
+            {...register("description")}
           />
           <Input
             label="Kategori (opsional)"
             placeholder="Contoh: Iuran, Alat Tulis, dll"
-            value={txForm.category}
-            onChange={(e) => setTxForm({ ...txForm, category: e.target.value })}
+            error={errors.category?.message}
+            {...register("category")}
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setShowAddTx(false)}>Batal</Button>
-            <Button onClick={handleAddTx}>Simpan</Button>
+            <Button type="button" variant="ghost" onClick={() => setShowAddTx(false)}>Batal</Button>
+            <Button type="submit" disabled={isSubmitting}>Simpan</Button>
           </div>
-        </div>
+        </form>
       </Modal>
 
       {/* Modal: Hapus Transaksi Baru */}

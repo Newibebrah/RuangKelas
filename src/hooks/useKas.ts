@@ -40,7 +40,7 @@ export function useKas(roomId: string) {
       collection(db, "kas"),
       where("roomId", "==", roomId),
       orderBy("date", "desc"),
-      limit(200)
+      limit(500)
     );
 
     const unsubscribe = onSnapshot(
@@ -53,7 +53,7 @@ export function useKas(roomId: string) {
       },
       async () => {
         try {
-          const q2 = query(collection(db, "kas"), where("roomId", "==", roomId), limit(200));
+          const q2 = query(collection(db, "kas"), where("roomId", "==", roomId), limit(500));
           const snap = await getDocs(q2);
           const data = snap.docs
             .map((d) => ({ id: d.id, ...d.data() }) as Kas)

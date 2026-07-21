@@ -1,8 +1,87 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isMember(roomId) {
+      return isAuth() && roomId != null &&
+        request.auth.uid in get(/databases/$(database)/documents/rooms/$(roomId)).data.memberIds;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update, delete: if request.auth.uid == userId;
+    }
+
+    match /rooms/{roomId} {
+      allow read: if isMember(roomId);
+      allow create: if isAuth();
+      allow update: if request.resource.data.name != null;
+      allow delete: if request.auth.uid == resource.data.createdBy;
+
+      match /members/{memberId} {
+        allow read: if isMember(roomId);
+        allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isMember(roomId);
+      }
+    }
+
+    match /kas/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update, delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /transactions/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /bills/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /paymentPeriods/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /payments/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /assignments/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
+    match /submissions/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuth();
+      allow delete: if isAuth();
+    }
+
+    match /notifications/{docId} {
+      allow read: if resource.data.uid is string && resource.data.uid == request.auth.uid;
+      allow create: if isAuth();
+      allow update: if resource.data.uid is string && resource.data.uid == request.auth.uid;
+      allow delete: if resource.data.uid is string && resource.data.uid == request.auth.uid;
     }
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useRoom } from "@/lib/room-context";
 import { useKas } from "@/hooks/useKas";
@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PaymentTable } from "@/components/kas/PaymentTable";
+import { FinanceChart } from "@/components/kas/FinanceChart";
+import { formatRupiah, combineKas, normalizeTransactions } from "@/lib/kas-utils";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import {
@@ -24,16 +26,15 @@ import {
   HiUserGroup,
   HiDocumentText,
 } from "react-icons/hi";
-import { FinanceChart } from "@/components/kas/FinanceChart";
 
 export default function KasPage() {
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
+  const [displayCount, setDisplayCount] = useState(20);
   const { members } = useRoom();
   const {
     transactions: legacyTx,
-    summary: kasSummary,
     loading: kasLoading,
     error: kasError,
   } = useKas(roomId);
@@ -41,9 +42,6 @@ export default function KasPage() {
     transactions: newTx,
     loading: txLoading,
     error: txError,
-    totalIncome,
-    totalExpense,
-    balance,
   } = useTransactions(roomId);
   const { canViewKasManagement } = useRoleAccess(roomId);
 
@@ -57,12 +55,10 @@ export default function KasPage() {
     error: billingError,
   } = useBilling(roomId, memberCount);
 
-  const formatRupiah = (amount: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
-
-  const combinedIncome = totalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0);
-  const combinedExpense = totalExpense + legacyTx.filter(t => t.type === "pengeluaran").reduce((s, t) => s + t.amount, 0);
-  const combinedBalance = balance + kasSummary.saldo;
+  const { combinedIncome, combinedExpense, combinedBalance } = useMemo(
+    () => combineKas(legacyTx, newTx),
+    [legacyTx, newTx]
+  );
 
   const loading = billingLoading || kasLoading || txLoading;
   const errorMessage = billingError || kasError || txError;
@@ -96,42 +92,10 @@ export default function KasPage() {
       .sort((a, b) => b.paidCount - a.paidCount);
   }, [memberRows, payments, periods]);
 
-  const allTransactions = useMemo(() => {
-    const normalized: {
-      id: string;
-      type: "income" | "expense";
-      amount: number;
-      description: string;
-      category?: string;
-      date: Date;
-      source: "lama" | "baru";
-      displayName?: string;
-    }[] = [];
-    legacyTx.forEach((t) => {
-      normalized.push({
-        id: t.id,
-        type: t.type === "pemasukan" ? "income" : "expense",
-        amount: t.amount,
-        description: t.description,
-        category: t.category,
-        date: t.date?.toDate?.() || t.createdAt?.toDate?.() || new Date(),
-        source: "lama",
-        displayName: t.displayName,
-      });
-    });
-    newTx.forEach((t) => {
-      normalized.push({
-        id: t.id,
-        type: t.type,
-        amount: t.amount,
-        description: t.description,
-        category: t.category,
-        date: t.createdAt?.toDate?.() || new Date(),
-        source: "baru",
-      });
-    });
-    return normalized.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [legacyTx, newTx]);
+  const allTransactions = useMemo(
+    () => normalizeTransactions(legacyTx, newTx),
+    [legacyTx, newTx]
+  );
 
   if (loading) {
     return <LoadingSpinner size="lg" message="Memuat data kas..." />;
@@ -327,7 +291,7 @@ export default function KasPage() {
             />
           ) : (
             <div className="space-y-1 mt-3">
-              {allTransactions.slice(0, 50).map((trx) => (
+              {allTransactions.slice(0, displayCount).map((trx) => (
                 <div
                   key={trx.id}
                   className="flex items-center justify-between py-3 px-2 rounded-xl hover:bg-surface-hover transition-colors"
@@ -375,6 +339,17 @@ export default function KasPage() {
                   </span>
                 </div>
               ))}
+              {displayCount < allTransactions.length && (
+                <div className="pt-2 text-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDisplayCount((prev) => prev + 30)}
+                  >
+                    Tampilkan lebih banyak ({allTransactions.length - displayCount} tersisa)
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardBody>

@@ -34,7 +34,7 @@ export function useTransactions(roomId: string) {
       collection(db, "transactions"),
       where("roomId", "==", roomId),
       orderBy("createdAt", "desc"),
-      limit(200)
+      limit(500)
     );
 
     const unsubscribe = onSnapshot(
@@ -52,7 +52,7 @@ export function useTransactions(roomId: string) {
           const q2 = query(
             collection(db, "transactions"),
             where("roomId", "==", roomId),
-            limit(200)
+            limit(500)
           );
           const snap = await getDocs(q2);
           const data = snap.docs

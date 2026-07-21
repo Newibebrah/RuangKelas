@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 const baseUrl = "https://ruang-kelas-beige.vercel.app";
 
@@ -70,7 +71,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AnalyticsTracker />
+        </Providers>
       </body>
     </html>
   );
