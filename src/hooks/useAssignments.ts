@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   collection,
+  collectionGroup,
   query,
   where,
   orderBy,
@@ -13,8 +14,10 @@ import {
   doc,
   serverTimestamp,
   Timestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { cloudinaryUpload } from "@/lib/cloudinary";
 import { Assignment } from "@/types";
 import { notifyAllMembers } from "@/lib/notifications";
 
@@ -56,20 +59,52 @@ export function useAssignments(roomId: string) {
       description: string;
       deadline: Timestamp;
       teacherNote?: string;
+      files?: File[];
+      onProgress?: (progress: number) => void;
       createdBy: string;
     }) => {
+      const attachments: string[] = [];
+      const attachmentPublicIds: string[] = [];
+
+      if (data.files?.length) {
+        const total = data.files.length;
+        for (let i = 0; i < total; i++) {
+          const file = data.files[i];
+          const result = await cloudinaryUpload(file, {
+            folder: `tugas/${roomId}`,
+            onProgress: data.onProgress
+              ? (p) => {
+                  const overall =
+                    ((i + p / 100) / total) * 100;
+                  data.onProgress!(Math.round(overall));
+                }
+              : undefined,
+          });
+          attachments.push(result.secure_url);
+          attachmentPublicIds.push(result.public_id);
+        }
+      }
+
       const docRef = await addDoc(collection(db, "tugas"), {
         roomId,
-        ...data,
+        subject: data.subject,
+        description: data.description,
+        deadline: data.deadline,
+        teacherNote: data.teacherNote || null,
+        attachments: attachments.length ? attachments : null,
+        attachmentPublicIds: attachmentPublicIds.length ? attachmentPublicIds : null,
+        createdBy: data.createdBy,
         createdAt: serverTimestamp(),
       });
+
       await notifyAllMembers(roomId, {
         type: "assignment",
         title: "Tugas Baru",
         message: `Tugas ${data.subject} telah ditambahkan`,
         roomId,
-        link: `/room/${roomId}/tugas`,
+        link: `/room/${roomId}/tugas/${docRef.id}`,
       });
+
       return docRef.id;
     },
     [roomId]
@@ -83,14 +118,50 @@ export function useAssignments(roomId: string) {
         description?: string;
         deadline?: Timestamp;
         teacherNote?: string;
+        files?: File[];
+        onProgress?: (progress: number) => void;
       }
     ) => {
-      await updateDoc(doc(db, "tugas", tugasId), data);
+      const updateData: Record<string, unknown> = {};
+      if (data.subject !== undefined) updateData.subject = data.subject;
+      if (data.description !== undefined) updateData.description = data.description;
+      if (data.deadline !== undefined) updateData.deadline = data.deadline;
+      if (data.teacherNote !== undefined) updateData.teacherNote = data.teacherNote || null;
+
+      if (data.files?.length) {
+        const attachments: string[] = [];
+        const attachmentPublicIds: string[] = [];
+        const total = data.files.length;
+        for (let i = 0; i < total; i++) {
+          const file = data.files[i];
+          const result = await cloudinaryUpload(file, {
+            folder: `tugas/${roomId}`,
+            onProgress: data.onProgress
+              ? (p) => {
+                  const overall =
+                    ((i + p / 100) / total) * 100;
+                  data.onProgress!(Math.round(overall));
+                }
+              : undefined,
+          });
+          attachments.push(result.secure_url);
+          attachmentPublicIds.push(result.public_id);
+        }
+        updateData.attachments = attachments;
+        updateData.attachmentPublicIds = attachmentPublicIds;
+      }
+
+      await updateDoc(doc(db, "tugas", tugasId), updateData);
     },
-    []
+    [roomId]
   );
 
   const deleteAssignment = useCallback(async (tugasId: string) => {
+    const snap = await getDocs(
+      query(collectionGroup(db, "submissions"), where("assignmentId", "==", tugasId))
+    );
+    const deletePromises = snap.docs.map((d) => deleteDoc(d.ref));
+    await Promise.all(deletePromises);
     await deleteDoc(doc(db, "tugas", tugasId));
   }, []);
 

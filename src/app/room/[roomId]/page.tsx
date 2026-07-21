@@ -1,6 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
@@ -10,10 +13,21 @@ export default function RoomHomePage() {
   const params = useParams();
   const { currentRoom, members } = useRoom();
   const { user } = useAuth();
+  const [activeTasks, setActiveTasks] = useState(0);
 
   const guruCount = members.filter((m) => m.role === "guru").length;
   const siswaCount = members.filter((m) => m.role === "siswa").length;
   const adminCount = members.filter((m) => m.role === "admin").length;
+
+  useEffect(() => {
+    const roomId = params.roomId as string;
+    if (!roomId) return;
+    const q = query(
+      collection(db, "tugas"),
+      where("roomId", "==", roomId)
+    );
+    getDocs(q).then((snap) => setActiveTasks(snap.size));
+  }, [params.roomId]);
 
   return (
     <div className="space-y-6">
@@ -53,7 +67,7 @@ export default function RoomHomePage() {
               <HiClipboardList className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-2xl font-bold text-gray-900">{activeTasks}</p>
               <p className="text-sm text-gray-500">Tugas Aktif</p>
             </div>
           </CardBody>

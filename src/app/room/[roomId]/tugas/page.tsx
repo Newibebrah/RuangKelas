@@ -65,11 +65,19 @@ export default function TugasPage() {
     description: string;
     deadline: Timestamp;
     teacherNote?: string;
+    files?: File[];
   }) => {
     if (editingAssignment) {
       await updateAssignment(editingAssignment.id, data);
     } else {
-      await createAssignment({ ...data, createdBy: user!.id });
+      await createAssignment({
+        subject: data.subject,
+        description: data.description,
+        deadline: data.deadline,
+        teacherNote: data.teacherNote,
+        files: data.files,
+        createdBy: user!.id,
+      });
     }
   };
 
@@ -112,6 +120,7 @@ export default function TugasPage() {
               assignment={tugas}
               canManage={canManage}
               isDeleting={deletingId === tugas.id}
+              roomId={roomId}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />

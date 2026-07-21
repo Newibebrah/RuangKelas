@@ -22,6 +22,7 @@ describe("AssignmentCard", () => {
         assignment={mockAssignment}
         canManage={false}
         isDeleting={false}
+        roomId="room1"
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />
@@ -35,6 +36,7 @@ describe("AssignmentCard", () => {
         assignment={mockAssignment}
         canManage={false}
         isDeleting={false}
+        roomId="room1"
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />
@@ -48,6 +50,7 @@ describe("AssignmentCard", () => {
     render(
       <AssignmentCard
         assignment={mockAssignment}
+        roomId="room1"
         canManage={false}
         isDeleting={false}
         onEdit={jest.fn()}
@@ -63,6 +66,7 @@ describe("AssignmentCard", () => {
         assignment={mockAssignment}
         canManage={false}
         isDeleting={false}
+        roomId="room1"
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />
@@ -78,6 +82,7 @@ describe("AssignmentCard", () => {
         assignment={mockAssignment}
         canManage={true}
         isDeleting={false}
+        roomId="room1"
         onEdit={onEdit}
         onDelete={onDelete}
       />
@@ -92,6 +97,7 @@ describe("AssignmentCard", () => {
         assignment={mockAssignment}
         canManage={false}
         isDeleting={false}
+        roomId="room1"
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />

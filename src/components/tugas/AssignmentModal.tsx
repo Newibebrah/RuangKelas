@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Assignment } from "@/types";
+import { HiPaperClip, HiX } from "react-icons/hi";
 
 const schema = z
   .object({
@@ -49,6 +50,7 @@ interface AssignmentModalProps {
     description: string;
     deadline: Timestamp;
     teacherNote?: string;
+    files?: File[];
   }) => Promise<void>;
 }
 
@@ -59,6 +61,8 @@ export function AssignmentModal({
   onSubmit,
 }: AssignmentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -71,6 +75,7 @@ export function AssignmentModal({
 
   useEffect(() => {
     if (isOpen) {
+      setFiles([]);
       if (assignment) {
         const d = assignment.deadline.toDate();
         const localStr = new Date(
@@ -95,6 +100,16 @@ export function AssignmentModal({
     }
   }, [isOpen, assignment, reset]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    setFiles((prev) => [...prev, ...selected]);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onFormSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
@@ -103,8 +118,10 @@ export function AssignmentModal({
         description: data.description,
         deadline: Timestamp.fromDate(new Date(data.deadline)),
         teacherNote: data.teacherNote || undefined,
+        files: files.length ? files : undefined,
       });
       toast.success(assignment ? "Tugas berhasil diupdate!" : "Tugas berhasil dibuat!");
+      setFiles([]);
       reset();
       onClose();
     } catch {
@@ -119,6 +136,7 @@ export function AssignmentModal({
       isOpen={isOpen}
       onClose={onClose}
       title={assignment ? "Edit Tugas" : "Tugas Baru"}
+      size="lg"
     >
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
         <Input
@@ -169,11 +187,40 @@ export function AssignmentModal({
             </p>
           )}
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Lampiran <span className="text-gray-400">(opsional)</span>
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {files.map((f, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg"
+              >
+                <HiPaperClip className="h-3 w-3" />
+                {f.name}
+                <button type="button" onClick={() => removeFile(i)} className="hover:text-red-600">
+                  <HiX className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
+        </div>
+
         <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
             variant="ghost"
             onClick={() => {
+              setFiles([]);
               reset();
               onClose();
             }}

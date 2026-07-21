@@ -75,8 +75,26 @@ export interface Assignment {
   description: string;
   deadline: Timestamp;
   teacherNote?: string;
+  attachments?: string[];
+  attachmentPublicIds?: string[];
   createdBy: string;
   createdAt: Timestamp;
+}
+
+export interface Submission {
+  id: string;
+  assignmentId: string;
+  roomId: string;
+  userId: string;
+  displayName: string;
+  notes?: string;
+  fileUrl: string;
+  filePublicId: string;
+  submittedAt: Timestamp;
+  grade?: number;
+  gradedBy?: string;
+  gradedAt?: Timestamp;
+  comment?: string;
 }
 
 export interface Bill {

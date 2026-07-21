@@ -1,17 +1,19 @@
 "use client";
 
 import { memo } from "react";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow, isAfter, differenceInHours } from "date-fns";
 import { id } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
-import { HiPencil, HiTrash } from "react-icons/hi";
+import { HiPencil, HiTrash, HiPaperClip } from "react-icons/hi";
 import { Assignment } from "@/types";
 
 interface AssignmentCardProps {
   assignment: Assignment;
   canManage: boolean;
   isDeleting: boolean;
+  roomId: string;
   onEdit: (assignment: Assignment) => void;
   onDelete: (assignment: Assignment) => void;
 }
@@ -37,13 +39,19 @@ export const AssignmentCard = memo(function AssignmentCard({
   assignment,
   canManage,
   isDeleting,
+  roomId,
   onEdit,
   onDelete,
 }: AssignmentCardProps) {
+  const router = useRouter();
   const past = isPastDeadline(assignment.deadline);
 
   return (
-    <Card hover>
+    <Card
+      hover
+      className="cursor-pointer"
+      onClick={() => router.push(`/room/${roomId}/tugas/${assignment.id}`)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -59,14 +67,20 @@ export const AssignmentCard = memo(function AssignmentCard({
           {canManage && (
             <div className="flex items-center gap-1 shrink-0">
               <button
-                onClick={() => onEdit(assignment)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(assignment);
+                }}
                 className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 aria-label="Edit tugas"
               >
                 <HiPencil className="h-4 w-4" />
               </button>
               <button
-                onClick={() => onDelete(assignment)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(assignment);
+                }}
                 disabled={isDeleting}
                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                 aria-label="Hapus tugas"
@@ -82,6 +96,12 @@ export const AssignmentCard = memo(function AssignmentCard({
           {assignment.description ?? "Tidak ada deskripsi"}
         </p>
         <div className="space-y-1.5">
+          {assignment.attachments?.length ? (
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <HiPaperClip className="h-3 w-3" />
+              {assignment.attachments.length} lampiran
+            </div>
+          ) : null}
           {assignment.deadline && (
             <div className="flex items-center gap-1.5 text-xs">
               <span

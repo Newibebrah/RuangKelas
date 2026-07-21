@@ -18,9 +18,10 @@ describe("AssignmentCard — edge cases", () => {
       <AssignmentCard
         assignment={{ ...baseAssignment, subject: "" }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(screen.getByText("Tanpa judul")).toBeInTheDocument();
@@ -31,9 +32,10 @@ describe("AssignmentCard — edge cases", () => {
       <AssignmentCard
         assignment={{ ...baseAssignment, description: "" }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(screen.getByText("Tidak ada deskripsi")).toBeInTheDocument();
@@ -47,9 +49,10 @@ describe("AssignmentCard — edge cases", () => {
       <AssignmentCard
         assignment={{ ...baseAssignment, createdAt: oldCreatedAt }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(screen.queryByText("Baru")).not.toBeInTheDocument();
@@ -63,9 +66,10 @@ describe("AssignmentCard — edge cases", () => {
       <AssignmentCard
         assignment={{ ...baseAssignment, deadline: pastDeadline }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(screen.getByText("Terlewat")).toBeInTheDocument();
@@ -76,9 +80,10 @@ describe("AssignmentCard — edge cases", () => {
       <AssignmentCard
         assignment={{ ...baseAssignment, createdAt: undefined as unknown as Timestamp }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(container).toBeInTheDocument();
@@ -97,9 +102,10 @@ describe("AssignmentCard — edge cases", () => {
           createdAt: Timestamp.fromDate(new Date(Date.now() - 48 * 60 * 60 * 1000)),
         }}
         canManage={false}
-        isDeleting={false}
-        onEdit={jest.fn()}
-        onDelete={jest.fn()}
+          isDeleting={false}
+          roomId="room1"
+          onEdit={jest.fn()}
+          onDelete={jest.fn()}
       />
     );
     expect(screen.getByText("IPA")).toBeInTheDocument();
