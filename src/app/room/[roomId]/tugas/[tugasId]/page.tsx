@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
@@ -51,12 +51,13 @@ export default function TugasDetailPage() {
   const canManage = isAdmin || isSekretaris;
 
   useEffect(() => {
-    getDoc(doc(db, "tugas", tugasId)).then((snap) => {
+    const unsub = onSnapshot(doc(db, "tugas", tugasId), (snap) => {
       if (snap.exists()) {
         setAssignment({ id: snap.id, ...snap.data() } as Assignment);
       }
       setLoadingAsg(false);
     });
+    return unsub;
   }, [tugasId]);
 
   const mySubmission = user

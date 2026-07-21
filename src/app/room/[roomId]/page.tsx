@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";
@@ -22,11 +22,9 @@ export default function RoomHomePage() {
   useEffect(() => {
     const roomId = params.roomId as string;
     if (!roomId) return;
-    const q = query(
-      collection(db, "tugas"),
-      where("roomId", "==", roomId)
-    );
-    getDocs(q).then((snap) => setActiveTasks(snap.size));
+    const q = query(collection(db, "tugas"), where("roomId", "==", roomId));
+    const unsub = onSnapshot(q, (snap) => setActiveTasks(snap.size));
+    return unsub;
   }, [params.roomId]);
 
   return (
