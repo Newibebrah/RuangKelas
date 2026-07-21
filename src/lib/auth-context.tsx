@@ -10,6 +10,7 @@ import {
 import {
   User as FirebaseUser,
   GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut as firebaseSignOut,
@@ -101,10 +102,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    setError(null);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    await signInWithRedirect(auth, provider);
+    try {
+      setError(null);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      await signInWithPopup(auth, provider);
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      if (e.code === "auth/popup-blocked") {
+        try {
+          const provider = new GoogleAuthProvider();
+          setError("");
+          await signInWithRedirect(auth, provider);
+        } catch {
+          setError("Popup diblokir dan redirect gagal. Coba browser lain.");
+        }
+      } else if (e.code === "auth/popup-closed-by-user") {
+        setError("");
+      } else if (e.code === "auth/unauthorized-domain") {
+        setError("Domain belum terdaftar. Admin: tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");
+      } else {
+        setError(e.message || "Gagal login");
+      }
+    }
   };
 
   const signOut = async () => {
