@@ -55,11 +55,11 @@ export const AssignmentCard = memo(function AssignmentCard({
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">
+            <h3 className="font-semibold text-text-primary truncate">
               {assignment.subject ?? "Tanpa judul"}
             </h3>
             {isNew(assignment.createdAt) && !past && (
-              <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 rounded-full">
+              <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 bg-primary-50 rounded-full">
                 Baru
               </span>
             )}
@@ -71,7 +71,7 @@ export const AssignmentCard = memo(function AssignmentCard({
                   e.stopPropagation();
                   onEdit(assignment);
                 }}
-                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-1.5 text-text-muted hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                 aria-label="Edit tugas"
               >
                 <HiPencil className="h-4 w-4" />
@@ -82,7 +82,7 @@ export const AssignmentCard = memo(function AssignmentCard({
                   onDelete(assignment);
                 }}
                 disabled={isDeleting}
-                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors disabled:opacity-50"
                 aria-label="Hapus tugas"
               >
                 <HiTrash className="h-4 w-4" />
@@ -92,12 +92,12 @@ export const AssignmentCard = memo(function AssignmentCard({
         </div>
       </CardHeader>
       <CardBody>
-        <p className="text-sm text-gray-500 mb-3 line-clamp-3">
+        <p className="text-sm text-text-secondary mb-3 line-clamp-3">
           {assignment.description ?? "Tidak ada deskripsi"}
         </p>
         <div className="space-y-1.5">
           {assignment.attachments?.length ? (
-            <div className="flex items-center gap-1 text-xs text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-text-muted">
               <HiPaperClip className="h-3 w-3" />
               {assignment.attachments.length} lampiran
             </div>
@@ -106,12 +106,12 @@ export const AssignmentCard = memo(function AssignmentCard({
             <div className="flex items-center gap-1.5 text-xs">
               <span
                 className={`font-medium ${
-                  past ? "text-red-600" : "text-gray-700"
+                  past ? "text-danger" : "text-text-secondary"
                 }`}
               >
                 {past ? "Terlewat" : "Deadline"}
               </span>
-              <span className={past ? "text-red-500" : "text-gray-400"}>
+              <span className={past ? "text-danger" : "text-text-muted"}>
                 {formatDistanceToNow(assignment.deadline.toDate(), {
                   addSuffix: true,
                   locale: id,
@@ -120,7 +120,7 @@ export const AssignmentCard = memo(function AssignmentCard({
             </div>
           )}
           {assignment.teacherNote && (
-            <div className="text-xs text-gray-400 italic">
+            <div className="text-xs text-text-muted italic">
               Catatan: {assignment.teacherNote}
             </div>
           )}

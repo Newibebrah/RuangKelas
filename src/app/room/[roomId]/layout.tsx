@@ -12,7 +12,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { NotificationBell } from "@/components/NotificationBell";
-import { HiArrowLeft } from "react-icons/hi";
+import { HiArrowLeft, HiAcademicCap } from "react-icons/hi";
 import { roomTabs } from "@/lib/navigation";
 
 export default function RoomLayout({
@@ -55,8 +55,12 @@ export default function RoomLayout({
     return (
       <AuthGuard>
         <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-          <p className="text-gray-500">Kelas tidak ditemukan</p>
-          <Button onClick={() => router.push("/dashboard")}>
+          <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-2">
+            <HiAcademicCap className="h-8 w-8 text-danger" />
+          </div>
+          <p className="text-text-primary font-semibold text-lg">Kelas tidak ditemukan</p>
+          <p className="text-text-secondary text-sm">Kelas yang kamu cari mungkin sudah dihapus</p>
+          <Button onClick={() => router.push("/dashboard")} className="mt-2">
             Kembali ke Dashboard
           </Button>
         </div>
@@ -66,27 +70,27 @@ export default function RoomLayout({
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
-        <header className="bg-white border-b sticky top-0 z-30">
+      <div className="min-h-screen bg-surface-muted pb-16 md:pb-0">
+        <header className="bg-surface/80 backdrop-blur-lg border-b border-border sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-xl hover:bg-surface-hover transition-colors shrink-0"
                 >
-                  <HiArrowLeft className="h-5 w-5 text-gray-500" />
+                  <HiArrowLeft className="h-5 w-5 text-text-secondary" />
                 </button>
-                <div>
-                  <h1 className="text-lg font-semibold text-gray-900">
+                <div className="min-w-0">
+                  <h1 className="text-lg font-semibold text-text-primary truncate">
                     {currentRoom.name}
                   </h1>
-                  <p className="text-xs text-gray-400">
-                    Kode: {currentRoom.code}
+                  <p className="text-xs text-text-muted">
+                    Kode: <span className="font-mono font-medium text-primary-600">{currentRoom.code}</span>
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <NotificationBell />
                 <UserMenu />
               </div>
@@ -94,9 +98,9 @@ export default function RoomLayout({
           </div>
         </header>
 
-        <nav className="hidden md:block bg-white border-b">
+        <nav className="hidden md:block bg-surface border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex gap-1 -mb-px overflow-x-auto">
+            <div className="flex gap-0 overflow-x-auto">
               {roomTabs.map((tab) => {
                 const displayHref = tab.getHref(roomId);
                 const isActive = tab.exact
@@ -106,14 +110,17 @@ export default function RoomLayout({
                   <Link
                     key={tab.label}
                     href={displayHref}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        ? "text-primary-600"
+                        : "text-text-muted hover:text-text-secondary"
                     }`}
                   >
                     <tab.icon className="h-4 w-4" />
                     {tab.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-primary-500" />
+                    )}
                   </Link>
                 );
               })}
@@ -127,7 +134,7 @@ export default function RoomLayout({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
           >
             {children}

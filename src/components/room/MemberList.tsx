@@ -73,7 +73,7 @@ export function MemberList({
             <Card key={member.id}>
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="h-10 w-10 rounded-full bg-surface-hover flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-border">
                     {member.photoURL ? (
                       <img
                         src={member.photoURL}
@@ -81,16 +81,16 @@ export function MemberList({
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="text-sm font-semibold text-gray-600">
+                      <span className="text-sm font-semibold text-text-secondary">
                         {member.displayName.charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
+                    <p className="font-medium text-text-primary truncate">
                       {member.displayName}
                       {isSelf && (
-                        <span className="text-xs text-gray-400 ml-1">
+                        <span className="text-xs text-text-muted ml-1">
                           (Anda)
                         </span>
                       )}
@@ -99,12 +99,12 @@ export function MemberList({
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
                           member.role === "admin"
-                            ? "bg-purple-100 text-purple-700"
+                            ? "bg-purple-50 text-purple-700"
                             : member.role === "guru"
-                              ? "bg-blue-100 text-blue-700"
+                              ? "bg-primary-50 text-primary-700"
                               : member.role === "pengurus"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-600"
+                                ? "bg-success-light text-success"
+                                : "bg-surface-muted text-text-secondary"
                         }`}
                       >
                         {member.role === "admin" && (
@@ -122,7 +122,7 @@ export function MemberList({
                         {member.role}
                       </span>
                       {member.email && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-text-muted">
                           {member.email}
                         </span>
                       )}
@@ -134,7 +134,7 @@ export function MemberList({
                     {canRoleToggle && (
                       <button
                         onClick={() => handleRoleToggle(member)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-text-muted hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title={
                           member.role === "guru"
                             ? "Ubah menjadi siswa"
@@ -151,7 +151,7 @@ export function MemberList({
                     {canRemove && (
                       <button
                         onClick={() => setRemoveTarget(member)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
                         title="Keluarkan dari kelas"
                       >
                         <HiUserRemove className="h-4 w-4" />
@@ -172,7 +172,7 @@ export function MemberList({
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-text-secondary">
             Apakah Anda yakin ingin mengeluarkan{" "}
             <strong>{removeTarget?.displayName}</strong> dari kelas ini?
           </p>

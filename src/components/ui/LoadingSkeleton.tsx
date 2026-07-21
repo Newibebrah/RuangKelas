@@ -6,14 +6,14 @@ interface LoadingSkeletonProps {
 function SkeletonBar({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${className}`}
+      className={`animate-pulse bg-border rounded ${className}`}
     />
   );
 }
 
 function CardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+    <div className="bg-surface rounded-xl border border-border p-5 space-y-3 shadow-card">
       <div className="flex items-start justify-between">
         <SkeletonBar className="h-5 w-2/3" />
         <SkeletonBar className="h-5 w-5 shrink-0" />
@@ -72,7 +72,7 @@ export function LoadingSkeleton({
         variant === "card"
           ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
           : variant === "list"
-            ? "divide-y divide-gray-100"
+            ? "divide-y divide-border-light"
             : ""
       }
     >

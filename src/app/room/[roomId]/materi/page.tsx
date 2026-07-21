@@ -33,14 +33,14 @@ export default function MateriPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Materi</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-text-primary">Materi</h2>
+          <p className="text-sm text-text-secondary mt-1">
             Bahan ajar dan materi pembelajaran
           </p>
         </div>
         {canManage && (
           <Button onClick={() => setDeployOpen(true)}>
-            <HiPlus className="h-4 w-4 mr-1" />
+            <HiPlus className="h-4 w-4" />
             Bagikan Materi
           </Button>
         )}

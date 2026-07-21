@@ -85,14 +85,14 @@ export default function TugasPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Tugas</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-text-primary">Tugas</h2>
+          <p className="text-sm text-text-secondary mt-1">
             Daftar tugas dan tenggat waktu
           </p>
         </div>
         {canManage && (
           <Button onClick={handleCreate}>
-            <HiPlus className="h-4 w-4 mr-1" />
+            <HiPlus className="h-4 w-4" />
             Tugas Baru
           </Button>
         )}
@@ -104,7 +104,7 @@ export default function TugasPage() {
         <ErrorMessage message={error} />
       ) : assignments.length === 0 ? (
         <EmptyState
-          icon={<HiClipboardList className="h-16 w-16" />}
+          icon={<HiClipboardList className="h-8 w-8" />}
           title="Belum ada tugas"
           description={
             canManage
@@ -131,7 +131,7 @@ export default function TugasPage() {
       {canManage && (
         <button
           onClick={handleCreate}
-          className="fixed bottom-6 right-6 z-40 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="md:hidden fixed bottom-6 right-6 z-40 p-4 bg-primary-600 text-white rounded-full shadow-fab hover:bg-primary-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-95"
         >
           <HiPlus className="h-6 w-6" />
         </button>

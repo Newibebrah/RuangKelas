@@ -30,27 +30,24 @@ export default function RoomHomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-text-primary">
           {currentRoom?.name}
         </h2>
-        <p className="text-gray-500 mt-1">{currentRoom?.description}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          Kode Kelas: <span className="font-mono font-bold">{currentRoom?.code}</span>
-        </p>
+        <p className="text-text-secondary mt-1">{currentRoom?.description}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-xl">
-              <HiUsers className="h-6 w-6 text-blue-600" />
+            <div className="p-3 rounded-xl bg-primary-50">
+              <HiUsers className="h-6 w-6 text-primary-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-text-primary">
                 {members.length}
               </p>
-              <p className="text-sm text-gray-500">Anggota</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-sm text-text-secondary">Anggota</p>
+              <p className="text-xs text-text-muted">
                 {guruCount > 0 && `${guruCount} guru `}
                 {siswaCount > 0 && `${siswaCount} siswa `}
                 {adminCount > 0 && `${adminCount} admin`}
@@ -61,24 +58,24 @@ export default function RoomHomePage() {
 
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-xl">
-              <HiClipboardList className="h-6 w-6 text-green-600" />
+            <div className="p-3 rounded-xl bg-success-light">
+              <HiClipboardList className="h-6 w-6 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{activeTasks}</p>
-              <p className="text-sm text-gray-500">Tugas Aktif</p>
+              <p className="text-2xl font-bold text-text-primary">{activeTasks}</p>
+              <p className="text-sm text-text-secondary">Tugas Aktif</p>
             </div>
           </CardBody>
         </Card>
 
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-yellow-50 rounded-xl">
-              <HiCash className="h-6 w-6 text-yellow-600" />
+            <div className="p-3 rounded-xl bg-warning-light">
+              <HiCash className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">Rp 0</p>
-              <p className="text-sm text-gray-500">Saldo Kas</p>
+              <p className="text-2xl font-bold text-text-primary">Rp 0</p>
+              <p className="text-sm text-text-secondary">Saldo Kas</p>
             </div>
           </CardBody>
         </Card>
@@ -87,11 +84,11 @@ export default function RoomHomePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-gray-900">Anggota Terbaru</h3>
+            <h3 className="font-semibold text-text-primary">Anggota Terbaru</h3>
           </CardHeader>
           <CardBody>
             {members.length === 0 ? (
-              <p className="text-sm text-gray-400">Belum ada anggota</p>
+              <p className="text-sm text-text-muted">Belum ada anggota</p>
             ) : (
               <div className="space-y-3">
                 {members.slice(0, 5).map((member) => (
@@ -99,7 +96,7 @@ export default function RoomHomePage() {
                     key={member.id}
                     className="flex items-center gap-3"
                   >
-                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <div className="h-8 w-8 rounded-full bg-surface-hover flex items-center justify-center overflow-hidden ring-2 ring-border">
                       {member.photoURL ? (
                         <img
                           src={member.photoURL}
@@ -107,16 +104,16 @@ export default function RoomHomePage() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span className="text-sm font-medium text-gray-600">
+                        <span className="text-sm font-semibold text-text-secondary">
                           {member.displayName.charAt(0)}
                         </span>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-text-primary">
                         {member.displayName}
                       </p>
-                      <p className="text-xs text-gray-400 capitalize">
+                      <p className="text-xs text-text-muted capitalize">
                         {member.role}
                       </p>
                     </div>

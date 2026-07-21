@@ -15,8 +15,10 @@ export function Card({
 }: CardProps) {
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 shadow-sm ${
-        hover ? "hover:shadow-md hover:border-gray-300 transition-all cursor-pointer" : ""
+      className={`bg-surface rounded-xl border border-border transition-all duration-200 ${
+        hover
+          ? "hover:shadow-card-hover hover:border-primary-200 hover:-translate-y-0.5 cursor-pointer"
+          : "shadow-card"
       } ${className}`}
       onClick={onClick}
     >
@@ -33,7 +35,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-5 py-4 border-b border-gray-100 ${className}`}>
+    <div className={`px-5 py-4 border-b border-border-light ${className}`}>
       {children}
     </div>
   );

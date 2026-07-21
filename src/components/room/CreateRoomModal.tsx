@@ -59,19 +59,24 @@ export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
           {...register("name")}
         />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-text-primary mb-1.5">
             Deskripsi
           </label>
           <textarea
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.description ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full px-3 py-2.5 border rounded-xl text-sm transition-all duration-200 outline-none resize-none ${
+              errors.description
+                ? "border-danger focus:ring-2 focus:ring-danger/20 focus:border-danger"
+                : "border-border focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+            } bg-surface text-text-primary placeholder:text-text-muted`}
             rows={3}
             placeholder="Deskripsi singkat tentang kelas ini"
             {...register("description")}
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1.5 text-xs font-medium text-danger flex items-center gap-1">
+              <svg className="h-3.5 w-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
               {errors.description.message}
             </p>
           )}

@@ -71,16 +71,16 @@ export default function ProfilePage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b sticky top-0 z-30">
+      <div className="min-h-screen bg-surface-muted">
+        <header className="bg-surface/80 backdrop-blur-lg border-b border-border sticky top-0 z-30">
           <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
             >
-              <HiArrowLeft className="h-5 w-5 text-gray-500" />
+              <HiArrowLeft className="h-5 w-5 text-text-secondary" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">Edit Profil</h1>
+            <h1 className="text-lg font-semibold text-text-primary">Edit Profil</h1>
           </div>
         </header>
 
@@ -88,18 +88,18 @@ export default function ProfilePage() {
           {/* Photo */}
           <div className="flex flex-col items-center">
             <div className="relative">
-              <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-full overflow-hidden bg-surface-hover flex items-center justify-center ring-4 ring-border">
                 {photoPreview ? (
                   <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
                 ) : user.photoURL ? (
                   <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
                 ) : (
-                  <HiUser className="h-10 w-10 text-gray-400" />
+                  <HiUser className="h-10 w-10 text-text-muted" />
                 )}
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-colors"
+                className="absolute bottom-0 right-0 p-2.5 bg-primary-600 text-white rounded-full shadow-md hover:bg-primary-700 transition-all active:scale-95"
               >
                 <HiCamera className="h-4 w-4" />
               </button>
@@ -111,11 +111,11 @@ export default function ProfilePage() {
               className="hidden"
               onChange={handleFileSelect}
             />
-            <p className="text-xs text-gray-400 mt-2">Maks 2MB</p>
+            <p className="text-xs text-text-muted mt-2">Maks 2MB</p>
             {uploadProgress > 0 && uploadProgress < 100 && (
-              <div className="w-48 mt-2">
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div className="bg-blue-600 h-1.5 rounded-full transition-all" style={{ width: `${uploadProgress}%` }} />
+              <div className="w-48 mt-3">
+                <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-primary-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
                 </div>
               </div>
             )}
@@ -123,8 +123,8 @@ export default function ProfilePage() {
 
           {/* Email (readonly) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500">
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Email</label>
+            <p className="px-3 py-2.5 bg-surface-muted border border-border rounded-xl text-sm text-text-muted">
               {user.email}
             </p>
           </div>
@@ -148,18 +148,18 @@ export default function ProfilePage() {
 
           {/* Bio */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bio <span className="text-gray-400">(opsional)</span>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              Bio <span className="text-text-muted">(opsional)</span>
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2.5 border border-border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-surface text-text-primary placeholder:text-text-muted resize-none"
               rows={3}
               placeholder="Tulis sesuatu tentang diri Anda"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={200}
             />
-            <p className="text-xs text-gray-400 mt-1 text-right">{bio.length}/200</p>
+            <p className="text-xs text-text-muted mt-1.5 text-right">{bio.length}/200</p>
           </div>
 
           <div className="flex justify-end gap-3 pt-2">

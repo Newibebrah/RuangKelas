@@ -18,13 +18,13 @@ import { HiUsers, HiPencil, HiLightningBolt } from "react-icons/hi";
 import { Pengurus } from "@/types";
 import toast from "react-hot-toast";
 
-const jabatanColors: Record<string, string> = {
-  ketua: "bg-red-100 text-red-700 ring-red-200",
-  "wakil ketua": "bg-orange-100 text-orange-700 ring-orange-200",
-  sekretaris: "bg-blue-100 text-blue-700 ring-blue-200",
-  bendahara: "bg-green-100 text-green-700 ring-green-200",
-  anggota: "bg-gray-100 text-gray-700 ring-gray-200",
-};
+  const jabatanColors: Record<string, string> = {
+    ketua: "bg-red-50 text-red-700 ring-red-200",
+    "wakil ketua": "bg-orange-50 text-orange-700 ring-orange-200",
+    sekretaris: "bg-blue-50 text-blue-700 ring-blue-200",
+    bendahara: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    anggota: "bg-gray-50 text-gray-700 ring-gray-200",
+  };
 
 export default function PengurusPage() {
   const params = useParams();
@@ -81,14 +81,14 @@ export default function PengurusPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Pengurus</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-text-primary">Pengurus</h2>
+          <p className="text-sm text-text-secondary mt-1">
             Struktur organisasi kelas
           </p>
         </div>
         {canManage && (
           <Button onClick={() => setElectionOpen(true)}>
-            <HiLightningBolt className="h-4 w-4 mr-1" />
+            <HiLightningBolt className="h-4 w-4" />
             Roda Pemilihan
           </Button>
         )}
@@ -101,7 +101,7 @@ export default function PengurusPage() {
       ) : (
         <>
           <section className="mb-8">
-            <h3 className="text-base font-semibold text-gray-900 mb-3">
+            <h3 className="text-base font-semibold text-text-primary mb-3">
               Struktur Pengurus
             </h3>
             {sortedPengurus.length === 0 ? (

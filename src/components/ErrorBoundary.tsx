@@ -52,12 +52,14 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6">
-          <HiExclamationCircle className="h-16 w-16 text-red-400 mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-surface-muted px-6">
+          <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-5">
+            <HiExclamationCircle className="h-8 w-8 text-danger" />
+          </div>
+          <h2 className="text-xl font-bold text-text-primary mb-2">
             Terjadi Kesalahan
           </h2>
-          <p className="text-sm text-gray-500 text-center max-w-md mb-6">
+          <p className="text-sm text-text-secondary text-center max-w-md mb-6">
             {this.state.error?.message || "Aplikasi mengalami error yang tidak terduga."}
           </p>
           <div className="flex gap-3">

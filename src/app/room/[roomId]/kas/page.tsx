@@ -136,8 +136,8 @@ export default function KasPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Kas Kelas</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-text-primary">Kas Kelas</h2>
+          <p className="text-sm text-text-secondary mt-1">
             {bill
               ? `Tagihan aktif: ${formatRupiah(bill.amount)}/${bill.frequency === "weekly" ? "minggu" : "bulan"}`
               : "Kelola tagihan dan kas kelas"}
@@ -146,13 +146,13 @@ export default function KasPage() {
         <div className="flex items-center gap-2">
           {canManageBilling && !bill && (
             <Button onClick={() => setBillModalOpen(true)}>
-              <HiPlus className="h-4 w-4 mr-1" />
+              <HiPlus className="h-4 w-4" />
               Buat Tagihan
             </Button>
           )}
           {canManageTx && (
             <Button onClick={() => { setEditingTx(null); setTxModalOpen(true); }}>
-              <HiCash className="h-4 w-4 mr-1" />
+              <HiCash className="h-4 w-4" />
               Transaksi
             </Button>
           )}
@@ -171,46 +171,46 @@ export default function KasPage() {
               <div className="grid gap-4 sm:grid-cols-2 mb-6">
                 <Card>
                   <CardBody>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <HiCurrencyDollar className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          Uang Terkumpul
-                        </p>
-                        <p className="text-2xl font-bold text-green-600">
-                          {formatRupiah(billingSummary.totalCollected)}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-success-light">
+                      <HiCurrencyDollar className="h-6 w-6 text-success" />
                     </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">
+                        Uang Terkumpul
+                      </p>
+                      <p className="text-2xl font-bold text-success">
+                        {formatRupiah(billingSummary.totalCollected)}
+                      </p>
+                    </div>
+                  </div>
                   </CardBody>
                 </Card>
                 <Card>
                   <CardBody>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-yellow-100 rounded-lg">
-                        <HiExclamationCircle className="h-6 w-6 text-yellow-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Tunggakan</p>
-                        <p className="text-2xl font-bold text-yellow-600">
-                          {formatRupiah(billingSummary.totalArrears)}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-warning-light">
+                      <HiExclamationCircle className="h-6 w-6 text-warning" />
                     </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Tunggakan</p>
+                      <p className="text-2xl font-bold text-warning">
+                        {formatRupiah(billingSummary.totalArrears)}
+                      </p>
+                    </div>
+                  </div>
                   </CardBody>
                 </Card>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-base font-semibold text-gray-900">
+                  <h3 className="text-base font-semibold text-text-primary">
                     {canManageBilling
                       ? "Tabel Pembayaran"
                       : "Status Pembayaran Anggota"}
                   </h3>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-text-muted">
                     {billingSummary.paidCount}/{billingSummary.totalPossible} lunas
                   </span>
                 </div>
@@ -266,26 +266,26 @@ export default function KasPage() {
           <div className="grid gap-4 sm:grid-cols-3 mb-6">
             <Card>
               <CardBody>
-                <p className="text-sm text-gray-500">Total Pemasukan</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-text-secondary">Total Pemasukan</p>
+                <p className="text-2xl font-bold text-success">
                   {formatRupiah(kasSummary.totalPemasukan)}
                 </p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <p className="text-sm text-gray-500">Total Pengeluaran</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm text-text-secondary">Total Pengeluaran</p>
+                <p className="text-2xl font-bold text-danger">
                   {formatRupiah(kasSummary.totalPengeluaran)}
                 </p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <p className="text-sm text-gray-500">Saldo Kas</p>
+                <p className="text-sm text-text-secondary">Saldo Kas</p>
                 <p
                   className={`text-2xl font-bold ${
-                    kasSummary.saldo >= 0 ? "text-blue-600" : "text-red-600"
+                    kasSummary.saldo >= 0 ? "text-primary-600" : "text-danger"
                   }`}
                 >
                   {formatRupiah(kasSummary.saldo)}
@@ -303,7 +303,7 @@ export default function KasPage() {
           ) : (
             <Card>
               <CardHeader>
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-text-primary">
                   Riwayat Transaksi
                 </h3>
               </CardHeader>
@@ -312,32 +312,32 @@ export default function KasPage() {
                   {transactions.map((trx) => (
                     <div
                       key={trx.id}
-                      className="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg transition-colors group"
+                      className="flex items-center justify-between py-3 px-2 hover:bg-surface-hover rounded-xl transition-colors group"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`inline-block w-2 h-2 rounded-full ${
+                            className={`inline-block w-2 h-2 rounded-full shrink-0 ${
                               trx.type === "pemasukan"
-                                ? "bg-green-500"
-                                : "bg-red-500"
+                                ? "bg-success"
+                                : "bg-danger"
                             }`}
                           />
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-text-primary">
                             {trx.description}
                           </p>
                           {trx.category && (
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                            <span className="text-xs px-1.5 py-0.5 bg-surface-hover text-text-secondary rounded-lg font-medium">
                               {trx.category}
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5 ml-4">
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-text-muted">
                             {trx.displayName}
                           </p>
-                          <span className="text-xs text-gray-300">&middot;</span>
-                          <p className="text-xs text-gray-400">
+                          <span className="text-xs text-border">&middot;</span>
+                          <p className="text-xs text-text-muted">
                             {format(
                               trx.date && typeof (trx.date as { toDate?: () => Date }).toDate === "function"
                                 ? (trx.date as { toDate: () => Date }).toDate()
@@ -352,8 +352,8 @@ export default function KasPage() {
                         <span
                           className={`text-sm font-semibold ${
                             trx.type === "pemasukan"
-                              ? "text-green-600"
-                              : "text-red-600"
+                              ? "text-success"
+                              : "text-danger"
                           }`}
                         >
                           {trx.type === "pemasukan" ? "+" : "-"}
@@ -366,13 +366,13 @@ export default function KasPage() {
                                 setEditingTx(trx);
                                 setTxModalOpen(true);
                               }}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="p-1.5 text-text-muted hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             >
                               <HiPencil className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => setDeleteTarget(trx)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
                             >
                               <HiTrash className="h-3.5 w-3.5" />
                             </button>
@@ -410,7 +410,7 @@ export default function KasPage() {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-text-secondary">
             Apakah Anda yakin ingin menghapus transaksi{" "}
             <strong>{deleteTarget?.description}</strong>?
           </p>

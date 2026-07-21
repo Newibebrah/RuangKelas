@@ -16,20 +16,20 @@ export function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-hover transition-colors"
       >
         {user.photoURL ? (
           <img
             src={user.photoURL}
             alt={user.displayName}
-            className="h-8 w-8 rounded-full object-cover"
+            className="h-8 w-8 rounded-full object-cover ring-2 ring-border"
           />
         ) : (
-          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <HiUser className="h-5 w-5 text-blue-600" />
+          <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center ring-2 ring-primary-200">
+            <HiUser className="h-4 w-4 text-primary-600" />
           </div>
         )}
-        <span className="text-sm font-medium text-gray-700 hidden sm:block">
+        <span className="text-sm font-medium text-text-primary hidden sm:block">
           {user.displayName}
         </span>
       </button>
@@ -40,19 +40,19 @@ export function UserMenu() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 z-20 py-1">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">
+          <div className="absolute right-0 mt-2 w-56 bg-surface rounded-2xl shadow-dropdown border border-border z-20 py-1 overflow-hidden">
+            <div className="px-4 py-3 border-b border-border-light">
+              <p className="text-sm font-semibold text-text-primary">
                 {user.displayName}
               </p>
               {user.username && (
-                <p className="text-xs text-blue-600">@{user.username}</p>
+                <p className="text-xs text-primary-600 font-medium">@{user.username}</p>
               )}
-              <p className="text-xs text-gray-500">{user.email}</p>
+              <p className="text-xs text-text-muted">{user.email}</p>
               {user.bio && (
-                <p className="text-xs text-gray-400 mt-1 line-clamp-2">{user.bio}</p>
+                <p className="text-xs text-text-secondary mt-1 line-clamp-2">{user.bio}</p>
               )}
-              <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full capitalize">
+              <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-semibold bg-primary-50 text-primary-600 rounded-lg capitalize">
                 {user.role}
               </span>
             </div>
@@ -61,7 +61,7 @@ export function UserMenu() {
                 router.push("/profile");
                 setIsOpen(false);
               }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
             >
               <HiPencil className="h-4 w-4" />
               Edit Profil
@@ -71,7 +71,7 @@ export function UserMenu() {
                 signOut();
                 setIsOpen(false);
               }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-hover hover:text-danger transition-colors"
             >
               <HiLogout className="h-4 w-4" />
               Keluar

@@ -9,11 +9,13 @@ interface ErrorMessageProps {
 export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <HiExclamationCircle className="h-16 w-16 text-red-400 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-1">
+      <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-5">
+        <HiExclamationCircle className="h-8 w-8 text-danger" />
+      </div>
+      <h3 className="text-lg font-semibold text-text-primary mb-1">
         Terjadi Kesalahan
       </h3>
-      <p className="text-sm text-gray-500 mb-4 text-center max-w-sm">
+      <p className="text-sm text-text-secondary text-center max-w-sm mb-5 leading-relaxed">
         {message}
       </p>
       {onRetry && (

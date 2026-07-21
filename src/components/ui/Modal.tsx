@@ -23,14 +23,14 @@ export function Modal({
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
-  const sizes = {
+  const sizes: Record<string, string> = {
     sm: "max-w-sm",
     md: "max-w-lg",
     lg: "max-w-2xl",
@@ -44,26 +44,27 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className={`relative w-full ${sizes[size]} bg-white rounded-xl shadow-xl`}
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={`relative w-full ${sizes[size]} bg-surface rounded-2xl shadow-modal`}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
+              <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
               <button
                 onClick={onClose}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
               >
                 <HiX className="h-5 w-5" />
               </button>
             </div>
-            <div className="px-6 py-4">{children}</div>
+            <div className="px-6 py-5">{children}</div>
           </motion.div>
         </div>
       )}
