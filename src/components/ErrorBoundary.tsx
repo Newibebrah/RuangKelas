@@ -20,8 +20,37 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidMount() {
+    const handler = (e: Event) => {
+      const msg =
+        (e as ErrorEvent)?.message ||
+        ((e as PromiseRejectionEvent)?.reason as string) ||
+        "";
+      if (
+        typeof msg === "string" &&
+        (msg.includes("Incorrect contents fetched") ||
+          msg.includes("Failed to fetch") ||
+          msg.includes("Loading chunk"))
+      ) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("error", handler);
+    window.addEventListener("unhandledrejection", handler);
+  }
+
   render() {
     if (this.state.hasError) {
+      const isChunkError =
+        this.state.error?.message?.includes("Incorrect contents fetched") ||
+        this.state.error?.message?.includes("Failed to fetch") ||
+        this.state.error?.message?.includes("Loading chunk");
+
+      if (isChunkError) {
+        window.location.reload();
+        return null;
+      }
+
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6">
           <HiExclamationCircle className="h-16 w-16 text-red-400 mb-4" />
