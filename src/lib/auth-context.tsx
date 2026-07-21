@@ -9,8 +9,9 @@ import {
 } from "react";
 import {
   User as FirebaseUser,
-  signInWithPopup,
   GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -49,6 +50,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const createUserIfNotExists = async (fbUser: FirebaseUser) => {
+    const userDoc = await getDoc(doc(db, "users", fbUser.uid));
+    if (!userDoc.exists()) {
+      const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
+        email: fbUser.email || "",
+        displayName: fbUser.displayName || "User",
+        photoURL: fbUser.photoURL || undefined,
+        role: "siswa",
+        roomIds: [],
+      };
+      await setDoc(doc(db, "users", fbUser.uid), {
+        ...newUser,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
@@ -62,31 +81,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result?.user) {
+          await createUserIfNotExists(result.user);
+          await fetchUserData(result.user.uid);
+        }
+      })
+      .catch((err) => {
+        if (
+          err.code !== "auth/unauthorized-domain" &&
+          err.code !== "auth/operation-not-supported"
+        ) {
+          setError("Gagal login dengan Google");
+        }
+      });
+  }, []);
+
   const signInWithGoogle = async () => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const fbUser = result.user;
-
-      const userDoc = await getDoc(doc(db, "users", fbUser.uid));
-      if (!userDoc.exists()) {
-        const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
-          email: fbUser.email || "",
-          displayName: fbUser.displayName || "User",
-          photoURL: fbUser.photoURL || undefined,
-          role: "siswa",
-          roomIds: [],
-        };
-        await setDoc(doc(db, "users", fbUser.uid), {
-          ...newUser,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+      await signInWithRedirect(auth, provider);
+    } catch (err: unknown) {
+      const e = err as { code?: string };
+      if (e.code === "auth/unauthorized-domain") {
+        setError("Domain ini belum terdaftar di Firebase. Tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");
+      } else {
+        setError("Gagal login dengan Google");
       }
-      await fetchUserData(fbUser.uid);
-    } catch {
-      setError("Gagal login dengan Google");
     }
   };
 
