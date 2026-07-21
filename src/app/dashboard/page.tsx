@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { AppHeader } from "@/components/ui/AppHeader";
 import { RoomCard } from "@/components/room/RoomCard";
 import { CreateRoomModal } from "@/components/room/CreateRoomModal";
 import { JoinRoomModal } from "@/components/room/JoinRoomModal";
@@ -24,35 +25,33 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-surface-muted">
-        <header className="bg-surface/80 backdrop-blur-lg border-b border-border sticky top-0 z-30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
-                  <HiAcademicCap className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-text-primary">
-                  RuangKelas
-                </span>
+        <AppHeader
+          left={
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
+                <HiAcademicCap className="h-5 w-5 text-white" />
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowJoinModal(true)}
-                >
-                  <HiLogin className="h-4 w-4" />
-                  Gabung
-                </Button>
-                <Button size="sm" onClick={() => setShowCreateModal(true)}>
-                  <HiPlus className="h-4 w-4" />
-                  Buat Kelas
-                </Button>
-                <UserMenu />
-              </div>
+              <span className="text-xl font-bold tracking-tight text-text-primary">RuangKelas</span>
             </div>
-          </div>
-        </header>
+          }
+          right={
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowJoinModal(true)}
+              >
+                <HiLogin className="h-4 w-4" />
+                Gabung
+              </Button>
+              <Button size="sm" onClick={() => setShowCreateModal(true)}>
+                <HiPlus className="h-4 w-4" />
+                Buat Kelas
+              </Button>
+              <UserMenu />
+            </>
+          }
+        />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">

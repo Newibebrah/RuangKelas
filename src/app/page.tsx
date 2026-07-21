@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { AppHeader } from "@/components/ui/AppHeader";
 import { useRouter } from "next/navigation";
 import { HiAcademicCap } from "react-icons/hi";
 
@@ -32,14 +33,16 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-muted">
-      <header className="flex items-center justify-center px-6 py-4 bg-surface/80 backdrop-blur-lg border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
-            <HiAcademicCap className="h-5 w-5 text-white" />
+      <AppHeader
+        left={
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
+              <HiAcademicCap className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-text-primary">RuangKelas</span>
           </div>
-          <span className="text-xl font-bold tracking-tight text-text-primary">RuangKelas</span>
-        </div>
-      </header>
+        }
+      />
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-20">
         <div className="text-center max-w-2xl">

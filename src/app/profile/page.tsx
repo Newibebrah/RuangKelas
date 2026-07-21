@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { AppHeader } from "@/components/ui/AppHeader";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { HiArrowLeft, HiCamera, HiUser } from "react-icons/hi";
 import toast from "react-hot-toast";
@@ -73,17 +74,19 @@ export default function ProfilePage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-surface-muted">
-        <header className="bg-surface/80 backdrop-blur-lg border-b border-border sticky top-0 z-30">
-          <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
-            >
-              <HiArrowLeft className="h-5 w-5 text-text-secondary" />
-            </button>
-            <h1 className="text-lg font-semibold text-text-primary">Edit Profil</h1>
-          </div>
-        </header>
+        <AppHeader
+          left={
+            <>
+              <button
+                onClick={() => router.back()}
+                className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
+              >
+                <HiArrowLeft className="h-5 w-5 text-text-secondary" />
+              </button>
+              <h1 className="text-lg font-semibold text-text-primary">Edit Profil</h1>
+            </>
+          }
+        />
 
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
           {/* Photo */}
