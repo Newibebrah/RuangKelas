@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { useKas } from "@/hooks/useKas";
 import { useBilling } from "@/hooks/useBilling";
@@ -12,15 +11,11 @@ import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { BillSetupModal } from "@/components/kas/BillSetupModal";
 import { PaymentTable } from "@/components/kas/PaymentTable";
-import { MemberProgressCard } from "@/components/kas/MemberProgressCard";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Timestamp } from "firebase/firestore";
 import toast from "react-hot-toast";
 import {
   HiCash,
@@ -39,15 +34,12 @@ export default function KelolaKasPage() {
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
-  const { user } = useAuth();
   const { members, currentRoom } = useRoom();
   const {
     transactions: legacyTx,
     summary: kasSummary,
     loading: kasLoading,
     error: kasError,
-    addTransaction: addLegacyTx,
-    updateTransaction,
     deleteTransaction: deleteLegacyTx,
   } = useKas(roomId);
   const {
@@ -82,12 +74,8 @@ export default function KelolaKasPage() {
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [showAddTx, setShowAddTx] = useState(false);
   const [txForm, setTxForm] = useState({ type: "income" as "income" | "expense", amount: 0, description: "", category: "" });
-  const [deleteTxTarget, setDeleteTxTarget] = useState<string | null>(null);
   const [deleteNewTxTarget, setDeleteNewTxTarget] = useState<string | null>(null);
   const [legacyDeleteTarget, setLegacyDeleteTarget] = useState<Kas | null>(null);
-
-  const currentMember = members.find((m) => m.userId === user?.id);
-  const isAdmin = currentMember?.role === "admin";
 
   const memberRows = useMemo(
     () => members.map((m) => ({ userId: m.userId, displayName: m.displayName })),
@@ -196,9 +184,6 @@ export default function KelolaKasPage() {
     );
   }
 
-  const loading = billingLoading || kasLoading || txLoading;
-  const errorMessage = billingError || kasError || txError;
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -232,22 +217,16 @@ export default function KelolaKasPage() {
         </div>
       </div>
 
-      {loading ? (
-        <LoadingSpinner size="lg" message="Memuat data kas..." />
-      ) : errorMessage ? (
-        <ErrorMessage message={errorMessage} />
-      ) : (
-        <>
-          {/* Ringkasan Keuangan */}
-          <div className="grid gap-4 sm:grid-cols-3 mb-6">
-            <Card>
-              <CardBody>
-                <p className="text-sm text-text-secondary">Total Pemasukan</p>
-                <p className="text-2xl font-bold text-success">
-                  {formatRupiah(newTotalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0))}
-                </p>
-              </CardBody>
-            </Card>
+      {/* Ringkasan Keuangan */}
+      <div className="grid gap-4 sm:grid-cols-3 mb-6">
+        <Card>
+          <CardBody>
+            <p className="text-sm text-text-secondary">Total Pemasukan</p>
+            <p className="text-2xl font-bold text-success">
+              {formatRupiah(newTotalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0))}
+            </p>
+          </CardBody>
+        </Card>
             <Card>
               <CardBody>
                 <p className="text-sm text-text-secondary">Total Pengeluaran</p>
@@ -472,8 +451,6 @@ export default function KelolaKasPage() {
               )}
             </CardBody>
           </Card>
-        </>
-      )}
 
       {/* Modal: Setup Tagihan */}
       <BillSetupModal

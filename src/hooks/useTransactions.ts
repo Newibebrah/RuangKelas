@@ -11,7 +11,7 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
-  Timestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Transaction } from "@/types";
@@ -41,9 +41,26 @@ export function useTransactions(roomId: string) {
         setTransactions(data);
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat transaksi");
-        setLoading(false);
+      async () => {
+        try {
+          const q2 = query(
+            collection(db, "transactions"),
+            where("roomId", "==", roomId)
+          );
+          const snap = await getDocs(q2);
+          const data = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }) as Transaction)
+            .sort((a, b) => {
+              const aTime = a.createdAt?.toMillis?.() || 0;
+              const bTime = b.createdAt?.toMillis?.() || 0;
+              return bTime - aTime;
+            });
+          setTransactions(data);
+          setLoading(false);
+        } catch {
+          setError("Gagal memuat transaksi. Periksa Firestore indexes.");
+          setLoading(false);
+        }
       }
     );
 
