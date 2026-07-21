@@ -155,6 +155,17 @@ export interface Deployment {
   subject?: string;
 }
 
+export interface Transaction {
+  id: string;
+  roomId: string;
+  type: "income" | "expense";
+  amount: number;
+  description: string;
+  category?: string;
+  createdBy: string;
+  createdAt: Timestamp;
+}
+
 export interface AppNotification {
   id: string;
   type: "assignment" | "bill" | "role" | "materi";

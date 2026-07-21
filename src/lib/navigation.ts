@@ -5,6 +5,7 @@ import {
   HiCash,
   HiUserGroup,
   HiUsers,
+  HiCog,
 } from "react-icons/hi";
 import { ComponentType } from "react";
 
@@ -13,6 +14,7 @@ export interface TabDefinition {
   icon: ComponentType<{ className?: string }>;
   getHref: (roomId: string) => string;
   exact: boolean;
+  showIf?: "bendahara" | "ketua" | "sekretaris" | "admin";
 }
 
 export const roomTabs: TabDefinition[] = [
@@ -22,4 +24,5 @@ export const roomTabs: TabDefinition[] = [
   { label: "Kas", icon: HiCash, getHref: (id) => `/room/${id}/kas`, exact: false },
   { label: "Anggota", icon: HiUserGroup, getHref: (id) => `/room/${id}/anggota`, exact: false },
   { label: "Pengurus", icon: HiUsers, getHref: (id) => `/room/${id}/pengurus`, exact: false },
+  { label: "Kelola Kas", icon: HiCog, getHref: (id) => `/room/${id}/kelola-kas`, exact: false, showIf: "bendahara" },
 ];

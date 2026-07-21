@@ -2,19 +2,20 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { roomTabs } from "@/lib/navigation";
+import { TabDefinition } from "@/lib/navigation";
 
 interface BottomNavProps {
   roomId: string;
+  visibleTabs: TabDefinition[];
 }
 
-export function BottomNav({ roomId }: BottomNavProps) {
+export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-lg border-t border-border safe-area-bottom">
       <div className="flex items-center justify-around h-16 px-1">
-        {roomTabs.map((tab) => {
+        {visibleTabs.map((tab) => {
           const href = tab.getHref(roomId);
           const isActive = tab.exact
             ? pathname === href

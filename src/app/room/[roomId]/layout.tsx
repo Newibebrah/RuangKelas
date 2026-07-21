@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRoom } from "@/lib/room-context";
+import { useAuth } from "@/lib/auth-context";
+import { usePengurus } from "@/hooks/usePengurus";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -13,7 +15,7 @@ import { Button } from "@/components/ui/Button";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { NotificationBell } from "@/components/NotificationBell";
 import { HiArrowLeft, HiAcademicCap } from "react-icons/hi";
-import { roomTabs } from "@/lib/navigation";
+import { roomTabs, TabDefinition } from "@/lib/navigation";
 
 export default function RoomLayout({
   children,
@@ -24,7 +26,9 @@ export default function RoomLayout({
   const router = useRouter();
   const pathname = usePathname();
   const roomId = params.roomId as string;
-  const { currentRoom, setCurrentRoomId, loading, error } = useRoom();
+  const { currentRoom, setCurrentRoomId, loading, error, members } = useRoom();
+  const { user } = useAuth();
+  const { pengurus } = usePengurus(roomId);
 
   useEffect(() => {
     if (roomId) {
@@ -34,6 +38,21 @@ export default function RoomLayout({
       setCurrentRoomId(null);
     };
   }, [roomId, setCurrentRoomId]);
+
+  const visibleTabs = useMemo(() => {
+    const currentMember = members.find((m) => m.userId === user?.id);
+    const isAdmin = currentMember?.role === "admin";
+    const pengurusJabatan = pengurus.find((p) => p.userId === user?.id)?.jabatan.toLowerCase() ?? "";
+
+    return roomTabs.filter((tab: TabDefinition) => {
+      if (!tab.showIf) return true;
+      if (isAdmin) return true;
+      if (tab.showIf === "bendahara" && pengurusJabatan === "bendahara") return true;
+      if (tab.showIf === "ketua" && pengurusJabatan === "ketua") return true;
+      if (tab.showIf === "sekretaris" && pengurusJabatan === "sekretaris") return true;
+      return false;
+    });
+  }, [members, user?.id, pengurus]);
 
   if (loading) {
     return (
@@ -101,7 +120,7 @@ export default function RoomLayout({
         <nav className="hidden md:block bg-surface border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex gap-0 overflow-x-auto">
-              {roomTabs.map((tab) => {
+              {visibleTabs.map((tab) => {
                 const displayHref = tab.getHref(roomId);
                 const isActive = tab.exact
                   ? pathname === displayHref
@@ -141,7 +160,7 @@ export default function RoomLayout({
           </motion.main>
         </AnimatePresence>
 
-        <BottomNav roomId={roomId} />
+        <BottomNav roomId={roomId} visibleTabs={visibleTabs} />
       </div>
     </AuthGuard>
   );
