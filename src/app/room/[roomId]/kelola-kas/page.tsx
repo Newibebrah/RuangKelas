@@ -102,14 +102,27 @@ export default function KelolaKasPage() {
 
   const handleTogglePayment = useCallback(
     async (userId: string, periodId: string, displayName: string) => {
+      if (!bill) return;
+      const existing = payments.find(
+        (p) => p.userId === userId && p.periodId === periodId
+      );
+      const willBePaid = existing ? existing.status !== "paid" : true;
       try {
         await togglePayment(userId, periodId, displayName);
-        toast.success("Status pembayaran diperbarui");
+        await addNewTx({
+          type: willBePaid ? "income" : "expense",
+          amount: bill.amount,
+          description: willBePaid
+            ? `Pembayaran tagihan - ${displayName}`
+            : `Pembatalan pembayaran - ${displayName}`,
+          category: "Tagihan",
+        });
+        toast.success(willBePaid ? "Pembayaran dicatat" : "Pembayaran dibatalkan");
       } catch {
         toast.error("Gagal memperbarui pembayaran");
       }
     },
-    [togglePayment]
+    [togglePayment, addNewTx, bill, payments]
   );
 
   const handleDownloadExcel = () => {
