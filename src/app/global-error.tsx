@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <html>
-      <body>
+      <body className="bg-surface-muted text-text-primary">
         <NextError statusCode={500} />
       </body>
     </html>
