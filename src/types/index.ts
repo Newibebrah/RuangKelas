@@ -6,7 +6,9 @@ export interface User {
   id: string;
   email: string;
   displayName: string;
+  username?: string;
   photoURL?: string;
+  bio?: string;
   role: UserRole;
   roomIds: string[];
   createdAt: Timestamp;

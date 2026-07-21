@@ -1,37 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { useProfile } from "@/hooks/useProfile";
-import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { HiLogout, HiUser, HiPencil } from "react-icons/hi";
-import toast from "react-hot-toast";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
-  const { updateProfile } = useProfile();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
-  const [saving, setSaving] = useState(false);
 
   if (!user) return null;
-
-  const handleSaveProfile = async () => {
-    if (!displayName.trim()) return;
-    setSaving(true);
-    try {
-      await updateProfile({ displayName: displayName.trim() });
-      toast.success("Profil berhasil diperbarui!");
-      setProfileOpen(false);
-    } catch {
-      toast.error("Gagal memperbarui profil");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="relative">
@@ -43,7 +22,7 @@ export function UserMenu() {
           <img
             src={user.photoURL}
             alt={user.displayName}
-            className="h-8 w-8 rounded-full"
+            className="h-8 w-8 rounded-full object-cover"
           />
         ) : (
           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -66,15 +45,20 @@ export function UserMenu() {
               <p className="text-sm font-medium text-gray-900">
                 {user.displayName}
               </p>
+              {user.username && (
+                <p className="text-xs text-blue-600">@{user.username}</p>
+              )}
               <p className="text-xs text-gray-500">{user.email}</p>
+              {user.bio && (
+                <p className="text-xs text-gray-400 mt-1 line-clamp-2">{user.bio}</p>
+              )}
               <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full capitalize">
                 {user.role}
               </span>
             </div>
             <button
               onClick={() => {
-                setDisplayName(user.displayName);
-                setProfileOpen(true);
+                router.push("/profile");
                 setIsOpen(false);
               }}
               className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -95,30 +79,6 @@ export function UserMenu() {
           </div>
         </>
       )}
-
-      <Modal
-        isOpen={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        title="Edit Profil"
-        size="sm"
-      >
-        <div className="space-y-4">
-          <Input
-            label="Nama Tampilan"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Nama Anda"
-          />
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setProfileOpen(false)}>
-              Batal
-            </Button>
-            <Button onClick={handleSaveProfile} isLoading={saving}>
-              Simpan
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
