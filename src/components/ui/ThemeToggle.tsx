@@ -1,7 +1,7 @@
 "use client";
 
-import { HiSun, HiMoon } from "react-icons/hi";
 import { useTheme } from "@/lib/theme-context";
+import { HiSun, HiMoon } from "react-icons/hi";
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -9,10 +9,21 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
-      aria-label="Toggle theme"
+      className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all"
+      aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
     >
-      {theme === "dark" ? <HiSun className="w-5 h-5" /> : <HiMoon className="w-5 h-5" />}
+      <div className="relative h-5 w-5">
+        <HiSun
+          className={`h-5 w-5 absolute inset-0 transition-all duration-300 ${
+            theme === "dark" ? "opacity-0 rotate-90 scale-0" : "opacity-100 rotate-0 scale-100"
+          }`}
+        />
+        <HiMoon
+          className={`h-5 w-5 absolute inset-0 transition-all duration-300 ${
+            theme === "dark" ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-0"
+          }`}
+        />
+      </div>
     </button>
   );
 }

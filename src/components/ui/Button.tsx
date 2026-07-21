@@ -17,14 +17,19 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]";
+    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none";
 
   const variants: Record<string, string> = {
-    primary: "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm",
-    secondary: "bg-surface-hover text-text-primary hover:bg-border focus:ring-gray-400",
-    danger: "bg-danger text-white hover:bg-red-600 focus:ring-red-500 shadow-sm",
-    ghost: "text-text-secondary hover:bg-surface-hover hover:text-text-primary focus:ring-gray-400",
-    outline: "border border-border text-text-secondary hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
+    primary:
+      "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md",
+    secondary:
+      "bg-surface-hover text-text-primary hover:bg-border focus:ring-gray-400 dark:hover:bg-slate-700",
+    danger:
+      "bg-danger text-white hover:bg-red-600 focus:ring-red-500 shadow-sm hover:shadow-md",
+    ghost:
+      "text-text-secondary hover:bg-surface-hover hover:text-text-primary focus:ring-gray-400 dark:hover:bg-slate-800",
+    outline:
+      "border border-border text-text-secondary hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 focus:ring-primary-500 dark:hover:bg-primary-900/20 dark:hover:text-primary-400",
   };
 
   const sizes: Record<string, string> = {

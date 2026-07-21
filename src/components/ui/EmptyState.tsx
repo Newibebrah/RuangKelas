@@ -15,8 +15,8 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-16 h-16 rounded-2xl bg-surface-hover flex items-center justify-center text-text-muted mb-5">
+    <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
+      <div className="w-16 h-16 rounded-2xl bg-surface-hover flex items-center justify-center text-text-muted mb-5 ring-1 ring-border/50">
         {icon || <HiInbox className="h-8 w-8" />}
       </div>
       <h3 className="text-lg font-semibold text-text-primary mb-1">{title}</h3>

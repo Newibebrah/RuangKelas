@@ -5,6 +5,7 @@ interface CardProps {
   className?: string;
   onClick?: () => void;
   hover?: boolean;
+  glass?: boolean;
 }
 
 export function Card({
@@ -12,13 +13,16 @@ export function Card({
   className = "",
   onClick,
   hover = false,
+  glass = false,
 }: CardProps) {
   return (
     <div
-      className={`bg-surface rounded-xl border border-border transition-all duration-200 ${
+      className={`${
+        glass ? "glass" : "bg-surface shadow-card border border-border"
+      } rounded-xl transition-all duration-200 ${
         hover
-          ? "hover:shadow-card-hover hover:border-primary-200 hover:-translate-y-0.5 cursor-pointer"
-          : "shadow-card"
+          ? "hover:shadow-card-hover hover:border-primary-200 hover:-translate-y-0.5 cursor-pointer dark:hover:border-primary-700"
+          : ""
       } ${className}`}
       onClick={onClick}
     >
@@ -35,7 +39,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-5 py-4 border-b border-border-light ${className}`}>
+    <div className={`px-5 py-4 border-b border-border-light dark:border-slate-700/50 ${className}`}>
       {children}
     </div>
   );

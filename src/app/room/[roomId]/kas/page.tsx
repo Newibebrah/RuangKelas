@@ -24,6 +24,7 @@ import {
   HiUserGroup,
   HiDocumentText,
 } from "react-icons/hi";
+import { FinanceChart } from "@/components/kas/FinanceChart";
 
 export default function KasPage() {
   const params = useParams();
@@ -212,6 +213,13 @@ export default function KasPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Grafik Keuangan */}
+      <FinanceChart
+        income={combinedIncome}
+        expense={combinedExpense}
+        balance={combinedBalance}
+      />
 
       {/* Row 2 — Member Payment Tracker */}
       {bill && (

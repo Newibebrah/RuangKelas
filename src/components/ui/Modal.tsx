@@ -9,7 +9,7 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Modal({
@@ -34,6 +34,7 @@ export function Modal({
     sm: "max-w-sm",
     md: "max-w-lg",
     lg: "max-w-2xl",
+    xl: "max-w-4xl",
   };
 
   return (
@@ -45,7 +46,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
@@ -53,9 +54,9 @@ export function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`relative w-full ${sizes[size]} bg-surface rounded-2xl shadow-modal`}
+            className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-surface rounded-2xl shadow-modal border border-border`}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-light shrink-0">
               <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
               <button
                 onClick={onClose}
@@ -64,7 +65,7 @@ export function Modal({
                 <HiX className="h-5 w-5" />
               </button>
             </div>
-            <div className="px-6 py-5">{children}</div>
+            <div className="px-6 py-5 overflow-y-auto">{children}</div>
           </motion.div>
         </div>
       )}

@@ -28,6 +28,7 @@ import {
   HiArrowLeft,
 } from "react-icons/hi";
 import { Kas } from "@/types";
+import { FinanceChart } from "@/components/kas/FinanceChart";
 
 const BillSetupModal = dynamic(
   () => import("@/components/kas/BillSetupModal").then((m) => ({ default: m.BillSetupModal })),
@@ -278,7 +279,14 @@ export default function KelolaKasPage() {
             </Card>
           </div>
 
-          {/* Billing Section - only if bill exists */}
+      {/* Grafik Keuangan */}
+      <FinanceChart
+        income={newTotalIncome + legacyTx.filter(t => t.type === "pemasukan").reduce((s, t) => s + t.amount, 0)}
+        expense={newTotalExpense + legacyTx.filter(t => t.type === "pengeluaran").reduce((s, t) => s + t.amount, 0)}
+        balance={newBalance + kasSummary.saldo}
+      />
+
+      {/* Billing Section - only if bill exists */}
           {bill && (
             <>
               <div className="grid gap-4 sm:grid-cols-2 mb-6">

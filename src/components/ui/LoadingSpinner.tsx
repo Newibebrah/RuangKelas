@@ -14,13 +14,13 @@ export function LoadingSpinner({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-12">
+    <div className="flex flex-col items-center justify-center gap-3 py-12 animate-fade-in">
       <div className="relative">
         <div
-          className={`${sizes[size]} border-[3px] border-primary-100 border-t-primary-600 rounded-full animate-spin`}
+          className={`${sizes[size]} border-[3px] border-primary-200/40 dark:border-primary-700/40 border-t-primary-600 dark:border-t-primary-400 rounded-full animate-spin`}
         />
       </div>
-      {message && <p className="text-sm font-medium text-text-muted">{message}</p>}
+      {message && <p className="text-sm font-medium text-text-muted animate-pulse-subtle">{message}</p>}
     </div>
   );
 }

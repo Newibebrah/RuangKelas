@@ -13,6 +13,8 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { HiArrowLeft, HiAcademicCap } from "react-icons/hi";
 import { roomTabs, TabDefinition } from "@/lib/navigation";
@@ -110,6 +112,8 @@ export default function RoomLayout({
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
+                <LanguageSwitcher />
+                <ThemeToggle />
                 <NotificationBell />
                 <UserMenu />
               </div>
