@@ -34,6 +34,7 @@ export interface RoomMember {
   joinedAt: Timestamp;
   displayName: string;
   email: string;
+  photoURL?: string;
 }
 
 export interface Kas {

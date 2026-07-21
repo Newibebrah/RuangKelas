@@ -132,6 +132,7 @@ export function RoomProvider({ children }: { children: ReactNode }) {
       role: "admin",
       displayName: user.displayName,
       email: user.email,
+      photoURL: user.photoURL || null,
       joinedAt: serverTimestamp(),
     });
 
@@ -166,6 +167,7 @@ export function RoomProvider({ children }: { children: ReactNode }) {
       role: "siswa",
       displayName: user.displayName,
       email: user.email,
+      photoURL: user.photoURL || null,
       joinedAt: serverTimestamp(),
     });
   };

@@ -87,10 +87,18 @@ export default function RoomHomePage() {
                     key={member.id}
                     className="flex items-center gap-3"
                   >
-                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-gray-600">
-                        {member.displayName.charAt(0)}
-                      </span>
+                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                      {member.photoURL ? (
+                        <img
+                          src={member.photoURL}
+                          alt={member.displayName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium text-gray-600">
+                          {member.displayName.charAt(0)}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">

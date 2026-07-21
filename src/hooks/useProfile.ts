@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp, collectionGroup, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { cloudinaryUpload } from "@/lib/cloudinary";
 import { useAuth } from "@/lib/auth-context";
@@ -40,6 +40,27 @@ export function useProfile() {
         updateData.updatedAt = serverTimestamp();
         await updateDoc(doc(db, "users", user.id), updateData);
         await refreshUser();
+
+        if (updateData.displayName || updateData.photoURL) {
+          const newDisplayName = (updateData.displayName as string) || user.displayName;
+          const newPhotoURL = updateData.photoURL as string | undefined;
+          try {
+            const q = query(
+              collectionGroup(db, "members"),
+              where("userId", "==", user.id)
+            );
+            const snap = await getDocs(q);
+            const updates = snap.docs.map((d) =>
+              updateDoc(d.ref, {
+                displayName: newDisplayName,
+                ...(newPhotoURL !== undefined && { photoURL: newPhotoURL }),
+              })
+            );
+            await Promise.all(updates);
+          } catch {
+            // collectionGroup index may not exist yet; skip silently
+          }
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Gagal memperbarui profil";
         console.error("updateProfile error:", err);
