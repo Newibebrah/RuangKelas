@@ -128,7 +128,8 @@ export interface Deployment {
   title: string;
   description: string;
   attachments: string[];
-  attachmentPaths: string[];
+  attachmentPaths?: string[];
+  attachmentPublicIds?: string[];
   createdBy: string;
   createdAt: Timestamp;
   displayName?: string;

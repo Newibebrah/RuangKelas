@@ -13,12 +13,11 @@ import {
   serverTimestamp,
   getDocs,
 } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Deployment } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { notifyAllMembers } from "@/lib/notifications";
-import { uploadFile, generateFilePath } from "@/lib/upload";
+import { cloudinaryUpload } from "@/lib/cloudinary";
 
 export function useDeployments(roomId: string) {
   const { user } = useAuth();
@@ -84,18 +83,20 @@ export function useDeployments(roomId: string) {
       if (!user) throw new Error("Harus login");
 
       const attachmentUrls: string[] = [];
-      const attachmentPaths: string[] = [];
+      const attachmentPublicIds: string[] = [];
 
       for (let i = 0; i < data.files.length; i++) {
         const file = data.files[i];
-        const path = generateFilePath(roomId, "deploy", file.name);
-        const url = await uploadFile(file, path, (progress) => {
-          const overall =
-            ((i + progress.progress / 100) / data.files.length) * 100;
-          data.onProgress?.(Math.round(overall));
+        const result = await cloudinaryUpload(file, {
+          folder: `deployments/${roomId}`,
+          onProgress: (progress) => {
+            const overall =
+              ((i + progress / 100) / data.files.length) * 100;
+            data.onProgress?.(Math.round(overall));
+          },
         });
-        attachmentUrls.push(url);
-        attachmentPaths.push(path);
+        attachmentUrls.push(result.secure_url);
+        attachmentPublicIds.push(result.public_id);
       }
 
       const docRef = await addDoc(collection(db, "deployments"), {
@@ -103,7 +104,7 @@ export function useDeployments(roomId: string) {
         title: data.title.trim(),
         description: data.description?.trim() || "",
         attachments: attachmentUrls,
-        attachmentPaths,
+        attachmentPublicIds,
         createdBy: user.id,
         displayName: user.displayName,
         createdAt: serverTimestamp(),
@@ -124,11 +125,14 @@ export function useDeployments(roomId: string) {
 
   const deleteDeployment = useCallback(
     async (deployment: Deployment) => {
-      const paths = deployment.attachmentPaths || [];
-      for (const p of paths) {
+      const publicIds = deployment.attachmentPublicIds || [];
+      for (const publicId of publicIds) {
         try {
-          const storageRef = ref(storage, p);
-          await deleteObject(storageRef);
+          await fetch("/api/cloudinary/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicId }),
+          });
         } catch {
           // ignore if file already deleted
         }

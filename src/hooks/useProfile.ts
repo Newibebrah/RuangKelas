@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { cloudinaryUpload } from "@/lib/cloudinary";
 import { useAuth } from "@/lib/auth-context";
 
 export function useProfile() {
@@ -30,35 +30,21 @@ export function useProfile() {
         if (data.bio !== undefined) updateData.bio = data.bio || null;
 
         if (data.photoFile) {
-          const path = `users/${user.id}/profile_${Date.now()}`;
-          const storageRef = ref(storage, path);
-          const task = uploadBytesResumable(storageRef, data.photoFile);
-
-          await new Promise<void>((resolve, reject) => {
-            task.on(
-              "state_changed",
-              (snapshot) => {
-                const progress = Math.round(
-                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                );
-                data.onUploadProgress?.(progress);
-              },
-              reject,
-              async () => {
-                const downloadURL = await getDownloadURL(task.snapshot.ref);
-                updateData.photoURL = downloadURL;
-                resolve();
-              }
-            );
+          const result = await cloudinaryUpload(data.photoFile, {
+            folder: "profiles",
+            onProgress: data.onUploadProgress,
           });
+          updateData.photoURL = result.secure_url;
         }
 
         updateData.updatedAt = serverTimestamp();
         await updateDoc(doc(db, "users", user.id), updateData);
         await refreshUser();
-      } catch {
-        setError("Gagal memperbarui profil");
-        throw new Error("Gagal memperbarui profil");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Gagal memperbarui profil";
+        console.error("updateProfile error:", err);
+        setError(message);
+        throw err;
       } finally {
         setLoading(false);
       }

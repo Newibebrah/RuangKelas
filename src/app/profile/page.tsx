@@ -50,16 +50,18 @@ export default function ProfilePage() {
     try {
       await updateProfile({
         displayName: displayName.trim(),
-        username: username.trim() || undefined,
-        bio: bio.trim() || undefined,
+        username: username.trim(),
+        bio: bio.trim(),
         photoFile: photoFile || undefined,
         onUploadProgress: setUploadProgress,
       });
       toast.success("Profil berhasil disimpan!");
       setPhotoFile(null);
       setPhotoPreview(null);
-    } catch {
-      toast.error("Gagal menyimpan profil");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal menyimpan profil";
+      console.error("handleSave error:", err);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
