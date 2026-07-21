@@ -6,6 +6,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -92,7 +93,8 @@ export function useBilling(roomId: string, memberCount?: number) {
 
     const q = query(
       collection(db, "payments"),
-      where("billId", "==", bill.id)
+      where("billId", "==", bill.id),
+      limit(2000)
     );
 
     const unsubPayments = onSnapshot(

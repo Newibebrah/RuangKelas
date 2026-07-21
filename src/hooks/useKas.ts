@@ -6,6 +6,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -35,7 +36,8 @@ export function useKas(roomId: string) {
     const q = query(
       collection(db, "kas"),
       where("roomId", "==", roomId),
-      orderBy("date", "desc")
+      orderBy("date", "desc"),
+      limit(200)
     );
 
     const unsubscribe = onSnapshot(
@@ -48,7 +50,7 @@ export function useKas(roomId: string) {
       },
       async () => {
         try {
-          const q2 = query(collection(db, "kas"), where("roomId", "==", roomId));
+          const q2 = query(collection(db, "kas"), where("roomId", "==", roomId), limit(200));
           const snap = await getDocs(q2);
           const data = snap.docs
             .map((d) => ({ id: d.id, ...d.data() }) as Kas)
