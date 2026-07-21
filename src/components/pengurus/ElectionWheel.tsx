@@ -51,7 +51,10 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
     const seg = 360 / N;
     const target = (winnerIndex + 0.5) * seg;
     const extra = 360 * (5 + Math.floor(Math.random() * 5));
-    const total = target + extra;
+    const currentAngle = rotation % 360;
+    const diff = target - currentAngle;
+    const adjustedTarget = diff >= 0 ? diff : diff + 360;
+    const total = adjustedTarget + extra;
 
     setRotation((prev) => prev + total);
 
@@ -59,7 +62,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
       setWinner(members[winnerIndex]);
       setSpinning(false);
     }, 4000);
-  }, [spinning, N, members]);
+  }, [spinning, N, members, rotation]);
 
   const handleConfirm = async (member?: Member) => {
     const target = member || winner;
