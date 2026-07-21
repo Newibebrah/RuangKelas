@@ -4,16 +4,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   collection,
   query,
-  where,
-  orderBy,
   limit,
   startAfter,
   onSnapshot,
   getDocs,
   QueryConstraint,
-  DocumentSnapshot,
   QueryDocumentSnapshot,
-  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 

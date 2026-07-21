@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { WebVitalsReporter } from "@/lib/web-vitals";
 import { Suspense } from "react";
+import { inter } from "@/lib/fonts";
 
 const baseUrl = "https://ruang-kelas-beige.vercel.app";
 
@@ -64,7 +66,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="id" className={`h-full antialiased ${inter.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -93,6 +95,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <AnalyticsTracker />
           </Suspense>
+          <WebVitalsReporter />
         </Providers>
       </body>
     </html>
