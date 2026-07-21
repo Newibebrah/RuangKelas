@@ -71,6 +71,14 @@ export default function KasPage() {
     [members]
   );
 
+  const memberArrearsCount = useMemo(() => {
+    if (!bill || periods.length === 0) return 0;
+    return memberRows.filter((m) => {
+      const paidCount = payments.filter((p) => p.userId === m.userId && p.status === "paid").length;
+      return paidCount < periods.length;
+    }).length;
+  }, [memberRows, payments, periods, bill]);
+
   const memberPaymentStats = useMemo(() => {
     return memberRows
       .map((m) => {
@@ -82,12 +90,10 @@ export default function KasPage() {
           totalPeriods,
           progress: totalPeriods > 0 ? Math.round((paidCount / totalPeriods) * 100) : 0,
           arrears: totalPeriods - paidCount,
-          totalPaid: paidCount * (bill?.amount || 0),
-          totalArrearsAmount: (totalPeriods - paidCount) * (bill?.amount || 0),
         };
       })
       .sort((a, b) => b.paidCount - a.paidCount);
-  }, [memberRows, payments, periods, bill?.amount]);
+  }, [memberRows, payments, periods]);
 
   const allTransactions = useMemo(() => {
     const normalized: {
@@ -162,7 +168,7 @@ export default function KasPage() {
         )}
       </div>
 
-      {/* Ringkasan Keuangan Utama */}
+      {/* Row 1 — Real Cash Flow */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardBody>
@@ -191,14 +197,14 @@ export default function KasPage() {
           </CardBody>
         </Card>
         <Card>
-          <CardBody>
+          <CardBody className="!bg-primary-600 !rounded-xl">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-50">
-                <HiCash className={`h-6 w-6 ${combinedBalance >= 0 ? "text-primary-600" : "text-danger"}`} />
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20">
+                <HiCash className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Saldo Kas</p>
-                <p className={`text-2xl font-bold ${combinedBalance >= 0 ? "text-primary-600" : "text-danger"}`}>
+                <p className="text-sm text-white/80 font-medium">Saldo Kas</p>
+                <p className="text-2xl font-bold text-white">
                   {formatRupiah(combinedBalance)}
                 </p>
               </div>
@@ -207,51 +213,14 @@ export default function KasPage() {
         </Card>
       </div>
 
-      {/* Billing Section */}
+      {/* Row 2 — Member Payment Tracker */}
       {bill && (
         <>
-          {/* Ringkasan Tagihan */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <CardBody>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-success-light">
-                    <HiCheckCircle className="h-6 w-6 text-success" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary">Terkumpul dari Tagihan</p>
-                    <p className="text-2xl font-bold text-success">{formatRupiah(billingSummary.totalCollected)}</p>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      {billingSummary.paidCount}/{billingSummary.totalPossible} pembayaran lunas
-                    </p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-warning-light">
-                    <HiClock className="h-6 w-6 text-warning" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary">Tunggakan</p>
-                    <p className="text-2xl font-bold text-warning">{formatRupiah(billingSummary.totalArrears)}</p>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      {billingSummary.totalPossible - billingSummary.paidCount} pembayaran belum lunas
-                    </p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* Tabel Pembayaran */}
           <Card>
-            <CardBody>
+            <CardBody className="!pb-1">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-semibold text-text-primary">Status Pembayaran Anggota</h3>
-                <span className="text-xs text-text-muted">
+                <span className="text-xs font-medium text-text-muted bg-surface-hover px-2 py-1 rounded-lg">
                   {billingSummary.paidCount}/{billingSummary.totalPossible} lunas
                 </span>
               </div>
@@ -265,10 +234,14 @@ export default function KasPage() {
             </CardBody>
           </Card>
 
-          {/* Ranking Pembayaran Anggota */}
           <Card>
             <CardBody>
-              <h3 className="text-base font-semibold text-text-primary mb-4">Progres Pembayaran Anggota</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold text-text-primary">Progres Anggota</h3>
+                <span className="text-xs text-text-muted">
+                  {memberArrearsCount} anggota tertunda
+                </span>
+              </div>
               {memberPaymentStats.length === 0 ? (
                 <EmptyState
                   icon={<HiUserGroup className="h-8 w-8" />}
@@ -277,46 +250,44 @@ export default function KasPage() {
                 />
               ) : (
                 <div className="space-y-3">
-                  {memberPaymentStats.map((m, idx) => (
-                    <div key={m.userId} className="flex items-center gap-3">
-                      <span className="w-6 text-center text-sm font-medium text-text-muted shrink-0">
-                        {idx + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-text-primary truncate">
-                            {m.displayName}
-                          </span>
-                          <span className={`text-xs font-semibold shrink-0 ml-2 ${
-                            m.arrears === 0
-                              ? "text-success"
-                              : m.arrears <= Math.floor(m.totalPeriods / 2)
-                                ? "text-warning"
-                                : "text-danger"
-                          }`}>
-                            {m.paidCount}/{m.totalPeriods}
-                          </span>
+                  {memberPaymentStats.map((m, idx) => {
+                    const isFull = m.paidCount === m.totalPeriods;
+                    const isPartial = m.paidCount > 0;
+                    return (
+                      <div key={m.userId} className="flex items-center gap-3">
+                        <span className="w-6 text-center text-sm font-medium text-text-muted shrink-0">
+                          {idx + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-sm font-medium truncate ${isFull ? "text-text-primary" : ""}`}>
+                              {m.displayName}
+                            </span>
+                            <span
+                              className={`text-xs font-semibold shrink-0 ml-2 ${
+                                isFull ? "text-success" : isPartial ? "text-warning" : "text-danger"
+                              }`}
+                            >
+                              {m.paidCount}/{m.totalPeriods}
+                            </span>
+                          </div>
+                          <div className="w-full bg-surface-hover rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full transition-all ${
+                                isFull ? "bg-success" : isPartial ? "bg-warning" : "bg-danger"
+                              }`}
+                              style={{ width: `${m.progress}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-surface-hover rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              m.arrears === 0
-                                ? "bg-success"
-                                : m.arrears <= Math.floor(m.totalPeriods / 2)
-                                  ? "bg-warning"
-                                  : "bg-danger"
-                            }`}
-                            style={{ width: `${m.progress}%` }}
-                          />
-                        </div>
-                        {m.arrears > 0 && (
-                          <p className="text-xs text-text-muted mt-0.5">
-                            Tertunggak {formatRupiah(m.totalArrearsAmount)}
-                          </p>
+                        {isFull ? (
+                          <HiCheckCircle className="h-5 w-5 text-success shrink-0" />
+                        ) : (
+                          <HiClock className={`h-5 w-5 shrink-0 ${isPartial ? "text-warning" : "text-danger"}`} />
                         )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardBody>
@@ -324,7 +295,6 @@ export default function KasPage() {
         </>
       )}
 
-      {/* No Bill State */}
       {!bill && !billingLoading && (
         <Card>
           <CardBody>
@@ -337,7 +307,7 @@ export default function KasPage() {
         </Card>
       )}
 
-      {/* Riwayat Transaksi */}
+      {/* Row 3 — Riwayat Transaksi */}
       <Card>
         <CardBody>
           <h3 className="text-base font-semibold text-text-primary mb-1">Riwayat Transaksi</h3>
@@ -349,7 +319,7 @@ export default function KasPage() {
             />
           ) : (
             <div className="space-y-1 mt-3">
-              {allTransactions.map((trx) => (
+              {allTransactions.slice(0, 50).map((trx) => (
                 <div
                   key={trx.id}
                   className="flex items-center justify-between py-3 px-2 rounded-xl hover:bg-surface-hover transition-colors"

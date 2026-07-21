@@ -262,11 +262,18 @@ export default function KelolaKasPage() {
               </CardBody>
             </Card>
             <Card>
-              <CardBody>
-                <p className="text-sm text-text-secondary">Saldo Kas</p>
-                <p className={`text-2xl font-bold ${(newBalance + kasSummary.saldo) >= 0 ? "text-primary-600" : "text-danger"}`}>
-                  {formatRupiah(newBalance + kasSummary.saldo)}
-                </p>
+              <CardBody className="!bg-primary-600 !rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20">
+                    <HiCash className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/80 font-medium">Saldo Kas</p>
+                    <p className="text-2xl font-bold text-white">
+                      {formatRupiah(newBalance + kasSummary.saldo)}
+                    </p>
+                  </div>
+                </div>
               </CardBody>
             </Card>
           </div>
