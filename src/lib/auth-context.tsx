@@ -89,12 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await fetchUserData(result.user.uid);
         }
       })
-      .catch((err) => {
-        if (
-          err.code !== "auth/unauthorized-domain" &&
-          err.code !== "auth/operation-not-supported"
-        ) {
-          setError("Gagal login dengan Google");
+      .catch((err: { code?: string; message?: string }) => {
+        if (err.code === "auth/unauthorized-domain") {
+          setError(
+            "Login gagal: domain ini belum terdaftar. Tambahkan domain Vercel ke Firebase Console → Authentication → Settings → Authorized domains."
+          );
+        } else {
+          setError(err.message || "Gagal login dengan Google");
         }
       });
   }, []);
