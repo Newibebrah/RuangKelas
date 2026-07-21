@@ -18,6 +18,17 @@ let db: Firestore;
 let storage: FirebaseStorage;
 
 if (typeof window !== "undefined") {
+  const missingVars = Object.entries(firebaseConfig)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missingVars.length > 0) {
+    console.error(
+      "Firebase config missing:",
+      missingVars.join(", "),
+      "— set env vars di Vercel"
+    );
+  }
+
   if (!getApps().length) {
     app = initializeApp(firebaseConfig);
   } else {
@@ -26,6 +37,8 @@ if (typeof window !== "undefined") {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
+
+  console.log("Firebase init OK, authDomain:", firebaseConfig.authDomain);
 }
 
 export { app, auth, db, storage };

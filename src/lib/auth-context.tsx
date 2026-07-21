@@ -90,29 +90,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       })
       .catch((err: { code?: string; message?: string }) => {
+        console.error("Redirect login error:", err.code, err.message);
         if (err.code === "auth/unauthorized-domain") {
-          setError(
-            "Login gagal: domain ini belum terdaftar. Tambahkan domain Vercel ke Firebase Console → Authentication → Settings → Authorized domains."
-          );
+          setError("Domain belum terdaftar. Admin: tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");
+        } else if (err.code === "auth/operation-not-supported") {
         } else {
-          setError(err.message || "Gagal login dengan Google");
+          setError(err.message || "Gagal login. Cek console browser untuk detail.");
         }
       });
   }, []);
 
   const signInWithGoogle = async () => {
-    try {
-      setError(null);
-      const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch (err: unknown) {
-      const e = err as { code?: string };
-      if (e.code === "auth/unauthorized-domain") {
-        setError("Domain ini belum terdaftar di Firebase. Tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");
-      } else {
-        setError("Gagal login dengan Google");
-      }
-    }
+    setError(null);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await signInWithRedirect(auth, provider);
   };
 
   const signOut = async () => {
