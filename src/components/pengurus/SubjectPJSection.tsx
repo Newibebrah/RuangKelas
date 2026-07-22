@@ -135,7 +135,7 @@ export function SubjectPJSection({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-gray-900">
+        <h3 className="text-base font-semibold text-text-primary">
           PJ Mata Pelajaran
         </h3>
         {canManage && (
@@ -169,19 +169,19 @@ export function SubjectPJSection({
                         <HiBookOpen className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium text-text-primary truncate">
                           {s.subjectName}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {s.userId && member ? (
                             <div className="flex items-center gap-1">
-                              <HiUser className="h-3 w-3 text-gray-400" />
-                              <span className="text-xs text-gray-500 truncate">
+                              <HiUser className="h-3 w-3 text-text-muted" />
+                              <span className="text-xs text-text-muted truncate">
                                 {member.displayName}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-text-muted">
                               Belum ada PJ
                             </span>
                           )}
@@ -191,7 +191,7 @@ export function SubjectPJSection({
                             </span>
                           )}
                           {s.semester && (
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                            <span className="text-xs px-1.5 py-0.5 bg-surface-hover text-text-muted rounded">
                               {s.semester}
                             </span>
                           )}
@@ -202,7 +202,7 @@ export function SubjectPJSection({
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => openEdit(s)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-text-muted hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Edit mapel"
                         >
                           <HiPencil className="h-4 w-4" />
@@ -212,7 +212,7 @@ export function SubjectPJSection({
                             setAssignOpen(s.id);
                             setSelectedUser(s.userId || "");
                           }}
-                          className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                          className="p-1.5 text-text-muted hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                           title="Tugaskan PJ"
                         >
                           <HiUserAdd className="h-4 w-4" />
@@ -220,7 +220,7 @@ export function SubjectPJSection({
                         {s.userId && (
                           <button
                             onClick={() => handleUnassign(s.id)}
-                            className="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
                             title="Hapus PJ"
                           >
                             <HiUser className="h-4 w-4" />
@@ -228,7 +228,7 @@ export function SubjectPJSection({
                         )}
                         <button
                           onClick={() => handleDelete(s.id, s.subjectName)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Hapus mapel"
                         >
                           <HiTrash className="h-4 w-4" />
@@ -325,11 +325,11 @@ export function SubjectPJSection({
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Pilih Anggota
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
             >

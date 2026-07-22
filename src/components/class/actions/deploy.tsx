@@ -80,11 +80,11 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} title="Bagikan Materi" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Judul
           </label>
           <input
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Judul materi"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -93,11 +93,11 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Deskripsi <span className="text-gray-400">(opsional)</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Deskripsi <span className="text-text-muted">(opsional)</span>
           </label>
           <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             rows={3}
             placeholder="Deskripsi materi"
             value={description}
@@ -106,23 +106,23 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Lampiran <span className="text-gray-400">(opsional)</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Lampiran <span className="text-text-muted">(opsional)</span>
           </label>
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
               isDragActive
                 ? "border-blue-400 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400"
+                : "border-border hover:border-border"
             }`}
           >
             <input {...getInputProps()} />
-            <HiUpload className="mx-auto h-8 w-8 text-gray-400" />
-            <p className="mt-2 text-sm text-gray-500">
+            <HiUpload className="mx-auto h-8 w-8 text-text-muted" />
+            <p className="mt-2 text-sm text-text-muted">
               Seret file ke sini, atau klik untuk pilih file
             </p>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-text-muted">
               PDF, Word, Excel, PPT, Gambar (maks 10MB per file)
             </p>
           </div>
@@ -131,21 +131,21 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
               {files.map((file, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between px-3 py-2 bg-surface-muted rounded-lg"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <HiPaperClip className="h-4 w-4 text-gray-400 shrink-0" />
-                    <span className="text-sm text-gray-700 truncate">
+                    <HiPaperClip className="h-4 w-4 text-text-muted shrink-0" />
+                    <span className="text-sm text-text-secondary truncate">
                       {file.name}
                     </span>
-                    <span className="text-xs text-gray-400 shrink-0">
+                    <span className="text-xs text-text-muted shrink-0">
                       ({(file.size / 1024).toFixed(0)} KB)
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeFile(i)}
-                    className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+                    className="p-1 text-text-muted hover:text-red-600 rounded transition-colors"
                   >
                     <HiX className="h-4 w-4" />
                   </button>
@@ -159,11 +159,11 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <HiDocumentText className="h-4 w-4 text-blue-600" />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-text-secondary">
                 Mengunggah... {uploadProgress}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-border rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}

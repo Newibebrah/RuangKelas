@@ -60,8 +60,8 @@ export function MaterialList({
   if (deployments.length === 0) {
     return (
       <div className="text-center py-12">
-        <HiDocumentText className="mx-auto h-12 w-12 text-gray-300" />
-        <p className="mt-3 text-sm text-gray-500">Belum ada materi</p>
+        <HiDocumentText className="mx-auto h-12 w-12 text-text-muted" />
+        <p className="mt-3 text-sm text-text-muted">Belum ada materi</p>
       </div>
     );
   }
@@ -73,15 +73,15 @@ export function MaterialList({
           <CardBody>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-semibold text-text-primary truncate">
                   {d.title}
                 </h3>
                 {d.description && (
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                  <p className="text-sm text-text-muted mt-1 line-clamp-2">
                     {d.description}
                   </p>
                 )}
-                <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                <div className="flex items-center gap-3 mt-2 text-xs text-text-muted">
                   {d.displayName && <span>{d.displayName}</span>}
                   <span>{formatDate(d)}</span>
                   <span>{d.attachments.length} file(s)</span>
@@ -94,13 +94,13 @@ export function MaterialList({
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-surface-muted rounded-lg hover:bg-surface-hover transition-colors text-sm text-text-secondary"
                       >
                         <span>{getFileIcon(url)}</span>
                         <span className="truncate flex-1">
                           {url.split("/").pop()?.replace(/^\d+_/, "") || `File ${i + 1}`}
                         </span>
-                        <HiDownload className="h-4 w-4 text-gray-400 shrink-0" />
+                        <HiDownload className="h-4 w-4 text-text-muted shrink-0" />
                       </a>
                     ))}
                   </div>
@@ -109,7 +109,7 @@ export function MaterialList({
               {canManage && (
                 <button
                   onClick={() => setDeleteTarget(d)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                  className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                   title="Hapus materi"
                 >
                   <HiTrash className="h-4 w-4" />
@@ -127,7 +127,7 @@ export function MaterialList({
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-text-secondary">
             Apakah Anda yakin ingin menghapus materi{" "}
             <strong>{deleteTarget?.title}</strong>? File akan dihapus permanen.
           </p>

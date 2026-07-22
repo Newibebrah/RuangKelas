@@ -23,21 +23,21 @@ export function MemberProgressCard({
   return (
     <Card>
       <CardBody>
-        <h3 className="text-sm font-medium text-gray-500 mb-3">
+        <h3 className="text-sm font-medium text-text-muted mb-3">
           Progres Pembayaran
         </h3>
-        <p className="text-lg font-semibold text-gray-900 mb-3">
+        <p className="text-lg font-semibold text-text-primary mb-3">
           {displayName}
         </p>
 
         <div className="mb-3">
           <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">
+            <span className="text-text-secondary">
               {paidCount}/{totalPeriods} periode
             </span>
-            <span className="font-medium text-gray-900">{progress}%</span>
+            <span className="font-medium text-text-primary">{progress}%</span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-2.5">
+          <div className="w-full bg-surface-hover rounded-full h-2.5">
             <div
               className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}

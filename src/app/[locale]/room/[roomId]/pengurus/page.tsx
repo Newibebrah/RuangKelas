@@ -24,7 +24,7 @@ import toast from "react-hot-toast";
     "wakil ketua": "bg-orange-50 text-orange-700 ring-orange-200",
     sekretaris: "bg-blue-50 text-blue-700 ring-blue-200",
     bendahara: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    anggota: "bg-gray-50 text-gray-700 ring-gray-200",
+    anggota: "bg-surface-muted text-text-secondary ring-border",
   };
 
 export default function PengurusPage() {
@@ -121,7 +121,7 @@ export default function PengurusPage() {
                 {sortedPengurus.map((p) => {
                   const jLower = p.jabatan.toLowerCase();
                   const colorClass =
-                    jabatanColors[jLower] || "bg-gray-100 text-gray-700 ring-gray-200";
+                    jabatanColors[jLower] || "bg-surface-hover text-text-secondary ring-border";
                   return (
                     <Card key={p.id} hover>
                       <CardBody>
@@ -135,13 +135,13 @@ export default function PengurusPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-gray-900 truncate">
+                              <p className="font-semibold text-text-primary truncate">
                                 {p.displayName}
                               </p>
                               {canManage && jLower !== "ketua" && (
                                 <button
                                   onClick={() => setRoleModal(p)}
-                                  className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors shrink-0"
+                                  className="p-1 text-text-muted hover:text-blue-600 hover:bg-blue-50 rounded transition-colors shrink-0"
                                 >
                                   <HiPencil className="h-3.5 w-3.5" />
                                 </button>
@@ -150,12 +150,12 @@ export default function PengurusPage() {
                             <span
                               className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full capitalize ${
                                 jabatanColors[jLower] ||
-                                "bg-gray-100 text-gray-700"
+                                "bg-surface-hover text-text-secondary"
                               }`}
                             >
                               {p.jabatan}
                             </span>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-text-muted mt-1">
                               Periode: {p.periode}
                             </p>
                           </div>

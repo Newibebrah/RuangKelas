@@ -62,11 +62,11 @@ export function ElectionModal({
       {step === "select" ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Jenis
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
               value={type}
               onChange={(e) => {
                 setType(e.target.value as ElectionType);
@@ -78,11 +78,11 @@ export function ElectionModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               {type === "pj" ? "Mata Pelajaran" : "Jabatan"}
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
             >
@@ -111,7 +111,7 @@ export function ElectionModal({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-text-muted">
             Memilih {type === "pj" ? "PJ" : ""} {target}
           </p>
           <ElectionWheel

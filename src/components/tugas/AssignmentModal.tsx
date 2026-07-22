@@ -146,12 +146,12 @@ export function AssignmentModal({
           {...register("subject")}
         />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Deskripsi
           </label>
           <textarea
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.description ? "border-red-500" : "border-gray-300"
+              errors.description ? "border-red-500" : "border-border"
             }`}
             rows={3}
             placeholder="Deskripsi tugas"
@@ -170,12 +170,12 @@ export function AssignmentModal({
           {...register("deadline")}
         />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Catatan Guru <span className="text-gray-400">(opsional)</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Catatan Guru <span className="text-text-muted">(opsional)</span>
           </label>
           <textarea
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.teacherNote ? "border-red-500" : "border-gray-300"
+              errors.teacherNote ? "border-red-500" : "border-border"
             }`}
             rows={2}
             placeholder="Catatan tambahan (opsional)"
@@ -189,8 +189,8 @@ export function AssignmentModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Lampiran <span className="text-gray-400">(opsional)</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Lampiran <span className="text-text-muted">(opsional)</span>
           </label>
           <div className="flex flex-wrap gap-2 mb-2">
             {files.map((f, i) => (
@@ -211,7 +211,7 @@ export function AssignmentModal({
             type="file"
             multiple
             onChange={handleFileChange}
-            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
           />
         </div>
 

@@ -49,7 +49,7 @@ const PaymentCell = memo(function PaymentCell({
         className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
           paid
             ? "bg-green-100 text-green-700 hover:bg-green-200"
-            : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+            : "bg-surface-hover text-text-muted hover:bg-border"
         } disabled:opacity-50`}
       >
         {isLoading ? (
@@ -69,7 +69,7 @@ const PaymentCell = memo(function PaymentCell({
   return (
     <span
       className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-        paid ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+        paid ? "bg-green-100 text-green-700" : "bg-surface-hover text-text-muted"
       }`}
     >
       {paid ? <HiCheck className="h-5 w-5" /> : <HiX className="h-5 w-5" />}
@@ -128,32 +128,32 @@ export const PaymentTable = memo(function PaymentTable({
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200">
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-4 py-3 font-semibold text-gray-900 whitespace-nowrap min-w-[160px]">
+            <tr className="bg-surface-muted border-b border-border">
+              <th className="text-left px-4 py-3 font-semibold text-text-primary whitespace-nowrap min-w-[160px]">
                 Anggota
               </th>
               {periods.map((p) => (
                 <th
                   key={p.id}
-                  className="text-center px-3 py-3 font-semibold text-gray-900 whitespace-nowrap"
+                  className="text-center px-3 py-3 font-semibold text-text-primary whitespace-nowrap"
                 >
                   P{p.periodNumber}
                 </th>
               ))}
-              <th className="text-center px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">
+              <th className="text-center px-4 py-3 font-semibold text-text-primary whitespace-nowrap">
                 Lunas
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border-light">
             {members.length === 0 ? (
               <tr>
                 <td
                   colSpan={periods.length + 2}
-                  className="text-center py-8 text-gray-400"
+                  className="text-center py-8 text-text-muted"
                 >
                   Belum ada anggota
                 </td>
@@ -162,8 +162,8 @@ export const PaymentTable = memo(function PaymentTable({
               members.map((member) => {
                 const total = getMemberTotal(member.userId);
                 return (
-                  <tr key={member.userId} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+                  <tr key={member.userId} className="hover:bg-surface-muted">
+                    <td className="px-4 py-3 font-medium text-text-primary whitespace-nowrap">
                       {member.displayName}
                     </td>
                     {periods.map((period) => {
@@ -184,7 +184,7 @@ export const PaymentTable = memo(function PaymentTable({
                         </td>
                       );
                     })}
-                    <td className="text-center px-4 py-3 font-medium text-gray-900">
+                    <td className="text-center px-4 py-3 font-medium text-text-primary">
                       {total}/{periods.length}
                     </td>
                   </tr>
@@ -198,15 +198,15 @@ export const PaymentTable = memo(function PaymentTable({
       {/* Mobile card layout */}
       <div className="md:hidden space-y-3">
         {members.length === 0 ? (
-          <p className="text-center py-8 text-gray-400">Belum ada anggota</p>
+          <p className="text-center py-8 text-text-muted">Belum ada anggota</p>
         ) : (
           members.map((member) => {
             const total = getMemberTotal(member.userId);
             return (
-              <div key={member.userId} className="bg-white rounded-xl border border-gray-200 p-4">
+              <div key={member.userId} className="bg-white rounded-xl border border-border p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-gray-900">{member.displayName}</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="font-medium text-text-primary">{member.displayName}</span>
+                  <span className="text-sm text-text-muted">
                     {total}/{periods.length} lunas
                   </span>
                 </div>
@@ -217,7 +217,7 @@ export const PaymentTable = memo(function PaymentTable({
                     const isLoading = togglingId === toggleKey;
                     return (
                       <div key={period.id} className="flex items-center gap-1">
-                        <span className="text-xs text-gray-400">P{period.periodNumber}</span>
+                        <span className="text-xs text-text-muted">P{period.periodNumber}</span>
                         <PaymentCell
                           memberId={member.userId}
                           periodId={period.id}

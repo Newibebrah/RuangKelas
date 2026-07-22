@@ -119,13 +119,13 @@ export default function TugasDetailPage() {
   };
 
   if (loadingAsg) return <LoadingSkeleton count={3} />;
-  if (!assignment) return <p className="text-gray-500">Tugas tidak ditemukan</p>;
+  if (!assignment) return <p className="text-text-muted">Tugas tidak ditemukan</p>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+        className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary"
       >
         <HiArrowLeft className="h-4 w-4" />
         Kembali
@@ -134,8 +134,8 @@ export default function TugasDetailPage() {
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">{assignment.subject}</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-xl font-bold text-text-primary">{assignment.subject}</h2>
+            <p className="text-sm text-text-muted mt-1">
               {assignment.description}
             </p>
           </div>
@@ -154,14 +154,14 @@ export default function TugasDetailPage() {
         </div>
 
         {assignment.teacherNote && (
-          <p className="text-sm text-gray-500 italic">
+          <p className="text-sm text-text-muted italic">
             Catatan: {assignment.teacherNote}
           </p>
         )}
 
         {assignment.attachments?.length ? (
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+            <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
               Lampiran
             </p>
             <div className="flex flex-wrap gap-2">
@@ -184,7 +184,7 @@ export default function TugasDetailPage() {
 
       {!canManage && (
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">
+          <h3 className="font-semibold text-text-primary">
             {mySubmission ? "Tugas Terkumpul" : "Kumpulkan Tugas"}
           </h3>
 
@@ -210,14 +210,14 @@ export default function TugasDetailPage() {
                 Lihat File
               </a>
               {mySubmission.notes && (
-                <p className="text-sm text-gray-500">Catatan: {mySubmission.notes}</p>
+                <p className="text-sm text-text-muted">Catatan: {mySubmission.notes}</p>
               )}
               {mySubmission.grade !== undefined && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 text-sm rounded-lg">
                   <HiStar className="h-4 w-4" />
                   Nilai: {mySubmission.grade}
                   {mySubmission.comment && (
-                    <span className="text-gray-500">— {mySubmission.comment}</span>
+                    <span className="text-text-muted">— {mySubmission.comment}</span>
                   )}
                 </div>
               )}
@@ -228,17 +228,17 @@ export default function TugasDetailPage() {
                 ref={fileRef}
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
               />
               <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={2}
                 placeholder="Catatan (opsional)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
               {uploadProgress > 0 && (
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="w-full bg-border rounded-full h-1.5">
                   <div
                     className="bg-blue-600 h-1.5 rounded-full transition-all"
                     style={{ width: `${uploadProgress}%` }}
@@ -260,23 +260,23 @@ export default function TugasDetailPage() {
 
       {canManage && (
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">
+          <h3 className="font-semibold text-text-primary">
             Pengumpulan ({submissions.length})
           </h3>
 
           {subLoading ? (
             <LoadingSkeleton count={2} />
           ) : submissions.length === 0 ? (
-            <p className="text-sm text-gray-400">Belum ada pengumpulan</p>
+            <p className="text-sm text-text-muted">Belum ada pengumpulan</p>
           ) : (
             <div className="space-y-3">
               {submissions.map((sub) => (
                 <div
                   key={sub.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-surface-muted rounded-lg"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-text-primary truncate">
                       {sub.displayName}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -290,7 +290,7 @@ export default function TugasDetailPage() {
                         Lihat File
                       </a>
                       {sub.submittedAt && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-text-muted">
                           {formatDistanceToNow(sub.submittedAt.toDate(), {
                             locale: id,
                             addSuffix: true,
@@ -299,7 +299,7 @@ export default function TugasDetailPage() {
                       )}
                     </div>
                     {sub.notes && (
-                      <p className="text-xs text-gray-500 mt-0.5">{sub.notes}</p>
+                      <p className="text-xs text-text-muted mt-0.5">{sub.notes}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-3">

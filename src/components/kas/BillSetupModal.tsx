@@ -82,12 +82,12 @@ export function BillSetupModal({
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Frekuensi
           </label>
           <select
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.frequency ? "border-red-500" : "border-gray-300"
+              errors.frequency ? "border-red-500" : "border-border"
             }`}
             {...register("frequency")}
           >

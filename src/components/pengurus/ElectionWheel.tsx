@@ -78,7 +78,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
   if (N === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <p className="text-sm text-gray-400">Belum ada anggota untuk dipilih</p>
+        <p className="text-sm text-text-muted">Belum ada anggota untuk dipilih</p>
       </div>
     );
   }
@@ -135,7 +135,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
       {winner && !spinning && (
         <Card className="w-full max-w-sm border-green-200">
           <CardBody>
-            <p className="text-sm text-gray-500 text-center mb-1">
+            <p className="text-sm text-text-muted text-center mb-1">
               Hasil Pemilihan {label}
             </p>
             <p className="text-lg font-bold text-center text-green-700">
