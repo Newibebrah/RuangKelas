@@ -37,7 +37,7 @@ export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
               {isActive && (
                 <motion.span
                   layoutId="bottomNavPill"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  transition={{ type: "spring" as const, stiffness: 500, damping: 35 }}
                   className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
                 />
               )}

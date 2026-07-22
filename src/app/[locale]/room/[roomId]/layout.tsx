@@ -253,7 +253,7 @@ export default function RoomLayout({
                       {isActive && (
                         <motion.span
                           layoutId="activeTab"
-                          transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                          transition={{ type: "spring" as const, stiffness: 500, damping: 35 }}
                           className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20"
                         />
                       )}
