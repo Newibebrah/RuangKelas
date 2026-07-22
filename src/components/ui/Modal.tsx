@@ -90,31 +90,31 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
             aria-hidden="true"
           />
           <motion.div
             ref={modalRef}
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            initial={{ opacity: 0, scale: 0.92, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.92, y: 16 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.stopPropagation();
                 onClose();
               }
             }}
-            className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-surface rounded-2xl shadow-modal border border-border`}
+            className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/30`}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border-light shrink-0">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-slate-700/50 shrink-0">
               <h2 className="text-lg font-semibold text-text-primary" id="modal-title">{title}</h2>
               <button
                 onClick={onClose}
                 aria-label="Tutup"
-                className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-colors"
+                className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:scale-110"
               >
                 <HiX className="h-5 w-5" />
               </button>

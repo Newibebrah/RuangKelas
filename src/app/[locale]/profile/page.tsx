@@ -11,8 +11,46 @@ import { Input } from "@/components/ui/Input";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { AppHeader } from "@/components/ui/AppHeader";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { HiArrowLeft, HiCamera, HiUser } from "react-icons/hi";
+import { motion } from "framer-motion";
+import { HiArrowLeft, HiCamera, HiUser, HiMail, HiCalendar, HiBadgeCheck } from "react-icons/hi";
 import toast from "react-hot-toast";
+
+const formatDate = (timestamp: { seconds?: number; toDate?: () => Date } | undefined) => {
+  if (!timestamp) return "-";
+  try {
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp.seconds! * 1000);
+    return new Intl.DateTimeFormat("id-ID", { year: "numeric", month: "long", day: "numeric" }).format(date);
+  } catch {
+    return "-";
+  }
+};
+
+const roleLabels: Record<string, string> = {
+  admin: "Admin",
+  guru: "Guru",
+  siswa: "Siswa",
+  pengurus: "Pengurus",
+};
+
+const roleColors: Record<string, string> = {
+  admin: "bg-gradient-to-r from-amber-500 to-orange-600",
+  guru: "bg-gradient-to-r from-blue-500 to-indigo-600",
+  siswa: "bg-gradient-to-r from-emerald-500 to-teal-600",
+  pengurus: "bg-gradient-to-r from-purple-500 to-pink-600",
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+};
 
 export default function ProfilePage() {
   const { t } = useLocale();
@@ -90,22 +128,30 @@ export default function ProfilePage() {
           }
         />
 
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-          {/* Photo */}
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <div className="h-24 w-24 rounded-full overflow-hidden bg-surface-hover flex items-center justify-center ring-4 ring-border">
+        <motion.div
+          className="max-w-2xl mx-auto px-4 py-8 space-y-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Avatar Section */}
+          <motion.div variants={itemVariants} className="flex flex-col items-center text-center">
+            <div className="relative mb-4">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-[3px]">
+                <div className="w-full h-full rounded-full bg-surface-muted" />
+              </div>
+              <div className="relative h-28 w-28 rounded-full overflow-hidden bg-surface-hover flex items-center justify-center ring-[3px] ring-surface">
                 {photoPreview ? (
-                  <Image src={photoPreview} alt="Preview" width={96} height={96} className="h-full w-full object-cover" />
+                  <Image src={photoPreview} alt="Preview" width={112} height={112} className="h-full w-full object-cover" />
                 ) : user.photoURL ? (
-                  <Image src={user.photoURL} alt={user.displayName} width={96} height={96} className="h-full w-full object-cover" />
+                  <Image src={user.photoURL} alt={user.displayName} width={112} height={112} className="h-full w-full object-cover" />
                 ) : (
-                  <HiUser className="h-10 w-10 text-text-muted" />
+                  <HiUser className="h-12 w-12 text-text-muted" />
                 )}
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2.5 bg-primary-600 text-white rounded-full shadow-md hover:bg-primary-700 transition-all active:scale-95"
+                className="absolute bottom-1 right-1 p-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 transition-all duration-200"
               >
                 <HiCamera className="h-4 w-4" />
               </button>
@@ -117,66 +163,102 @@ export default function ProfilePage() {
               className="hidden"
               onChange={handleFileSelect}
             />
-            <p className="text-xs text-text-muted mt-2">{t('profile.maxPhotoSize')}</p>
+            <h2 className="text-2xl font-bold text-text-primary">{user.displayName}</h2>
+            <p className="text-text-muted text-sm mt-1">{user.email}</p>
+            {user.username && (
+              <p className="text-sm text-indigo-500 dark:text-indigo-400 font-medium mt-0.5">@{user.username}</p>
+            )}
             {uploadProgress > 0 && uploadProgress < 100 && (
-              <div className="w-48 mt-3">
+              <div className="w-48 mt-4">
                 <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-primary-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                  <div
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 h-1.5 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
 
-          {/* Email (readonly) */}
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">{t('profile.email')}</label>
-            <p className="px-3 py-2.5 bg-surface-muted border border-border rounded-xl text-sm text-text-muted">
-              {user.email}
-            </p>
-          </div>
+          {/* Info Cards */}
+          <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-surface rounded-2xl p-5 border border-border shadow-card hover:shadow-card-hover transition-shadow duration-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                  <HiMail className="h-5 w-5" />
+                </div>
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Email</p>
+              </div>
+              <p className="text-sm font-medium text-text-primary truncate">{user.email}</p>
+            </div>
 
-          {/* Nama Lengkap */}
-          <Input
-            label={t('profile.fullName')}
-            placeholder={t('profile.fullNamePlaceholder')}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
+            <div className="bg-surface rounded-2xl p-5 border border-border shadow-card hover:shadow-card-hover transition-shadow duration-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                  <HiCalendar className="h-5 w-5" />
+                </div>
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Bergabung sejak</p>
+              </div>
+              <p className="text-sm font-medium text-text-primary">{formatDate(user.createdAt)}</p>
+            </div>
 
-          {/* Username */}
-          <Input
-            label={t('profile.username')}
-            placeholder="@username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            prefix="@"
-          />
+            <div className="bg-surface rounded-2xl p-5 border border-border shadow-card hover:shadow-card-hover transition-shadow duration-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                  <HiBadgeCheck className="h-5 w-5" />
+                </div>
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Peran di Kelas</p>
+              </div>
+              <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold text-white ${roleColors[user.role] || "bg-gradient-to-r from-gray-500 to-gray-600"}`}>
+                {roleLabels[user.role] || user.role}
+              </span>
+            </div>
+          </motion.div>
 
-          {/* Bio */}
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">
-              {t('profile.bio')} <span className="text-text-muted">{t('profile.optional')}</span>
-            </label>
-            <textarea
-              className="w-full px-3 py-2.5 border border-border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-surface text-text-primary placeholder:text-text-muted resize-none"
-              rows={3}
-              placeholder={t('profile.bioPlaceholder')}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              maxLength={200}
+          {/* Edit Form */}
+          <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-6 sm:p-8 border border-border shadow-card space-y-5">
+            <h3 className="text-lg font-semibold text-text-primary">Edit Profil</h3>
+
+            <Input
+              label={t('profile.fullName')}
+              placeholder={t('profile.fullNamePlaceholder')}
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
             />
-            <p className="text-xs text-text-muted mt-1.5 text-right">{bio.length}/200</p>
-          </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => router.back()}>
-              {t('action.cancel')}
-            </Button>
-            <Button onClick={handleSave} isLoading={saving}>
-              {t('action.save')}
-            </Button>
-          </div>
-        </div>
+            <Input
+              label={t('profile.username')}
+              placeholder="@username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              prefix="@"
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1.5">
+                {t('profile.bio')} <span className="text-text-muted">{t('profile.optional')}</span>
+              </label>
+              <textarea
+                className="w-full px-3 py-2.5 border border-border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-surface text-text-primary placeholder:text-text-muted resize-none"
+                rows={3}
+                placeholder={t('profile.bioPlaceholder')}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={200}
+              />
+              <p className="text-xs text-text-muted mt-1.5 text-right">{bio.length}/200</p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="ghost" onClick={() => router.back()}>
+                {t('action.cancel')}
+              </Button>
+              <Button onClick={handleSave} isLoading={saving}>
+                {t('action.save')}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </AuthGuard>
   );

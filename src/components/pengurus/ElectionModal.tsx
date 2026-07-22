@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { ElectionWheel } from "./ElectionWheel";
+import { motion } from "framer-motion";
 import { MemberOption } from "./types";
 
 interface ElectionModalProps {
@@ -60,13 +61,18 @@ export function ElectionModal({
       size="lg"
     >
       {step === "select" ? (
-        <div className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="space-y-5"
+        >
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
               Jenis
             </label>
             <select
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+              className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-800/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               value={type}
               onChange={(e) => {
                 setType(e.target.value as ElectionType);
@@ -78,11 +84,11 @@ export function ElectionModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
               {type === "pj" ? "Mata Pelajaran" : "Jabatan"}
             </label>
             <select
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+              className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-800/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
             >
@@ -108,9 +114,14 @@ export function ElectionModal({
               Mulai
             </Button>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="flex flex-col items-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="flex flex-col items-center gap-4"
+        >
           <p className="text-sm text-text-muted">
             Memilih {type === "pj" ? "PJ" : ""} {target}
           </p>
@@ -119,7 +130,7 @@ export function ElectionModal({
             onConfirm={handleConfirm}
             label={target}
           />
-        </div>
+        </motion.div>
       )}
     </Modal>
   );

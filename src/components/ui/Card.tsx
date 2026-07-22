@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
 interface CardProps {
@@ -15,19 +18,24 @@ export function Card({
   hover = false,
   glass = false,
 }: CardProps) {
+  const Comp = onClick ? motion.div : motion.div;
   return (
-    <div
+    <Comp
+      whileHover={hover ? { y: -4, scale: 1.01 } : undefined}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={`${
-        glass ? "glass" : "bg-surface shadow-card border border-border"
-      } rounded-xl transition-all duration-200 ${
+        glass
+          ? "bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/30"
+          : "bg-surface shadow-card border border-border"
+      } rounded-2xl transition-shadow duration-300 ${
         hover
-          ? "hover:shadow-card-hover hover:border-primary-200 hover:-translate-y-0.5 cursor-pointer dark:hover:border-primary-700"
+          ? "hover:shadow-card-hover cursor-pointer"
           : ""
       } ${className}`}
       onClick={onClick}
     >
       {children}
-    </div>
+    </Comp>
   );
 }
 
@@ -39,7 +47,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-5 py-4 border-b border-border-light dark:border-slate-700/50 ${className}`}>
+    <div className={`px-6 py-5 border-b border-border-light dark:border-slate-700/50 ${className}`}>
       {children}
     </div>
   );
@@ -52,5 +60,5 @@ export function CardBody({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`px-5 py-4 ${className}`}>{children}</div>;
+  return <div className={`px-6 py-5 ${className}`}>{children}</div>;
 }

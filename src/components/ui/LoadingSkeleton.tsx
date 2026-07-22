@@ -1,5 +1,5 @@
 interface LoadingSkeletonProps {
-  variant?: "card" | "list" | "table";
+  variant?: "card" | "list" | "table" | "text" | "avatar";
   count?: number;
 }
 
@@ -13,7 +13,7 @@ function SkeletonBar({ className = "" }: { className?: string }) {
 
 function CardSkeleton() {
   return (
-    <div className="bg-surface rounded-xl border border-border p-5 space-y-3 shadow-card">
+    <div className="bg-surface rounded-2xl border border-border p-6 space-y-4 shadow-card">
       <div className="flex items-start justify-between">
         <SkeletonBar className="h-5 w-2/3" />
         <SkeletonBar className="h-5 w-5 shrink-0" />
@@ -52,10 +52,33 @@ function TableSkeleton() {
         <div key={i} className="flex gap-4">
           <SkeletonBar className="h-6 w-1/4" />
           {Array.from({ length: 4 }).map((_, j) => (
-            <SkeletonBar key={j} className="h-6 w-8" />
+            <SkeletonBar className="h-6 w-8" key={j} />
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+function TextSkeleton() {
+  return (
+    <div className="space-y-3">
+      <SkeletonBar className="h-4 w-3/4" />
+      <SkeletonBar className="h-4 w-full" />
+      <SkeletonBar className="h-4 w-5/6" />
+      <SkeletonBar className="h-4 w-2/3" />
+    </div>
+  );
+}
+
+function AvatarSkeleton() {
+  return (
+    <div className="flex items-center gap-4">
+      <SkeletonBar className="h-12 w-12 rounded-full shrink-0" />
+      <div className="flex-1 space-y-2">
+        <SkeletonBar className="h-4 w-1/3" />
+        <SkeletonBar className="h-3 w-1/2" />
+      </div>
     </div>
   );
 }
@@ -66,19 +89,22 @@ export function LoadingSkeleton({
 }: LoadingSkeletonProps) {
   const items = Array.from({ length: count });
 
+  const gridLayout =
+    variant === "card"
+      ? "grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+      : variant === "list"
+        ? "divide-y divide-border-light"
+        : variant === "avatar"
+          ? "space-y-4"
+          : "";
+
   return (
-    <div
-      className={
-        variant === "card"
-          ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          : variant === "list"
-            ? "divide-y divide-border-light"
-            : ""
-      }
-    >
+    <div className={gridLayout}>
       {variant === "card" && items.map((_, i) => <CardSkeleton key={i} />)}
       {variant === "list" && items.map((_, i) => <ListSkeleton key={i} />)}
       {variant === "table" && <TableSkeleton />}
+      {variant === "text" && items.map((_, i) => <TextSkeleton key={i} />)}
+      {variant === "avatar" && items.map((_, i) => <AvatarSkeleton key={i} />)}
     </div>
   );
 }

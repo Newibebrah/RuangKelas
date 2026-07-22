@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { PaymentPeriod, Payment } from "@/types";
 import { HiCheck, HiX } from "react-icons/hi";
 import toast from "react-hot-toast";
@@ -46,11 +47,11 @@ const PaymentCell = memo(function PaymentCell({
       <button
         onClick={() => onToggle(memberId, periodId, displayName)}
         disabled={isLoading}
-        className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+        className={`inline-flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 ${
           paid
-            ? "bg-green-100 text-green-700 hover:bg-green-200"
-            : "bg-surface-hover text-text-muted hover:bg-border"
-        } disabled:opacity-50`}
+            ? "bg-success-light text-success shadow-sm shadow-success/20 hover:bg-success hover:text-white hover:shadow-md hover:shadow-success/30"
+            : "bg-surface-hover text-text-muted hover:bg-border hover:text-text-secondary"
+        } disabled:opacity-50 active:scale-90`}
       >
         {isLoading ? (
           <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -60,7 +61,7 @@ const PaymentCell = memo(function PaymentCell({
         ) : paid ? (
           <HiCheck className="h-5 w-5" />
         ) : (
-          <HiX className="h-5 w-5" />
+          <HiX className="h-4 w-4" />
         )}
       </button>
     );
@@ -68,11 +69,13 @@ const PaymentCell = memo(function PaymentCell({
 
   return (
     <span
-      className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-        paid ? "bg-green-100 text-green-700" : "bg-surface-hover text-text-muted"
+      className={`inline-flex items-center justify-center w-9 h-9 rounded-xl ${
+        paid
+          ? "bg-success-light text-success shadow-sm shadow-success/20"
+          : "bg-surface-hover text-text-muted"
       }`}
     >
-      {paid ? <HiCheck className="h-5 w-5" /> : <HiX className="h-5 w-5" />}
+      {paid ? <HiCheck className="h-5 w-5" /> : <HiX className="h-4 w-4" />}
     </span>
   );
 });
@@ -128,43 +131,65 @@ export const PaymentTable = memo(function PaymentTable({
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+      <div className="hidden md:block overflow-x-auto rounded-2xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-surface-muted border-b border-border">
-              <th className="text-left px-4 py-3 font-semibold text-text-primary whitespace-nowrap min-w-[160px]">
+            <tr className="bg-surface-muted">
+              <th className="text-left px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap sticky left-0 bg-surface-muted z-10 min-w-[160px]">
                 Anggota
               </th>
               {periods.map((p) => (
                 <th
                   key={p.id}
-                  className="text-center px-3 py-3 font-semibold text-text-primary whitespace-nowrap"
+                  className="text-center px-3 py-3.5 font-semibold text-text-primary whitespace-nowrap"
                 >
-                  P{p.periodNumber}
+                  <span className="text-xs bg-surface-hover px-2 py-1 rounded-lg">
+                    P{p.periodNumber}
+                  </span>
                 </th>
               ))}
-              <th className="text-center px-4 py-3 font-semibold text-text-primary whitespace-nowrap">
+              <th className="text-center px-4 py-3.5 font-semibold text-text-primary whitespace-nowrap">
                 Lunas
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border-light">
+          <tbody>
             {members.length === 0 ? (
               <tr>
                 <td
                   colSpan={periods.length + 2}
-                  className="text-center py-8 text-text-muted"
+                  className="text-center py-10 text-text-muted"
                 >
                   Belum ada anggota
                 </td>
               </tr>
             ) : (
-              members.map((member) => {
+              members.map((member, idx) => {
                 const total = getMemberTotal(member.userId);
+                const isFull = total === periods.length;
                 return (
-                  <tr key={member.userId} className="hover:bg-surface-muted">
-                    <td className="px-4 py-3 font-medium text-text-primary whitespace-nowrap">
-                      {member.displayName}
+                  <motion.tr
+                    key={member.userId}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: idx * 0.03 }}
+                    className={`${
+                      idx % 2 === 0 ? "bg-surface" : "bg-surface-muted/50"
+                    } hover:bg-surface-hover transition-colors`}
+                  >
+                    <td className="px-4 py-3.5 font-medium text-text-primary whitespace-nowrap sticky left-0 z-10 bg-inherit">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${
+                            isFull
+                              ? "bg-gradient-to-br from-emerald-400 to-emerald-600"
+                              : "bg-gradient-to-br from-slate-400 to-slate-500"
+                          }`}
+                        >
+                          {member.displayName.charAt(0).toUpperCase()}
+                        </span>
+                        {member.displayName}
+                      </div>
                     </td>
                     {periods.map((period) => {
                       const paid = isPaid(member.userId, period.id);
@@ -184,10 +209,21 @@ export const PaymentTable = memo(function PaymentTable({
                         </td>
                       );
                     })}
-                    <td className="text-center px-4 py-3 font-medium text-text-primary">
-                      {total}/{periods.length}
+                    <td className="text-center px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center gap-1 text-sm font-semibold ${
+                          isFull ? "text-success" : "text-text-muted"
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            isFull ? "bg-success" : "bg-border"
+                          }`}
+                        />
+                        {total}/{periods.length}
+                      </span>
                     </td>
-                  </tr>
+                  </motion.tr>
                 );
               })
             )}
@@ -200,13 +236,41 @@ export const PaymentTable = memo(function PaymentTable({
         {members.length === 0 ? (
           <p className="text-center py-8 text-text-muted">Belum ada anggota</p>
         ) : (
-          members.map((member) => {
+          members.map((member, idx) => {
             const total = getMemberTotal(member.userId);
+            const isFull = total === periods.length;
             return (
-              <div key={member.userId} className="bg-white rounded-xl border border-border p-4">
+              <motion.div
+                key={member.userId}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.04 }}
+                className={`rounded-2xl border border-border p-4 ${
+                  isFull
+                    ? "bg-success-light/10 border-success/20"
+                    : "bg-surface"
+                }`}
+              >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-text-primary">{member.displayName}</span>
-                  <span className="text-sm text-text-muted">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white ${
+                        isFull
+                          ? "bg-gradient-to-br from-emerald-400 to-emerald-600"
+                          : "bg-gradient-to-br from-slate-400 to-slate-500"
+                      }`}
+                    >
+                      {member.displayName.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="font-medium text-text-primary">
+                      {member.displayName}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-sm font-semibold ${
+                      isFull ? "text-success" : "text-text-muted"
+                    }`}
+                  >
                     {total}/{periods.length} lunas
                   </span>
                 </div>
@@ -216,8 +280,10 @@ export const PaymentTable = memo(function PaymentTable({
                     const toggleKey = `${member.userId}_${period.id}`;
                     const isLoading = togglingId === toggleKey;
                     return (
-                      <div key={period.id} className="flex items-center gap-1">
-                        <span className="text-xs text-text-muted">P{period.periodNumber}</span>
+                      <div key={period.id} className="flex items-center gap-1.5">
+                        <span className="text-xs text-text-muted">
+                          P{period.periodNumber}
+                        </span>
                         <PaymentCell
                           memberId={member.userId}
                           periodId={period.id}
@@ -231,7 +297,7 @@ export const PaymentTable = memo(function PaymentTable({
                     );
                   })}
                 </div>
-              </div>
+              </motion.div>
             );
           })
         )}

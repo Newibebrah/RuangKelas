@@ -1,7 +1,9 @@
-import { ButtonHTMLAttributes, ReactNode } from "react";
+"use client";
+
+import { ButtonHTMLAttributes, ReactNode, useRef, useState } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   children: ReactNode;
@@ -16,32 +18,48 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const id = Date.now();
+      setRipples((prev) => [...prev, { x, y, id }]);
+      setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 600);
+    }
+  };
+
   const base =
-    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none";
+    "relative inline-flex items-center justify-center font-medium rounded-2xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden";
 
   const variants: Record<string, string> = {
     primary:
-      "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md",
+      "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-[1.02] focus:ring-indigo-500",
     secondary:
-      "bg-surface-hover text-text-primary hover:bg-border focus:ring-gray-400 dark:hover:bg-slate-700",
-    danger:
-      "bg-danger text-white hover:bg-red-600 focus:ring-red-500 shadow-sm hover:shadow-md",
+      "bg-surface-hover text-text-primary hover:bg-border hover:shadow-md focus:ring-gray-400 dark:hover:bg-slate-700",
+    outline:
+      "border border-border text-text-secondary hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/50 hover:shadow-md focus:ring-indigo-500 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400",
     ghost:
       "text-text-secondary hover:bg-surface-hover hover:text-text-primary focus:ring-gray-400 dark:hover:bg-slate-800",
-    outline:
-      "border border-border text-text-secondary hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 focus:ring-primary-500 dark:hover:bg-primary-900/20 dark:hover:text-primary-400",
+    danger:
+      "bg-gradient-to-r from-red-500 to-rose-600 text-white hover:shadow-lg hover:shadow-red-500/25 hover:scale-[1.02] focus:ring-red-500",
   };
 
   const sizes: Record<string, string> = {
-    sm: "px-3 py-1.5 text-xs gap-1.5",
-    md: "px-4 py-2 text-sm gap-2",
-    lg: "px-6 py-3 text-base gap-2",
+    sm: "px-4 py-2 text-xs gap-1.5",
+    md: "px-6 py-2.5 text-sm gap-2",
+    lg: "px-8 py-3.5 text-base gap-2.5",
   };
 
   return (
     <button
+      ref={ref}
       className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || isLoading}
+      onClick={handleClick}
       {...props}
     >
       {isLoading && (
@@ -51,6 +69,18 @@ export function Button({
         </svg>
       )}
       {children}
+      {ripples.map((ripple) => (
+        <span
+          key={ripple.id}
+          className="absolute rounded-full bg-white/30 animate-ripple pointer-events-none"
+          style={{
+            left: ripple.x - 10,
+            top: ripple.y - 10,
+            width: 20,
+            height: 20,
+          }}
+        />
+      ))}
     </button>
   );
 }

@@ -5,12 +5,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Timestamp } from "firebase/firestore";
+import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Assignment } from "@/types";
-import { HiPaperClip, HiX } from "react-icons/hi";
+import { HiPaperClip, HiX, HiDocumentAdd } from "react-icons/hi";
 
 const schema = z
   .object({
@@ -54,6 +54,26 @@ interface AssignmentModalProps {
   }) => Promise<void>;
 }
 
+const panelVariants = {
+  hidden: { x: "100%", opacity: 0 },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: { type: "spring", damping: 28, stiffness: 300, mass: 0.8 },
+  },
+  exit: {
+    x: "100%",
+    opacity: 0,
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
+
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
 export function AssignmentModal({
   isOpen,
   onClose,
@@ -63,6 +83,7 @@ export function AssignmentModal({
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -100,6 +121,26 @@ export function AssignmentModal({
     }
   }, [isOpen, assignment, reset]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
     setFiles((prev) => [...prev, ...selected]);
@@ -132,106 +173,182 @@ export function AssignmentModal({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={assignment ? "Edit Tugas" : "Tugas Baru"}
-      size="lg"
-    >
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-        <Input
-          label="Mata Pelajaran"
-          placeholder="Contoh: Matematika"
-          error={errors.subject?.message}
-          {...register("subject")}
-        />
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            Deskripsi
-          </label>
-          <textarea
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.description ? "border-red-500" : "border-border"
-            }`}
-            rows={3}
-            placeholder="Deskripsi tugas"
-            {...register("description")}
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <motion.div
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden="true"
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
-        <Input
-          label="Deadline"
-          type="datetime-local"
-          error={errors.deadline?.message}
-          {...register("deadline")}
-        />
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            Catatan Guru <span className="text-text-muted">(opsional)</span>
-          </label>
-          <textarea
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-              errors.teacherNote ? "border-red-500" : "border-border"
-            }`}
-            rows={2}
-            placeholder="Catatan tambahan (opsional)"
-            {...register("teacherNote")}
-          />
-          {errors.teacherNote && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.teacherNote.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            Lampiran <span className="text-text-muted">(opsional)</span>
-          </label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {files.map((f, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg"
-              >
-                <HiPaperClip className="h-3 w-3" />
-                {f.name}
-                <button type="button" onClick={() => removeFile(i)} className="hover:text-red-600">
-                  <HiX className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-          <input
-            ref={fileRef}
-            type="file"
-            multiple
-            onChange={handleFileChange}
-            className="block w-full text-sm text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-          />
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              setFiles([]);
-              reset();
-              onClose();
-            }}
+          <motion.div
+            ref={panelRef}
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            role="dialog"
+            aria-modal="true"
+            aria-label={assignment ? "Edit Tugas" : "Tugas Baru"}
+            className="relative w-full max-w-lg h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-2xl border-l border-white/20 dark:border-slate-700/30 flex flex-col"
           >
-            Batal
-          </Button>
-          <Button type="submit" isLoading={isLoading}>
-            {assignment ? "Simpan" : "Buat Tugas"}
-          </Button>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-slate-700/50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary-50 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400">
+                  <HiDocumentAdd className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-text-primary">
+                    {assignment ? "Edit Tugas" : "Tugas Baru"}
+                  </h2>
+                  <p className="text-xs text-text-muted">
+                    {assignment ? "Perbarui informasi tugas" : "Buat tugas baru untuk kelas"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                aria-label="Tutup"
+                className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-hover dark:hover:bg-slate-800 rounded-xl transition-all duration-200 hover:scale-110"
+              >
+                <HiX className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
+                <Input
+                  label="Mata Pelajaran"
+                  placeholder="Contoh: Matematika"
+                  error={errors.subject?.message}
+                  {...register("subject")}
+                />
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Deskripsi
+                  </label>
+                  <textarea
+                    className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-slate-800/50 ${
+                      errors.description
+                        ? "border-red-400 dark:border-red-500"
+                        : "border-border dark:border-slate-700"
+                    }`}
+                    rows={4}
+                    placeholder="Deskripsi tugas"
+                    {...register("description")}
+                  />
+                  {errors.description && (
+                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-red-500 shrink-0" />
+                      {errors.description.message}
+                    </p>
+                  )}
+                </div>
+                <Input
+                  label="Deadline"
+                  type="datetime-local"
+                  error={errors.deadline?.message}
+                  {...register("deadline")}
+                />
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Catatan Guru{" "}
+                    <span className="text-text-muted font-normal">(opsional)</span>
+                  </label>
+                  <textarea
+                    className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-slate-800/50 ${
+                      errors.teacherNote
+                        ? "border-red-400 dark:border-red-500"
+                        : "border-border dark:border-slate-700"
+                    }`}
+                    rows={2}
+                    placeholder="Catatan tambahan (opsional)"
+                    {...register("teacherNote")}
+                  />
+                  {errors.teacherNote && (
+                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-red-500 shrink-0" />
+                      {errors.teacherNote.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Lampiran{" "}
+                    <span className="text-text-muted font-normal">(opsional)</span>
+                  </label>
+                  {files.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {files.map((f, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded-xl border border-blue-200 dark:border-blue-800"
+                        >
+                          <HiPaperClip className="h-3.5 w-3.5" />
+                          <span className="max-w-[120px] truncate">{f.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFile(i)}
+                            className="hover:text-red-600 dark:hover:text-red-400 ml-0.5 transition-colors"
+                          >
+                            <HiX className="h-3.5 w-3.5" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="relative border-2 border-dashed border-border dark:border-slate-700 rounded-xl p-4 text-center cursor-pointer hover:border-primary-400 dark:hover:border-primary-500 transition-colors group"
+                  >
+                    <HiPaperClip className="h-6 w-6 mx-auto text-text-muted group-hover:text-primary-500 transition-colors" />
+                    <p className="text-sm text-text-muted mt-1 group-hover:text-text-primary transition-colors">
+                      Klik untuk upload file
+                    </p>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      PDF, DOC, ZIP — maks 10MB
+                    </p>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div className="shrink-0 px-6 py-5 border-t border-border-light dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50">
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => {
+                    setFiles([]);
+                    reset();
+                    onClose();
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  isLoading={isLoading}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
+                  onClick={handleSubmit(onFormSubmit)}
+                >
+                  {assignment ? "Simpan" : "Buat Tugas"}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </form>
-    </Modal>
+      )}
+    </AnimatePresence>
   );
 }

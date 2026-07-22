@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { useAssignments } from "@/hooks/useAssignments";
 import { usePengurus } from "@/hooks/usePengurus";
 import { useAuth } from "@/lib/auth-context";
@@ -84,59 +85,90 @@ export default function TugasPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-text-primary">{t('nav.tugas')}</h2>
-          <p className="text-sm text-text-secondary mt-1">
-            {t('tugas.desc')}
-          </p>
+    <div className="pb-20">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="p-2.5 rounded-2xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm">
+            <HiClipboardList className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">{t('nav.tugas')}</h1>
+            <p className="text-sm text-text-secondary">
+              {assignments.length} tugas{" "}
+              {assignments.length > 0 && (
+                <span className="text-text-muted">
+                  — {assignments.filter((a) => a.deadline.toDate() < new Date()).length} terlewat
+                </span>
+              )}
+            </p>
+          </div>
         </div>
-        {canManage && (
-          <Button onClick={handleCreate}>
-            <HiPlus className="h-4 w-4" />
-            {t('tugas.newTask')}
-          </Button>
-        )}
       </div>
 
       {loading ? (
-        <LoadingSkeleton variant="card" count={3} />
+        <div className="space-y-6">
+          <LoadingSkeleton variant="card" count={3} />
+        </div>
       ) : error ? (
         <ErrorMessage message={error} />
       ) : assignments.length === 0 ? (
-        <EmptyState
-          icon={<HiClipboardList className="h-8 w-8" />}
-          title={t('tugas.empty')}
-          description={
-            canManage
-              ? t('tugas.emptyManageDesc')
-              : t('tugas.emptyNotManageDesc')
-          }
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {assignments.map((tugas) => (
-            <AssignmentCard
-              key={tugas.id}
-              assignment={tugas}
-              canManage={canManage}
-              isDeleting={deletingId === tugas.id}
-              roomId={roomId}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className="mt-12">
+          <EmptyState
+            icon={<HiClipboardList className="h-8 w-8" />}
+            title={t('tugas.empty')}
+            description={
+              canManage
+                ? t('tugas.emptyManageDesc')
+                : t('tugas.emptyNotManageDesc')
+            }
+          />
         </div>
+      ) : (
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.06 } },
+          }}
+          className="space-y-0"
+        >
+          {assignments.map((tugas, i) => (
+            <div key={tugas.id} className="relative">
+              <AssignmentCard
+                assignment={tugas}
+                canManage={canManage}
+                isDeleting={deletingId === tugas.id}
+                roomId={roomId}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                index={i}
+              />
+            </div>
+          ))}
+        </motion.div>
       )}
 
       {canManage && (
-        <button
-          onClick={handleCreate}
-          className="md:hidden fixed bottom-6 right-6 z-40 p-4 bg-primary-600 text-white rounded-full shadow-fab hover:bg-primary-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-95"
-        >
-          <HiPlus className="h-6 w-6" />
-        </button>
+        <>
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleCreate}
+            className="md:hidden fixed bottom-6 right-6 z-40 p-4 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <HiPlus className="h-6 w-6" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleCreate}
+            className="hidden md:inline-flex fixed bottom-8 right-8 z-40 items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-sm"
+          >
+            <HiPlus className="h-5 w-5" />
+            {t('tugas.newTask')}
+          </motion.button>
+        </>
       )}
 
       <AssignmentModal

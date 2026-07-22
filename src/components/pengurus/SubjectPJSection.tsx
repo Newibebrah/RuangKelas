@@ -17,8 +17,65 @@ import {
   HiUser,
   HiPencil,
 } from "react-icons/hi";
+import { motion } from "framer-motion";
 import { MemberOption } from "./types";
 import toast from "react-hot-toast";
+
+const subjectEmojis: Record<string, string> = {
+  matematika: "📐",
+  "bahasa indonesia": "📖",
+  "bahasa inggris": "🌍",
+  ipa: "🔬",
+  ips: "🌏",
+  ppkn: "⚖️",
+  agama: "🕌",
+  "seni budaya": "🎨",
+  "penjaskes": "⚽",
+  prakarya: "🛠️",
+  informatika: "💻",
+};
+
+const pastelColors = [
+  "from-pink-100 to-rose-200 dark:from-pink-900/30 dark:to-rose-900/30",
+  "from-sky-100 to-blue-200 dark:from-sky-900/30 dark:to-blue-900/30",
+  "from-emerald-100 to-teal-200 dark:from-emerald-900/30 dark:to-teal-900/30",
+  "from-amber-100 to-orange-200 dark:from-amber-900/30 dark:to-orange-900/30",
+  "from-violet-100 to-purple-200 dark:from-violet-900/30 dark:to-purple-900/30",
+  "from-lime-100 to-green-200 dark:from-lime-900/30 dark:to-green-900/30",
+  "from-cyan-100 to-indigo-200 dark:from-cyan-900/30 dark:to-indigo-900/30",
+  "from-fuchsia-100 to-pink-200 dark:from-fuchsia-900/30 dark:to-pink-900/30",
+];
+
+function getSubjectColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return pastelColors[Math.abs(hash) % pastelColors.length];
+}
+
+function getSubjectEmoji(name: string) {
+  const key = name.toLowerCase();
+  return subjectEmojis[key] || "📚";
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.35, ease: "easeOut" as const },
+  },
+};
 
 interface SubjectPJSectionProps {
   roomId: string;
@@ -134,8 +191,9 @@ export function SubjectPJSection({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-text-primary">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
           PJ Mata Pelajaran
         </h3>
         {canManage && (
@@ -157,90 +215,109 @@ export function SubjectPJSection({
           }
         />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          className="grid gap-4 grid-cols-2 lg:grid-cols-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {subjects.map((s) => {
             const member = members.find((m) => m.userId === s.userId);
+            const color = getSubjectColor(s.subjectName);
+            const emoji = getSubjectEmoji(s.subjectName);
             return (
-              <Card key={s.id}>
-                <CardBody>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                        <HiBookOpen className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-text-primary truncate">
-                          {s.subjectName}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {s.userId && member ? (
-                            <div className="flex items-center gap-1">
-                              <HiUser className="h-3 w-3 text-text-muted" />
-                              <span className="text-xs text-text-muted truncate">
-                                {member.displayName}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-text-muted">
-                              Belum ada PJ
-                            </span>
-                          )}
-                          {s.kkm && (
-                            <span className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
-                              KKM: {s.kkm}
-                            </span>
-                          )}
-                          {s.semester && (
-                            <span className="text-xs px-1.5 py-0.5 bg-surface-hover text-text-muted rounded">
-                              {s.semester}
-                            </span>
-                          )}
+              <motion.div key={s.id} variants={cardVariants} className="group">
+                <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300">
+                  <div className={`bg-gradient-to-br ${color} px-5 pt-5 pb-4`}>
+                    <div className="flex items-start justify-between">
+                      <span className="text-3xl" role="img" aria-label={s.subjectName}>
+                        {emoji}
+                      </span>
+                      {canManage && (
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => openEdit(s)}
+                            className="p-1.5 text-text-muted hover:text-blue-600 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors"
+                            title="Edit mapel"
+                          >
+                            <HiPencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(s.id, s.subjectName)}
+                            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors"
+                            title="Hapus mapel"
+                          >
+                            <HiTrash className="h-3.5 w-3.5" />
+                          </button>
                         </div>
+                      )}
+                    </div>
+                    <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight">
+                      {s.subjectName}
+                    </h4>
+                  </div>
+                  <CardBody className="!px-5 !py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {s.userId && member ? (
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
+                              <HiUser className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <span className="text-xs font-medium text-text-primary truncate">
+                              {member.displayName}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-text-muted italic">
+                            Belum ada PJ
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {canManage && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setAssignOpen(s.id);
+                                setSelectedUser(s.userId || "");
+                              }}
+                              className="p-1.5 text-text-muted hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
+                              title="Tugaskan PJ"
+                            >
+                              <HiUserAdd className="h-3.5 w-3.5" />
+                            </button>
+                            {s.userId && (
+                              <button
+                                onClick={() => handleUnassign(s.id)}
+                                className="p-1.5 text-text-muted hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                                title="Hapus PJ"
+                              >
+                                <HiUser className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
-                    {canManage && (
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => openEdit(s)}
-                          className="p-1.5 text-text-muted hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit mapel"
-                        >
-                          <HiPencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setAssignOpen(s.id);
-                            setSelectedUser(s.userId || "");
-                          }}
-                          className="p-1.5 text-text-muted hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                          title="Tugaskan PJ"
-                        >
-                          <HiUserAdd className="h-4 w-4" />
-                        </button>
-                        {s.userId && (
-                          <button
-                            onClick={() => handleUnassign(s.id)}
-                            className="p-1.5 text-text-muted hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
-                            title="Hapus PJ"
-                          >
-                            <HiUser className="h-4 w-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(s.id, s.subjectName)}
-                          className="p-1.5 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Hapus mapel"
-                        >
-                          <HiTrash className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
+                    <div className="flex items-center gap-2 mt-2">
+                      {s.kkm && (
+                        <span className="text-[10px] px-2 py-0.5 font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-full">
+                          KKM: {s.kkm}
+                        </span>
+                      )}
+                      {s.semester && (
+                        <span className="text-[10px] px-2 py-0.5 font-medium bg-surface-hover text-text-muted rounded-full">
+                          {s.semester}
+                        </span>
+                      )}
+                    </div>
+                  </CardBody>
+                </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
 
       {/* Add Modal */}
@@ -329,7 +406,7 @@ export function SubjectPJSection({
               Pilih Anggota
             </label>
             <select
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
             >

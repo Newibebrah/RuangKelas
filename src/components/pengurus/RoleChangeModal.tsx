@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
 import { Pengurus } from "@/types";
 import toast from "react-hot-toast";
 
@@ -15,12 +16,20 @@ interface RoleChangeModalProps {
 }
 
 const JABATAN_OPTIONS = [
-  { value: "Ketua", label: "Ketua" },
-  { value: "Wakil Ketua", label: "Wakil Ketua" },
-  { value: "Sekretaris", label: "Sekretaris" },
-  { value: "Bendahara", label: "Bendahara" },
-  { value: "Anggota", label: "Anggota" },
+  { value: "Ketua", label: "Ketua", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { value: "Wakil Ketua", label: "Wakil Ketua", color: "bg-slate-100 text-slate-700 dark:bg-slate-800/40 dark:text-slate-300" },
+  { value: "Sekretaris", label: "Sekretaris", color: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300" },
+  { value: "Bendahara", label: "Bendahara", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  { value: "Anggota", label: "Anggota", color: "bg-surface-muted text-text-secondary" },
 ];
+
+const roleIcons: Record<string, string> = {
+  Ketua: "👑",
+  "Wakil Ketua": "⚡",
+  Sekretaris: "📋",
+  Bendahara: "💰",
+  Anggota: "👤",
+};
 
 export function RoleChangeModal({
   isOpen,
@@ -66,30 +75,54 @@ export function RoleChangeModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Ubah Jabatan" size="sm">
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            Anggota
-          </label>
-          <p className="text-sm font-semibold text-text-primary">
-            {pengurus.displayName}
-          </p>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="space-y-5"
+      >
+        <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-hover/50 dark:bg-slate-800/30">
+          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-md">
+            {pengurus.displayName.charAt(0)}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-text-primary">
+              {pengurus.displayName}
+            </p>
+            <span className="text-xs text-text-muted">
+              {pengurus.jabatan}
+            </span>
+          </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            Jabatan
+          <label className="block text-sm font-medium text-text-secondary mb-2">
+            Jabatan Baru
           </label>
-          <select
-            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={jabatan}
-            onChange={(e) => setJabatan(e.target.value)}
-          >
+          <div className="space-y-2">
             {JABATAN_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
+              <label
+                key={o.value}
+                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${
+                  jabatan === o.value
+                    ? "border-indigo-400 bg-indigo-50/60 dark:bg-indigo-900/20 dark:border-indigo-600 shadow-sm"
+                    : "border-border hover:border-indigo-200 hover:bg-surface-hover/50 dark:hover:border-indigo-700/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="jabatan"
+                  value={o.value}
+                  checked={jabatan === o.value}
+                  onChange={(e) => setJabatan(e.target.value)}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-lg shrink-0">{roleIcons[o.value]}</span>
+                <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${o.color}`}>
+                  {o.label}
+                </span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
         <div className="flex items-center justify-between pt-2">
           <Button variant="danger" size="sm" onClick={handleDelete} isLoading={saving}>
@@ -104,7 +137,7 @@ export function RoleChangeModal({
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </Modal>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Kas } from "@/types";
 import { Timestamp } from "firebase/firestore";
+import { HiTrendingUp, HiTrendingDown } from "react-icons/hi";
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -72,54 +73,79 @@ export function TransactionModal({
       title={editing ? "Edit Transaksi" : "Tambah Transaksi"}
       size="sm"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             Tipe
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 p-1 bg-surface-hover rounded-2xl">
             <button
               type="button"
               onClick={() => setType("pemasukan")}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 type === "pemasukan"
-                  ? "bg-green-100 text-green-700 ring-2 ring-green-500"
-                  : "bg-surface-muted text-text-muted hover:bg-surface-hover"
+                  ? "bg-white dark:bg-slate-800 text-success shadow-sm shadow-success/10 ring-1 ring-success/20"
+                  : "text-text-muted hover:text-text-secondary"
               }`}
             >
+              <HiTrendingUp className="h-4 w-4" />
               Pemasukan
             </button>
             <button
               type="button"
               onClick={() => setType("pengeluaran")}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 type === "pengeluaran"
-                  ? "bg-red-100 text-red-700 ring-2 ring-red-500"
-                  : "bg-surface-muted text-text-muted hover:bg-surface-hover"
+                  ? "bg-white dark:bg-slate-800 text-danger shadow-sm shadow-danger/10 ring-1 ring-danger/20"
+                  : "text-text-muted hover:text-text-secondary"
               }`}
             >
+              <HiTrendingDown className="h-4 w-4" />
               Pengeluaran
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        <Input
-          label="Nominal (Rp)"
-          type="number"
-          placeholder="Contoh: 50000"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="relative"
+        >
+          <label className="block text-sm font-medium text-text-secondary mb-2">
+            Nominal
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-text-muted">
+              Rp
+            </span>
+            <input
+              type="number"
+              placeholder="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              className="w-full pl-10 pr-4 py-3 bg-surface border border-border rounded-2xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all duration-200"
+            />
+          </div>
+        </motion.div>
 
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <label className="block text-sm font-medium text-text-secondary mb-2">
             Kategori
           </label>
           <select
-            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-4 py-3 bg-surface border border-border rounded-2xl text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all duration-200 appearance-none"
           >
             <option value="">Pilih kategori</option>
             {CATEGORIES.map((c) => (
@@ -128,24 +154,44 @@ export function TransactionModal({
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
 
-        <Input
-          label="Deskripsi"
-          placeholder="Deskripsi transaksi"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="relative"
+        >
+          <label className="block text-sm font-medium text-text-secondary mb-2">
+            Deskripsi
+          </label>
+          <textarea
+            placeholder="Deskripsi transaksi"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            rows={3}
+            className="w-full px-4 py-3 bg-surface border border-border rounded-2xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all duration-200 resize-none"
+          />
+        </motion.div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="flex justify-end gap-3 pt-2"
+        >
           <Button type="button" variant="ghost" onClick={onClose}>
             Batal
           </Button>
-          <Button type="submit" isLoading={isLoading}>
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            variant="primary"
+          >
             {editing ? "Simpan" : "Tambah"}
           </Button>
-        </div>
+        </motion.div>
       </form>
     </Modal>
   );
