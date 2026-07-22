@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
+import { useMobile } from "@/lib/mobile-context";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { AppHeader } from "@/components/ui/AppHeader";
@@ -76,6 +77,7 @@ export default function DashboardPage() {
   const { t } = useLocale();
   const { user } = useAuth();
   const { rooms, loading, error } = useRoom();
+  const { isMobile } = useMobile();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
@@ -95,97 +97,94 @@ export default function DashboardPage() {
         <AppHeader
           left={
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <HiAcademicCap className="h-5 w-5 text-white" />
+              <div className={`${isMobile ? "w-8 h-8" : "w-9 h-9"} rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20`}>
+                <HiAcademicCap className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} text-white`} />
               </div>
-              <span className="text-xl font-bold tracking-tight text-text-primary">
-                {t("app.name")}
-              </span>
+              {!isMobile && (
+                <span className="text-xl font-bold tracking-tight text-text-primary">
+                  {t("app.name")}
+                </span>
+              )}
             </div>
           }
           right={
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowJoinModal(true)}
-              >
-                <HiLogin className="h-4 w-4" />
-                {t("action.join")}
-              </Button>
-              <Button size="sm" onClick={() => setShowCreateModal(true)}>
-                <HiPlus className="h-4 w-4" />
-                {t("action.createClass")}
-              </Button>
+              {!isMobile ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => setShowJoinModal(true)}>
+                    <HiLogin className="h-4 w-4" />
+                    {t("action.join")}
+                  </Button>
+                  <Button size="sm" onClick={() => setShowCreateModal(true)}>
+                    <HiPlus className="h-4 w-4" />
+                    {t("action.createClass")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button size="sm" onClick={() => setShowCreateModal(true)} className="!px-3 !text-xs">
+                    <HiPlus className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowJoinModal(true)} className="!px-3 !text-xs">
+                    <HiLogin className="h-3.5 w-3.5" />
+                  </Button>
+                </>
+              )}
               <UserMenu />
             </div>
           }
         />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className={`max-w-7xl mx-auto ${isMobile ? "px-3 py-4" : "px-4 sm:px-6 lg:px-8 py-8"}`}>
           <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
           >
             {/* Greeting */}
-            <motion.div variants={itemVariants} className="mb-10">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl sm:text-4xl font-bold text-text-primary tracking-tight">
+            <motion.div variants={itemVariants} className={isMobile ? "mb-5" : "mb-10"}>
+              <div className="flex items-center gap-2.5">
+                <h1 className={`${isMobile ? "text-xl" : "text-3xl sm:text-4xl"} font-bold text-text-primary tracking-tight`}>
                   Halo, {user?.displayName || "Pengguna"}!
                 </h1>
-                <motion.span
-                  className="inline-block text-3xl sm:text-4xl origin-bottom-right"
-                  animate={{ rotate: [0, -10, 12, -8, 10, 0] }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: "easeInOut",
-                  }}
-                >
+                <span className={`inline-block ${isMobile ? "text-xl" : "text-3xl sm:text-4xl"}`}>
                   👋
-                </motion.span>
+                </span>
               </div>
-              <p className="text-lg text-text-secondary mt-2">
+              <p className={`text-text-secondary mt-1 ${isMobile ? "text-sm" : "text-lg"}`}>
                 {t("dashboard.subtitle")}
               </p>
             </motion.div>
 
             {loading ? (
-              <LoadingSkeleton variant="card" count={6} />
+              isMobile ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-16 bg-surface rounded-xl border border-border animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <LoadingSkeleton variant="card" count={6} />
+              )
             ) : error ? (
               <ErrorMessage message={error} />
             ) : rooms.length === 0 ? (
               <motion.div variants={itemVariants}>
                 <EmptyState
                   icon={
-                    <svg
-                      className="h-10 w-10"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                      />
+                    <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                     </svg>
                   }
                   title={t("common.emptyClass")}
                   description={t("dashboard.emptyDesc")}
                   action={
-                    <div className="flex gap-3">
-                      <Button onClick={() => setShowCreateModal(true)}>
+                    <div className={`flex gap-3 ${isMobile ? "flex-col" : ""}`}>
+                      <Button className={isMobile ? "w-full" : ""} onClick={() => setShowCreateModal(true)}>
                         <HiPlus className="h-4 w-4" />
                         {t("action.createClass")}
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowJoinModal(true)}
-                      >
+                      <Button variant="outline" className={isMobile ? "w-full" : ""} onClick={() => setShowJoinModal(true)}>
                         <HiLogin className="h-4 w-4" />
                         {t("action.joinClass")}
                       </Button>
@@ -198,34 +197,39 @@ export default function DashboardPage() {
                 {/* Stats */}
                 <motion.div
                   variants={itemVariants}
-                  className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+                  className={isMobile ? "flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-none" : "grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"}
                 >
-                  <StatCard
-                    icon={<HiAcademicCap className="h-5 w-5 text-indigo-600" />}
-                    gradient="from-indigo-500/10 to-indigo-600/5"
-                    label="Total Kelas"
-                    value={rooms.length}
-                  />
-                  <StatCard
-                    icon={<HiUsers className="h-5 w-5 text-emerald-600" />}
-                    gradient="from-emerald-500/10 to-emerald-600/5"
-                    label="Total Anggota"
-                    value={totalMembers}
-                  />
-                  <StatCard
-                    icon={
-                      <HiBookOpen className="h-5 w-5 text-amber-600" />
-                    }
-                    gradient="from-amber-500/10 to-amber-600/5"
-                    label="Kelas Aktif"
-                    value={activeRooms}
-                  />
+                  {isMobile ? (
+                    <>
+                      {[
+                        { icon: <HiAcademicCap className="h-4 w-4 text-indigo-600" />, gradient: "from-indigo-500/10 to-indigo-600/5", label: "Total Kelas", value: rooms.length },
+                        { icon: <HiUsers className="h-4 w-4 text-emerald-600" />, gradient: "from-emerald-500/10 to-emerald-600/5", label: "Total Anggota", value: totalMembers },
+                        { icon: <HiBookOpen className="h-4 w-4 text-amber-600" />, gradient: "from-amber-500/10 to-amber-600/5", label: "Kelas Aktif", value: activeRooms },
+                      ].map((stat, i) => (
+                        <div key={i} className="flex items-center gap-3 px-4 py-3 bg-surface rounded-xl border border-border min-w-[140px] shrink-0">
+                          <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>
+                            {stat.icon}
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-text-primary">{stat.value}</p>
+                            <p className="text-xs text-text-secondary">{stat.label}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <StatCard icon={<HiAcademicCap className="h-5 w-5 text-indigo-600" />} gradient="from-indigo-500/10 to-indigo-600/5" label="Total Kelas" value={rooms.length} />
+                      <StatCard icon={<HiUsers className="h-5 w-5 text-emerald-600" />} gradient="from-emerald-500/10 to-emerald-600/5" label="Total Anggota" value={totalMembers} />
+                      <StatCard icon={<HiBookOpen className="h-5 w-5 text-amber-600" />} gradient="from-amber-500/10 to-amber-600/5" label="Kelas Aktif" value={activeRooms} />
+                    </>
+                  )}
                 </motion.div>
 
-                {/* Room Grid */}
+                {/* Room List */}
                 <motion.div
                   variants={itemVariants}
-                  className="grid gap-5 sm:grid-cols-2"
+                  className={isMobile ? "space-y-2" : "grid gap-5 sm:grid-cols-2"}
                 >
                   {rooms.map((room) => (
                     <RoomCard key={room.id} room={room} />

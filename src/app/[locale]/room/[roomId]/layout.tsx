@@ -6,6 +6,7 @@ import { useRouter, Link } from "@/i18n/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";
+import { useMobile } from "@/lib/mobile-context";
 import { usePengurus } from "@/hooks/usePengurus";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -34,6 +35,7 @@ export default function RoomLayout({
   children: React.ReactNode;
 }) {
   const { t } = useLocale();
+  const { isMobile } = useMobile();
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -151,87 +153,112 @@ export default function RoomLayout({
           />
           <div className="absolute inset-0 bg-black/10" />
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-10">
-            <div className="flex items-center justify-between mb-6">
+          <div className={`relative max-w-7xl mx-auto ${isMobile ? "px-3 pt-3 pb-5" : "px-4 sm:px-6 lg:px-8 pt-5 pb-10"}`}>
+            <div className="flex items-center justify-between mb-4">
               <button
                 onClick={() => router.push("/dashboard")}
-                className="p-2 rounded-xl bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 active:scale-95 transition-all"
+                className={`${isMobile ? "p-1.5" : "p-2"} rounded-xl bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 active:scale-95 transition-all`}
               >
-                <HiArrowLeft className="h-5 w-5" />
+                <HiArrowLeft className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
               </button>
               <div className="flex items-center gap-1">
-                <LanguageSwitcher />
-                <ThemeToggle />
-                <NotificationBell />
+                {!isMobile && <LanguageSwitcher />}
+                {!isMobile && <ThemeToggle />}
+                {!isMobile && <NotificationBell />}
                 <UserMenu />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div className="space-y-3">
-                <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-sm tracking-tight">
+            <div className={`flex ${isMobile ? "flex-col gap-2" : "flex-col sm:flex-row sm:items-end sm:justify-between gap-4"}`}>
+              <div className={isMobile ? "space-y-2" : "space-y-3"}>
+                <h1 className={`${isMobile ? "text-xl" : "text-3xl md:text-4xl"} font-bold text-white drop-shadow-sm tracking-tight`}>
                   {currentRoom.name}
                 </h1>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-sm font-mono font-medium">
-                    <span className="text-white/50 text-[10px] font-sans uppercase tracking-wider">{t('common.code')}</span>
-                    {currentRoom.code}
-                    <button
-                      onClick={handleCopyCode}
-                      className="p-0.5 rounded-md hover:bg-white/20 active:scale-90 transition-all"
-                      aria-label="Copy room code"
-                    >
-                      {copied ? (
-                        <HiCheck className="h-3.5 w-3.5 text-green-300" />
-                      ) : (
-                        <HiClipboardCopy className="h-3.5 w-3.5 text-white/70" />
-                      )}
-                    </button>
-                  </span>
+                {!isMobile && (
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-sm font-mono font-medium">
+                      <span className="text-white/50 text-[10px] font-sans uppercase tracking-wider">{t('common.code')}</span>
+                      {currentRoom.code}
+                      <button
+                        onClick={handleCopyCode}
+                        className="p-0.5 rounded-md hover:bg-white/20 active:scale-90 transition-all"
+                        aria-label="Copy room code"
+                      >
+                        {copied ? (
+                          <HiCheck className="h-3.5 w-3.5 text-green-300" />
+                        ) : (
+                          <HiClipboardCopy className="h-3.5 w-3.5 text-white/70" />
+                        )}
+                      </button>
+                    </span>
 
-                  {visibleMembers.length > 0 && (
-                    <div className="flex items-center">
-                      <div className="flex -space-x-2">
-                        {visibleMembers.map((member) => (
-                          <div
-                            key={member.userId}
-                            className="w-8 h-8 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/20"
-                            title={member.displayName}
-                          >
-                            {member.photoURL ? (
-                              <img
-                                src={member.photoURL}
-                                alt={member.displayName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white">
-                                {member.displayName.charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                    {visibleMembers.length > 0 && (
+                      <div className="flex items-center">
+                        <div className="flex -space-x-2">
+                          {visibleMembers.map((member) => (
+                            <div
+                              key={member.userId}
+                              className="w-8 h-8 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/20"
+                              title={member.displayName}
+                            >
+                              {member.photoURL ? (
+                                <img src={member.photoURL} alt={member.displayName} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white">
+                                  {member.displayName.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {members.length > 6 && (
+                          <span className="ml-1.5 text-xs text-white/70 font-medium">+{members.length - 6}</span>
+                        )}
                       </div>
-                      {members.length > 6 && (
-                        <span className="ml-1.5 text-xs text-white/70 font-medium">
-                          +{members.length - 6}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {currentRoom.description && (
+              {currentRoom.description && !isMobile && (
                 <p className="text-white/50 text-sm max-w-md sm:text-right line-clamp-2 leading-relaxed">
                   {currentRoom.description}
                 </p>
               )}
             </div>
+
+            {isMobile && (
+              <div className="flex items-center gap-2 mt-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white/80 text-xs font-mono">
+                  <HiClipboardCopy className="h-3 w-3 text-white/60" />
+                  {currentRoom.code}
+                </span>
+                {visibleMembers.length > 0 && (
+                  <div className="flex items-center">
+                    <div className="flex -space-x-1.5">
+                      {visibleMembers.slice(0, 3).map((member) => (
+                        <div key={member.userId} className="w-6 h-6 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/20">
+                          {member.photoURL ? (
+                            <img src={member.photoURL} alt={member.displayName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-white">
+                              {member.displayName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {members.length > 3 && (
+                      <span className="ml-1 text-xs text-white/60">+{members.length - 3}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className={`max-w-7xl mx-auto ${isMobile ? "px-3 pt-4" : "px-4 sm:px-6 lg:px-8 pt-6"}`}>
           <div className="flex gap-8">
             <aside className="hidden md:block w-56 shrink-0">
               <nav className="sticky top-24 space-y-1 p-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/30 shadow-sm">

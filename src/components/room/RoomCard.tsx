@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
+import { motion } from "framer-motion";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
+import { useMobile } from "@/lib/mobile-context";
 import { Room } from "@/types";
-import { HiCode, HiUsers } from "react-icons/hi";
+import { HiCode, HiUsers, HiChevronRight } from "react-icons/hi";
 
 interface RoomCardProps {
   room: Room;
@@ -20,10 +22,42 @@ const gradients = [
 
 export function RoomCard({ room }: RoomCardProps) {
   const router = useRouter();
+  const { isMobile } = useMobile();
   const gradientIndex = room.id.charCodeAt(0) % gradients.length;
   const gradient = gradients[gradientIndex];
   const memberCount =
     ((room as any).memberIds as string[] | undefined)?.length ?? 1;
+
+  if (isMobile) {
+    return (
+      <motion.div
+        onClick={() => router.push(`/room/${room.id}`)}
+        className="flex items-center gap-3 px-4 py-3.5 bg-surface rounded-xl border border-border active:scale-[0.98] transition-all cursor-pointer"
+        whileTap={{ scale: 0.98 }}
+      >
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}>
+          <span className="text-white font-bold text-sm">
+            {room.name.charAt(0).toUpperCase()}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-semibold text-text-primary text-sm truncate">
+              {room.name}
+            </h3>
+            <span className="flex items-center gap-1 text-xs text-text-muted shrink-0">
+              <HiUsers className="h-3 w-3" />
+              {memberCount}
+            </span>
+          </div>
+          <p className="text-xs text-text-secondary truncate mt-0.5">
+            {room.description || "—"}
+          </p>
+        </div>
+        <HiChevronRight className="h-4 w-4 text-text-muted shrink-0" />
+      </motion.div>
+    );
+  }
 
   return (
     <Card

@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiX } from "react-icons/hi";
+import { useMobile } from "@/lib/mobile-context";
 
 interface ModalProps {
   isOpen: boolean;
@@ -70,6 +71,8 @@ export function Modal({
     };
   }, [isOpen, trapFocus]);
 
+  const { isMobile } = useMobile();
+
   const sizes: Record<string, string> = {
     sm: "max-w-sm",
     md: "max-w-lg",
@@ -81,7 +84,7 @@ export function Modal({
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           role="dialog"
           aria-modal="true"
           aria-label={title}
@@ -95,32 +98,58 @@ export function Modal({
             onClick={onClose}
             aria-hidden="true"
           />
-          <motion.div
-            ref={modalRef}
-            initial={{ opacity: 0, scale: 0.92, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 16 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                e.stopPropagation();
-                onClose();
-              }
-            }}
-            className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/30`}
-          >
-            <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-slate-700/50 shrink-0">
-              <h2 className="text-lg font-semibold text-text-primary" id="modal-title">{title}</h2>
-              <button
-                onClick={onClose}
-                aria-label="Tutup"
-                className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:scale-110"
-              >
-                <HiX className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="px-6 py-5 overflow-y-auto">{children}</div>
-          </motion.div>
+          {isMobile ? (
+            <motion.div
+              ref={modalRef}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300, mass: 0.9 }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") { e.stopPropagation(); onClose(); }
+              }}
+              className="fixed bottom-0 left-0 right-0 w-full max-h-[90vh] flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-2xl shadow-2xl border-t border-white/20 dark:border-slate-700/30"
+            >
+              <div className="flex justify-center pt-2 pb-1 shrink-0">
+                <div className="w-10 h-1 rounded-full bg-text-muted/30" />
+              </div>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-slate-700/50 shrink-0">
+                <h2 className="text-base font-semibold text-text-primary" id="modal-title">{title}</h2>
+                <button
+                  onClick={onClose}
+                  aria-label="Tutup"
+                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200"
+                >
+                  <HiX className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="px-5 py-4 overflow-y-auto">{children}</div>
+            </motion.div>
+          ) : (
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") { e.stopPropagation(); onClose(); }
+              }}
+              className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/30 mx-4`}
+            >
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-slate-700/50 shrink-0">
+                <h2 className="text-lg font-semibold text-text-primary" id="modal-title">{title}</h2>
+                <button
+                  onClick={onClose}
+                  aria-label="Tutup"
+                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:scale-110"
+                >
+                  <HiX className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="px-6 py-5 overflow-y-auto">{children}</div>
+            </motion.div>
+          )}
         </div>
       )}
     </AnimatePresence>
