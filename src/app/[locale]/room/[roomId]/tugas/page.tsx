@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAssignments } from "@/hooks/useAssignments";
 import { usePengurus } from "@/hooks/usePengurus";
+import { useRoomSubjects } from "@/hooks/useRoomSubjects";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +28,7 @@ export default function TugasPage() {
     useAssignments(roomId);
   const { members } = useRoom();
   const { pengurus } = usePengurus(roomId);
+  const { subjects: roomSubjects } = useRoomSubjects(roomId);
   const { user } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -178,6 +180,7 @@ export default function TugasPage() {
           setEditingAssignment(null);
         }}
         assignment={editingAssignment}
+        subjects={roomSubjects.map((s) => s.name)}
         onSubmit={handleSubmit}
       />
     </div>

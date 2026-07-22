@@ -77,6 +77,7 @@ export function useDeployments(roomId: string) {
     async (data: {
       title: string;
       description?: string;
+      subject?: string;
       files: File[];
       onProgress?: (progress: number) => void;
     }) => {
@@ -103,6 +104,7 @@ export function useDeployments(roomId: string) {
         roomId,
         title: data.title.trim(),
         description: data.description?.trim() || "",
+        subject: data.subject?.trim() || "",
         attachments: attachmentUrls,
         attachmentPublicIds,
         createdBy: user.id,

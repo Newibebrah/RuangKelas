@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { useDeployments } from "@/hooks/useDeployments";
+import { useRoomSubjects } from "@/hooks/useRoomSubjects";
 import { MaterialList } from "@/components/class/MaterialList";
 import { DeployModal } from "@/components/class/actions/deploy";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +20,7 @@ export default function MateriPage() {
   const roomId = params.roomId as string;
   const { user } = useAuth();
   const { members } = useRoom();
+  const { subjects: roomSubjects } = useRoomSubjects(roomId);
   const {
     deployments,
     loading,
@@ -64,6 +66,7 @@ export default function MateriPage() {
         isOpen={deployOpen}
         onClose={() => setDeployOpen(false)}
         roomId={roomId}
+        subjects={roomSubjects.map((s) => s.name)}
       />
     </div>
   );

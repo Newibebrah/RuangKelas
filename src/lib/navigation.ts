@@ -6,6 +6,7 @@ import {
   HiUserGroup,
   HiUsers,
   HiCog,
+  HiCalendar,
 } from "react-icons/hi";
 import { ComponentType } from "react";
 
@@ -23,6 +24,7 @@ export const roomTabs: TabDefinition[] = [
   { labelKey: "materi", icon: HiBookOpen, getHref: (id) => `/room/${id}/materi`, exact: false },
   { labelKey: "kas", icon: HiCash, getHref: (id) => `/room/${id}/kas`, exact: false },
   { labelKey: "anggota", icon: HiUserGroup, getHref: (id) => `/room/${id}/anggota`, exact: false },
+  { labelKey: "jadwal", icon: HiCalendar, getHref: (id) => `/room/${id}/jadwal`, exact: false },
   { labelKey: "pengurus", icon: HiUsers, getHref: (id) => `/room/${id}/pengurus`, exact: false },
   { labelKey: "kelolaKas", icon: HiCog, getHref: (id) => `/room/${id}/kelola-kas`, exact: false, showIf: "bendahara" },
 ];

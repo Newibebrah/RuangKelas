@@ -45,6 +45,7 @@ interface AssignmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   assignment?: Assignment | null;
+  subjects?: string[];
   onSubmit: (data: {
     subject: string;
     description: string;
@@ -78,6 +79,7 @@ export function AssignmentModal({
   isOpen,
   onClose,
   assignment,
+  subjects,
   onSubmit,
 }: AssignmentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -220,12 +222,37 @@ export function AssignmentModal({
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-6">
               <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
-                <Input
-                  label="Mata Pelajaran"
-                  placeholder="Contoh: Matematika"
-                  error={errors.subject?.message}
-                  {...register("subject")}
-                />
+                {subjects && subjects.length > 0 ? (
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                      Mata Pelajaran
+                    </label>
+                    <select
+                      className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-slate-800/50 ${
+                        errors.subject ? "border-red-400 dark:border-red-500" : "border-border dark:border-slate-700"
+                      }`}
+                      {...register("subject")}
+                    >
+                      <option value="">Pilih matkul...</option>
+                      {subjects.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    {errors.subject && (
+                      <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-red-500 shrink-0" />
+                        {errors.subject.message}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <Input
+                    label="Mata Pelajaran"
+                    placeholder="Contoh: Matematika"
+                    error={errors.subject?.message}
+                    {...register("subject")}
+                  />
+                )}
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1.5">
                     Deskripsi

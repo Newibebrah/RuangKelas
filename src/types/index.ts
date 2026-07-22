@@ -129,6 +129,19 @@ export interface Payment {
   proofUrl?: string;
 }
 
+export interface RoomSubject {
+  id: string;
+  roomId: string;
+  name: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  teacher?: string;
+  color?: string;
+  createdBy: string;
+  createdAt: Timestamp;
+}
+
 export interface SubjectPJ {
   id: string;
   roomId: string;

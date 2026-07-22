@@ -73,9 +73,16 @@ export function MaterialList({
           <CardBody>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-text-primary truncate">
-                  {d.title}
-                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-text-primary truncate">
+                    {d.title}
+                  </h3>
+                  {d.subject && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                      {d.subject}
+                    </span>
+                  )}
+                </div>
                 {d.description && (
                   <p className="text-sm text-text-muted mt-1 line-clamp-2">
                     {d.description}

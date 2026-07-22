@@ -12,12 +12,14 @@ interface DeployModalProps {
   isOpen: boolean;
   onClose: () => void;
   roomId: string;
+  subjects?: string[];
 }
 
-export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
+export function DeployModal({ isOpen, onClose, roomId, subjects }: DeployModalProps) {
   const { createDeployment } = useDeployments(roomId);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [subject, setSubject] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -59,6 +61,7 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
       await createDeployment({
         title: title.trim(),
         description: description.trim(),
+        subject: subject || undefined,
         files,
         onProgress: setUploadProgress,
       });
@@ -66,6 +69,7 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
       toast.success("Materi berhasil dibagikan!");
       setTitle("");
       setDescription("");
+      setSubject("");
       setFiles([]);
       onClose();
     } catch {
@@ -91,6 +95,24 @@ export function DeployModal({ isOpen, onClose, roomId }: DeployModalProps) {
             required
           />
         </div>
+
+        {subjects && subjects.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1">
+              Mata Pelajaran <span className="text-text-muted">(opsional)</span>
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-800/50"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            >
+              <option value="">Pilih matkul...</option>
+              {subjects.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">
