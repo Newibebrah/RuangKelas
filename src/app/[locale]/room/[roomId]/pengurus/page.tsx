@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { usePengurus } from "@/hooks/usePengurus";
+import { useSubjects } from "@/hooks/useSubjects";
 import { useSubjectPJ } from "@/hooks/useSubjectPJ";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
@@ -76,6 +77,7 @@ export default function PengurusPage() {
     updatePengurus,
     deletePengurus,
   } = usePengurus(roomId);
+  const { subjects: roomSubjects } = useSubjects(roomId);
   const { subjects, assignPJ } = useSubjectPJ(roomId);
 
   const [roleModal, setRoleModal] = useState<Pengurus | null>(null);
@@ -227,6 +229,7 @@ export default function PengurusPage() {
               roomId={roomId}
               canManage={canManage}
               members={memberOptions}
+              subjectsList={roomSubjects.map((s) => s.name)}
             />
           </section>
         </>

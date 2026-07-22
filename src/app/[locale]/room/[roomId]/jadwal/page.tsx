@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useRoomSubjects } from "@/hooks/useRoomSubjects";
+import { useSubjects } from "@/hooks/useSubjects";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -34,7 +34,7 @@ export default function JadwalPage() {
   const { t } = useLocale();
   const params = useParams();
   const roomId = params.roomId as string;
-  const { subjects, loading, addSubject, updateSubject, deleteSubject } = useRoomSubjects(roomId);
+  const { subjects, loading, addSubject, updateSubject, deleteSubject } = useSubjects(roomId);
   const { isAdmin, isKetua, isSekretaris } = useRoleAccess(roomId);
   const canManage = isAdmin || isKetua || isSekretaris;
 

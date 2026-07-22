@@ -81,12 +81,14 @@ interface SubjectPJSectionProps {
   roomId: string;
   canManage: boolean;
   members: MemberOption[];
+  subjectsList?: string[];
 }
 
 export function SubjectPJSection({
   roomId,
   canManage,
   members,
+  subjectsList,
 }: SubjectPJSectionProps) {
   const { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject } =
     useSubjectPJ(roomId);
@@ -327,12 +329,30 @@ export function SubjectPJSection({
         title="Tambah Mata Pelajaran"
       >
         <div className="space-y-4">
-          <Input
-            label="Nama Mata Pelajaran"
-            placeholder="Contoh: Matematika"
-            value={subjectName}
-            onChange={(e) => setSubjectName(e.target.value)}
-          />
+          {subjectsList && subjectsList.length > 0 ? (
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Nama Mata Pelajaran
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
+                value={subjectName}
+                onChange={(e) => setSubjectName(e.target.value)}
+              >
+                <option value="">Pilih matkul...</option>
+                {subjectsList.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <Input
+              label="Nama Mata Pelajaran"
+              placeholder="Contoh: Matematika"
+              value={subjectName}
+              onChange={(e) => setSubjectName(e.target.value)}
+            />
+          )}
           <Input
             label="KKM (opsional)"
             type="number"
@@ -364,12 +384,30 @@ export function SubjectPJSection({
         title="Edit Mata Pelajaran"
       >
         <div className="space-y-4">
-          <Input
-            label="Nama Mata Pelajaran"
-            placeholder="Contoh: Matematika"
-            value={subjectName}
-            onChange={(e) => setSubjectName(e.target.value)}
-          />
+          {subjectsList && subjectsList.length > 0 ? (
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Nama Mata Pelajaran
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
+                value={subjectName}
+                onChange={(e) => setSubjectName(e.target.value)}
+              >
+                <option value="">Pilih matkul...</option>
+                {subjectsList.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <Input
+              label="Nama Mata Pelajaran"
+              placeholder="Contoh: Matematika"
+              value={subjectName}
+              onChange={(e) => setSubjectName(e.target.value)}
+            />
+          )}
           <Input
             label="KKM (opsional)"
             type="number"

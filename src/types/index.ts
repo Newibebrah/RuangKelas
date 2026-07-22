@@ -129,7 +129,7 @@ export interface Payment {
   proofUrl?: string;
 }
 
-export interface RoomSubject {
+export interface Subject {
   id: string;
   roomId: string;
   name: string;
@@ -140,6 +140,20 @@ export interface RoomSubject {
   color?: string;
   createdBy: string;
   createdAt: Timestamp;
+}
+
+export interface Material {
+  id: string;
+  roomId: string;
+  title: string;
+  description: string;
+  attachments: string[];
+  attachmentPaths?: string[];
+  attachmentPublicIds?: string[];
+  subject: string;
+  createdBy: string;
+  createdAt: Timestamp;
+  displayName?: string;
 }
 
 export interface SubjectPJ {
@@ -178,6 +192,9 @@ export interface Transaction {
   createdBy: string;
   createdAt: Timestamp;
 }
+
+/** @deprecated Use Subject */
+export type RoomSubject = Subject;
 
 export interface AppNotification {
   id: string;

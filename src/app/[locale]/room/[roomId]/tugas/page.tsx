@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAssignments } from "@/hooks/useAssignments";
 import { usePengurus } from "@/hooks/usePengurus";
-import { useRoomSubjects } from "@/hooks/useRoomSubjects";
+import { useSubjects } from "@/hooks/useSubjects";
 import { useAuth } from "@/lib/auth-context";
 import { useRoom } from "@/lib/room-context";
 import { Button } from "@/components/ui/Button";
@@ -28,7 +28,7 @@ export default function TugasPage() {
     useAssignments(roomId);
   const { members } = useRoom();
   const { pengurus } = usePengurus(roomId);
-  const { subjects: roomSubjects } = useRoomSubjects(roomId);
+  const { subjects: roomSubjects } = useSubjects(roomId);
   const { user } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -41,6 +41,25 @@ export default function TugasPage() {
     (p) => p.userId === user?.id && p.jabatan.toLowerCase() === "sekretaris"
   );
   const canManage = isAdmin || isSekretaris;
+
+  const groupedAssignments = useMemo(() => {
+    const groups: Record<string, typeof assignments> = {};
+    const subjectOrder = roomSubjects.map((s) => s.name);
+    assignments.forEach((a) => {
+      const key = a.subject || "Lainnya";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(a);
+    });
+    const sorted = Object.entries(groups).sort(([a], [b]) => {
+      const ai = subjectOrder.indexOf(a);
+      const bi = subjectOrder.indexOf(b);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b);
+    });
+    return sorted;
+  }, [assignments, roomSubjects]);
 
   const handleCreate = () => {
     setEditingAssignment(null);
@@ -126,29 +145,42 @@ export default function TugasPage() {
           />
         </div>
       ) : (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.06 } },
-          }}
-          className="space-y-0"
-        >
-          {assignments.map((tugas, i) => (
-            <div key={tugas.id} className="relative">
-              <AssignmentCard
-                assignment={tugas}
-                canManage={canManage}
-                isDeleting={deletingId === tugas.id}
-                roomId={roomId}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                index={i}
-              />
+        <div className="space-y-8">
+          {groupedAssignments.map(([subjectName, items]) => (
+            <div key={subjectName}>
+              <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                {subjectName}
+                <span className="text-xs font-normal text-text-muted">
+                  ({items.length})
+                </span>
+              </h3>
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.06 } },
+                }}
+                className="space-y-3"
+              >
+                {items.map((tugas) => (
+                  <motion.div key={tugas.id} layout className="relative">
+                    <AssignmentCard
+                      assignment={tugas}
+                      canManage={canManage}
+                      isDeleting={deletingId === tugas.id}
+                      roomId={roomId}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      index={assignments.indexOf(tugas)}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           ))}
-        </motion.div>
+        </div>
       )}
 
       {canManage && (
