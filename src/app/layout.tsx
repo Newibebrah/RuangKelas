@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { WebVitalsReporter } from "@/lib/web-vitals";
 import { Suspense } from "react";
@@ -11,34 +10,10 @@ const baseUrl = "https://ruang-kelas-beige.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "RuangKelas - Platform Manajemen Kelas Digital",
+    default: "RuangKelas",
     template: "%s | RuangKelas",
   },
-  description:
-    "Platform manajemen kelas digital untuk pendidikan modern. Kelola tugas, materi, kas kelas, dan komunikasi dalam satu tempat.",
-  keywords: [
-    "kelas",
-    "pendidikan",
-    "manajemen kelas",
-    "tugas sekolah",
-    "materi pelajaran",
-    "kas kelas",
-    "platform edukasi",
-  ],
-  openGraph: {
-    title: "RuangKelas - Platform Manajemen Kelas Digital",
-    description:
-      "Platform manajemen kelas digital untuk pendidikan modern",
-    url: baseUrl,
-    siteName: "RuangKelas",
-    type: "website",
-    locale: "id_ID",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "RuangKelas",
-    description: "Platform manajemen kelas digital untuk pendidikan modern",
-  },
+  description: "Platform manajemen kelas digital",
   robots: {
     index: true,
     follow: true,
@@ -90,13 +65,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Providers>
-          {children}
-          <Suspense fallback={null}>
-            <AnalyticsTracker />
-          </Suspense>
-          <WebVitalsReporter />
-        </Providers>
+        {children}
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
+        <WebVitalsReporter />
       </body>
     </html>
   );

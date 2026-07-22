@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { formatDistanceToNow, isAfter, differenceInHours } from "date-fns";
 import { id } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";

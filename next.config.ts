@@ -1,5 +1,8 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin();
 
 let nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -53,7 +56,7 @@ if (process.env.ANALYZE === "true") {
   nextConfig = withBundleAnalyzer(nextConfig);
 }
 
-export default withSentryConfig(nextConfig, {
+export default withNextIntl(withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG || "",
   project: process.env.SENTRY_PROJECT || "",
   silent: !process.env.CI,
@@ -62,4 +65,4 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: { deleteSourcemapsAfterUpload: true },
   disableLogger: true,
   automaticVercelMonitors: true,
-});
+}));

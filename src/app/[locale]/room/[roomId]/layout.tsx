@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useParams, useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";

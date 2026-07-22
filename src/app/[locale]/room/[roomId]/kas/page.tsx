@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useRoom } from "@/lib/room-context";
 import { useKas } from "@/hooks/useKas";
 import { useBilling } from "@/hooks/useBilling";

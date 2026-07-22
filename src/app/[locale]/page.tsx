@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { AppHeader } from "@/components/ui/AppHeader";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { HiAcademicCap } from "react-icons/hi";
 
 export default function HomePage() {

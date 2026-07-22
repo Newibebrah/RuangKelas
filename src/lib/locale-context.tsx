@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useCallback } from "react";
+import { useLocale as useNextIntlLocale } from "next-intl";
+import { useRouter, usePathname } from "@/i18n/navigation";
 
 type Locale = "id" | "en";
 
@@ -50,28 +52,25 @@ function getNestedValue(obj: Messages, path: string): string {
   return typeof current === "string" ? current : path;
 }
 
+function setLangAttr(locale: string) {
+  document.documentElement.lang = locale;
+}
+
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("id");
+  const locale = useNextIntlLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("locale") as Locale | null;
-    if (stored === "id" || stored === "en") {
-      document.documentElement.lang = stored;
-      setLocaleState(stored);
-    } else {
-      const detected = navigator.language?.startsWith("id") ? "id" : "en";
-      document.documentElement.lang = detected;
-      setLocaleState(detected);
-    }
-  }, []);
-
-  const setLocale = useCallback((l: Locale) => {
-    localStorage.setItem("locale", l);
-    document.documentElement.lang = l;
-    setLocaleState(l);
-  }, []);
+  const setLocale = useCallback(
+    (l: Locale) => {
+      localStorage.setItem("locale", l);
+      setLangAttr(l);
+      router.replace(pathname, { locale: l });
+    },
+    [router, pathname]
+  );
 
   const t = useCallback(
     (path: string) => getNestedValue(localeData[locale], path),
