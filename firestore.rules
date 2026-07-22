@@ -77,6 +77,13 @@ service cloud.firestore {
       allow delete: if isAuth();
     }
 
+    match /roomSubjects/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
     match /notifications/{docId} {
       allow read: if resource.data.uid is string && resource.data.uid == request.auth.uid;
       allow create: if isAuth();

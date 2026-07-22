@@ -5,17 +5,30 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc,
   doc,
   serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { RoomSubject } from "@/types";
 import { useAuth } from "@/lib/auth-context";
+
+const DAY_ORDER: Record<string, number> = {
+  Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6, Minggu: 7,
+};
+
+function sortSubjects(list: RoomSubject[]) {
+  return [...list].sort((a, b) => {
+    const da = DAY_ORDER[a.day] ?? 99;
+    const db_ = DAY_ORDER[b.day] ?? 99;
+    if (da !== db_) return da - db_;
+    return a.startTime.localeCompare(b.startTime);
+  });
+}
 
 export function useRoomSubjects(roomId: string) {
   const { user } = useAuth();
@@ -28,9 +41,7 @@ export function useRoomSubjects(roomId: string) {
 
     const q = query(
       collection(db, "roomSubjects"),
-      where("roomId", "==", roomId),
-      orderBy("day", "asc"),
-      orderBy("startTime", "asc")
+      where("roomId", "==", roomId)
     );
 
     const unsub = onSnapshot(
@@ -39,12 +50,21 @@ export function useRoomSubjects(roomId: string) {
         const data = snapshot.docs.map(
           (d) => ({ id: d.id, ...d.data() }) as RoomSubject
         );
-        setSubjects(data);
+        setSubjects(sortSubjects(data));
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat jadwal matkul");
-        setLoading(false);
+      async () => {
+        try {
+          const snap = await getDocs(q);
+          const data = snap.docs.map(
+            (d) => ({ id: d.id, ...d.data() }) as RoomSubject
+          );
+          setSubjects(sortSubjects(data));
+          setLoading(false);
+        } catch {
+          setError("Gagal memuat jadwal matkul");
+          setLoading(false);
+        }
       }
     );
 
