@@ -79,9 +79,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     (l: Locale) => {
       localStorage.setItem("locale", l);
       setLangAttr(l);
-      router.replace(pathname, { locale: l });
+      // Strip /m/ prefix (mobile) and current locale prefix
+      const withoutM = pathname.startsWith("/m/") ? pathname.replace(/^\/m/, "") : pathname;
+      const prefix = `/${locale}`;
+      const withoutLocale = withoutM.startsWith(prefix)
+        ? withoutM.slice(prefix.length) || "/"
+        : withoutM;
+      router.replace(withoutLocale, { locale: l });
     },
-    [router, pathname]
+    [router, pathname, locale]
   );
 
   const t = useCallback(
