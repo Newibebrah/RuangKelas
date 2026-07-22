@@ -19,8 +19,8 @@ export function AppHeader({ left, right }: AppHeaderProps) {
         <div className={`flex items-center justify-between ${isMobile ? "h-14" : "h-16"}`}>
           <div className="flex items-center gap-2.5 min-w-0">{left}</div>
           <div className="flex items-center gap-1 shrink-0">
-            {!isMobile && <LanguageSwitcher />}
-            {!isMobile && <ThemeToggle />}
+            <LanguageSwitcher />
+            <ThemeToggle />
             {right}
           </div>
         </div>

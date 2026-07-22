@@ -162,9 +162,9 @@ export default function RoomLayout({
                 <HiArrowLeft className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
               </button>
               <div className="flex items-center gap-1">
-                {!isMobile && <LanguageSwitcher />}
-                {!isMobile && <ThemeToggle />}
-                {!isMobile && <NotificationBell />}
+                <LanguageSwitcher />
+                <ThemeToggle />
+                <NotificationBell />
                 <UserMenu />
               </div>
             </div>
