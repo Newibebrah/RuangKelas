@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { useProfile } from "@/hooks/useProfile";
+import { useLocale } from "@/lib/locale-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -14,6 +15,7 @@ import { HiArrowLeft, HiCamera, HiUser } from "react-icons/hi";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
+  const { t } = useLocale();
   const router = useRouter();
   const { user } = useAuth();
   const { updateProfile } = useProfile();
@@ -83,7 +85,7 @@ export default function ProfilePage() {
               >
                 <HiArrowLeft className="h-5 w-5 text-text-secondary" />
               </button>
-              <h1 className="text-lg font-semibold text-text-primary">Edit Profil</h1>
+              <h1 className="text-lg font-semibold text-text-primary">{t('auth.editProfile')}</h1>
             </>
           }
         />
@@ -115,7 +117,7 @@ export default function ProfilePage() {
               className="hidden"
               onChange={handleFileSelect}
             />
-            <p className="text-xs text-text-muted mt-2">Maks 2MB</p>
+            <p className="text-xs text-text-muted mt-2">{t('profile.maxPhotoSize')}</p>
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div className="w-48 mt-3">
                 <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
@@ -127,7 +129,7 @@ export default function ProfilePage() {
 
           {/* Email (readonly) */}
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">Email</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">{t('profile.email')}</label>
             <p className="px-3 py-2.5 bg-surface-muted border border-border rounded-xl text-sm text-text-muted">
               {user.email}
             </p>
@@ -135,15 +137,15 @@ export default function ProfilePage() {
 
           {/* Nama Lengkap */}
           <Input
-            label="Nama Lengkap"
-            placeholder="Nama lengkap Anda"
+            label={t('profile.fullName')}
+            placeholder={t('profile.fullNamePlaceholder')}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
           />
 
           {/* Username */}
           <Input
-            label="Username (opsional)"
+            label={t('profile.username')}
             placeholder="@username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -153,12 +155,12 @@ export default function ProfilePage() {
           {/* Bio */}
           <div>
             <label className="block text-sm font-medium text-text-primary mb-1.5">
-              Bio <span className="text-text-muted">(opsional)</span>
+              {t('profile.bio')} <span className="text-text-muted">{t('profile.optional')}</span>
             </label>
             <textarea
               className="w-full px-3 py-2.5 border border-border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-surface text-text-primary placeholder:text-text-muted resize-none"
               rows={3}
-              placeholder="Tulis sesuatu tentang diri Anda"
+              placeholder={t('profile.bioPlaceholder')}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={200}
@@ -168,10 +170,10 @@ export default function ProfilePage() {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={() => router.back()}>
-              Batal
+              {t('action.cancel')}
             </Button>
             <Button onClick={handleSave} isLoading={saving}>
-              Simpan
+              {t('action.save')}
             </Button>
           </div>
         </div>

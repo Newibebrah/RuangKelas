@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, Link } from "@/i18n/navigation";
+import { useLocale } from "@/lib/locale-context";
 import { TabDefinition } from "@/lib/navigation";
 
 interface BottomNavProps {
@@ -9,6 +10,7 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
+  const { t } = useLocale();
   const pathname = usePathname();
 
   return (
@@ -21,10 +23,10 @@ export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
             : pathname.startsWith(href);
           return (
             <Link
-              key={tab.label}
+              key={tab.labelKey}
               href={href}
               aria-current={isActive ? "page" : undefined}
-              aria-label={tab.label}
+              aria-label={t('nav.' + tab.labelKey)}
               className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
                 isActive
                   ? "text-primary-600"
@@ -35,7 +37,7 @@ export function BottomNav({ roomId, visibleTabs }: BottomNavProps) {
                 <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full bg-primary-500" />
               )}
               <tab.icon className={`h-5 w-5 ${isActive ? "scale-110" : ""}`} />
-              <span className="text-[10px] font-semibold tracking-tight">{tab.label}</span>
+              <span className="text-[10px] font-semibold tracking-tight">{t('nav.' + tab.labelKey)}</span>
             </Link>
           );
         })}

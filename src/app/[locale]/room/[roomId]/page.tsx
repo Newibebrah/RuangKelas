@@ -5,12 +5,14 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useLocale } from "@/lib/locale-context";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { HiUsers, HiClipboardList, HiCash } from "react-icons/hi";
 
 export default function RoomHomePage() {
+  const { t } = useLocale();
   const params = useParams();
   const { currentRoom, members } = useRoom();
   const { user } = useAuth();
@@ -47,7 +49,7 @@ export default function RoomHomePage() {
               <p className="text-2xl font-bold text-text-primary">
                 {members.length}
               </p>
-              <p className="text-sm text-text-secondary">Anggota</p>
+              <p className="text-sm text-text-secondary">{t('nav.anggota')}</p>
               <p className="text-xs text-text-muted">
                 {guruCount > 0 && `${guruCount} guru `}
                 {siswaCount > 0 && `${siswaCount} siswa `}
@@ -64,7 +66,7 @@ export default function RoomHomePage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text-primary">{activeTasks}</p>
-              <p className="text-sm text-text-secondary">Tugas Aktif</p>
+              <p className="text-sm text-text-secondary">{t('room.activeTasks')}</p>
             </div>
           </CardBody>
         </Card>
@@ -76,7 +78,7 @@ export default function RoomHomePage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text-primary">Rp 0</p>
-              <p className="text-sm text-text-secondary">Saldo Kas</p>
+              <p className="text-sm text-text-secondary">{t('room.saldoKas')}</p>
             </div>
           </CardBody>
         </Card>
@@ -85,11 +87,11 @@ export default function RoomHomePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-text-primary">Anggota Terbaru</h3>
+            <h3 className="font-semibold text-text-primary">{t('room.latestMembers')}</h3>
           </CardHeader>
           <CardBody>
             {members.length === 0 ? (
-              <p className="text-sm text-text-muted">Belum ada anggota</p>
+              <p className="text-sm text-text-muted">{t('common.emptyMembers')}</p>
             ) : (
               <div className="space-y-3">
                 {members.slice(0, 5).map((member) => (

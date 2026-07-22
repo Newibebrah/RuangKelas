@@ -10,7 +10,7 @@ import {
 import { ComponentType } from "react";
 
 export interface TabDefinition {
-  label: string;
+  labelKey: string;
   icon: ComponentType<{ className?: string }>;
   getHref: (roomId: string) => string;
   exact: boolean;
@@ -18,11 +18,11 @@ export interface TabDefinition {
 }
 
 export const roomTabs: TabDefinition[] = [
-  { label: "Beranda", icon: HiAcademicCap, getHref: (id) => `/room/${id}`, exact: true },
-  { label: "Tugas", icon: HiClipboardList, getHref: (id) => `/room/${id}/tugas`, exact: false },
-  { label: "Materi", icon: HiBookOpen, getHref: (id) => `/room/${id}/materi`, exact: false },
-  { label: "Kas", icon: HiCash, getHref: (id) => `/room/${id}/kas`, exact: false },
-  { label: "Anggota", icon: HiUserGroup, getHref: (id) => `/room/${id}/anggota`, exact: false },
-  { label: "Pengurus", icon: HiUsers, getHref: (id) => `/room/${id}/pengurus`, exact: false },
-  { label: "Kelola Kas", icon: HiCog, getHref: (id) => `/room/${id}/kelola-kas`, exact: false, showIf: "bendahara" },
+  { labelKey: "beranda", icon: HiAcademicCap, getHref: (id) => `/room/${id}`, exact: true },
+  { labelKey: "tugas", icon: HiClipboardList, getHref: (id) => `/room/${id}/tugas`, exact: false },
+  { labelKey: "materi", icon: HiBookOpen, getHref: (id) => `/room/${id}/materi`, exact: false },
+  { labelKey: "kas", icon: HiCash, getHref: (id) => `/room/${id}/kas`, exact: false },
+  { labelKey: "anggota", icon: HiUserGroup, getHref: (id) => `/room/${id}/anggota`, exact: false },
+  { labelKey: "pengurus", icon: HiUsers, getHref: (id) => `/room/${id}/pengurus`, exact: false },
+  { labelKey: "kelolaKas", icon: HiCog, getHref: (id) => `/room/${id}/kelola-kas`, exact: false, showIf: "bendahara" },
 ];

@@ -14,6 +14,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { SubjectPJSection } from "@/components/pengurus/SubjectPJSection";
 import { RoleChangeModal } from "@/components/pengurus/RoleChangeModal";
 import { ElectionModal } from "@/components/pengurus/ElectionModal";
+import { useLocale } from "@/lib/locale-context";
 import { HiUsers, HiPencil, HiLightningBolt } from "react-icons/hi";
 import { Pengurus } from "@/types";
 import toast from "react-hot-toast";
@@ -27,6 +28,7 @@ import toast from "react-hot-toast";
   };
 
 export default function PengurusPage() {
+  const { t } = useLocale();
   const params = useParams();
   const roomId = params.roomId as string;
   const { user } = useAuth();
@@ -81,15 +83,15 @@ export default function PengurusPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Pengurus</h2>
+          <h2 className="text-xl font-bold text-text-primary">{t('pengurus.title')}</h2>
           <p className="text-sm text-text-secondary mt-1">
-            Struktur organisasi kelas
+            {t('pengurus.structureDesc')}
           </p>
         </div>
         {canManage && (
           <Button onClick={() => setElectionOpen(true)}>
             <HiLightningBolt className="h-4 w-4" />
-            Roda Pemilihan
+            {t('pengurus.election')}
           </Button>
         )}
       </div>
@@ -102,16 +104,16 @@ export default function PengurusPage() {
         <>
           <section className="mb-8">
             <h3 className="text-base font-semibold text-text-primary mb-3">
-              Struktur Pengurus
+              {t('pengurus.structure')}
             </h3>
             {sortedPengurus.length === 0 ? (
               <EmptyState
                 icon={<HiUsers className="h-16 w-16" />}
-                title="Belum ada pengurus"
+                title={t('pengurus.empty')}
                 description={
                   canManage
-                    ? "Gunakan roda pemilihan untuk memilih pengurus"
-                    : "Ketua belum mengisi struktur pengurus"
+                    ? t('pengurus.emptyManageDesc')
+                    : t('pengurus.emptyNotManageDesc')
                 }
               />
             ) : (

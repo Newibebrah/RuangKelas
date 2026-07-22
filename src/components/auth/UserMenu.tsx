@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 import { HiLogout, HiUser, HiPencil } from "react-icons/hi";
 
 export function UserMenu() {
+  const { t } = useLocale();
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -76,7 +78,7 @@ export function UserMenu() {
               role="menuitem"
             >
               <HiPencil className="h-4 w-4" />
-              Edit Profil
+              {t('auth.editProfile')}
             </button>
             <button
               onClick={() => {
@@ -87,7 +89,7 @@ export function UserMenu() {
               role="menuitem"
             >
               <HiLogout className="h-4 w-4" />
-              Keluar
+              {t('auth.logout')}
             </button>
           </div>
         </>

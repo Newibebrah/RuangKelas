@@ -32,6 +32,7 @@ import {
   HiArrowLeft,
 } from "react-icons/hi";
 import { Kas } from "@/types";
+import { useLocale } from "@/lib/locale-context";
 import { FinanceChart } from "@/components/kas/FinanceChart";
 import { formatRupiah, combineKas } from "@/lib/kas-utils";
 
@@ -58,6 +59,7 @@ async function getXlsx() {
 }
 
 export default function KelolaKasPage() {
+  const { t } = useLocale();
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
@@ -212,12 +214,12 @@ export default function KelolaKasPage() {
         <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center">
           <HiCash className="h-8 w-8 text-danger" />
         </div>
-        <h2 className="text-xl font-bold text-text-primary">Akses Terbatas</h2>
+        <h2 className="text-xl font-bold text-text-primary">{t('auth.accessDenied')}</h2>
         <p className="text-sm text-text-secondary text-center max-w-sm">
-          Halaman ini hanya dapat diakses oleh Bendahara, Ketua, dan Sekretaris.
+          {t('kas.accessDeniedDesc')}
         </p>
         <Button onClick={() => router.push(`/room/${roomId}/kas`)} variant="outline">
-          Kembali ke Kas
+          {t('action.back')} ke {t('nav.kas')}
         </Button>
       </div>
     );
@@ -234,23 +236,23 @@ export default function KelolaKasPage() {
             >
               <HiArrowLeft className="h-5 w-5 text-text-secondary" />
             </button>
-            <h2 className="text-xl font-bold text-text-primary">Kelola Kas</h2>
+            <h2 className="text-xl font-bold text-text-primary">{t('kas.manage')}</h2>
           </div>
           <p className="text-sm text-text-secondary mt-1">
-            {canManageKas ? "Kelola pemasukan, pengeluaran, dan tagihan kelas" : "Lihat laporan keuangan kelas"}
+            {canManageKas ? t('kas.manageDesc') : t('kas.viewReportDesc')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {canManageKas && (
             <Button onClick={() => setShowAddTx(true)}>
               <HiPlus className="h-4 w-4" />
-              Tambah Transaksi
+              {t('kas.addTransaction')}
             </Button>
           )}
           {canDownloadReport && (
             <Button variant="outline" onClick={handleDownloadExcel}>
               <HiDownload className="h-4 w-4" />
-              Download Excel
+              {t('action.download')} Excel
             </Button>
           )}
         </div>
@@ -260,7 +262,7 @@ export default function KelolaKasPage() {
       <div className="grid gap-4 sm:grid-cols-3 mb-6">
         <Card>
           <CardBody>
-            <p className="text-sm text-text-secondary">Total Pemasukan</p>
+            <p className="text-sm text-text-secondary">{t('kas.totalIncome')}</p>
             <p className="text-2xl font-bold text-success">
               {formatRupiah(combinedIncome)}
             </p>
@@ -268,7 +270,7 @@ export default function KelolaKasPage() {
         </Card>
             <Card>
               <CardBody>
-                <p className="text-sm text-text-secondary">Total Pengeluaran</p>
+                <p className="text-sm text-text-secondary">{t('kas.totalExpense')}</p>
                 <p className="text-2xl font-bold text-danger">
                   {formatRupiah(combinedExpense)}
                 </p>
@@ -281,7 +283,7 @@ export default function KelolaKasPage() {
                     <HiCash className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/80 font-medium">Saldo Kas</p>
+                    <p className="text-sm text-white/80 font-medium">{t('kas.balance')}</p>
                     <p className="text-2xl font-bold text-white">
                       {formatRupiah(combinedBalance)}
                     </p>
@@ -309,7 +311,7 @@ export default function KelolaKasPage() {
                         <HiCurrencyDollar className="h-6 w-6 text-success" />
                       </div>
                       <div>
-                        <p className="text-sm text-text-secondary">Uang Terkumpul</p>
+                        <p className="text-sm text-text-secondary">{t('kas.collected')}</p>
                         <p className="text-2xl font-bold text-success">{formatRupiah(billingSummary.totalCollected)}</p>
                       </div>
                     </div>
@@ -322,7 +324,7 @@ export default function KelolaKasPage() {
                         <HiExclamationCircle className="h-6 w-6 text-warning" />
                       </div>
                       <div>
-                        <p className="text-sm text-text-secondary">Tunggakan</p>
+                        <p className="text-sm text-text-secondary">{t('kas.arrears')}</p>
                         <p className="text-2xl font-bold text-warning">{formatRupiah(billingSummary.totalArrears)}</p>
                       </div>
                     </div>
@@ -332,9 +334,9 @@ export default function KelolaKasPage() {
 
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-base font-semibold text-text-primary">Tabel Pembayaran Tagihan</h3>
+                  <h3 className="text-base font-semibold text-text-primary">{t('kas.paymentTable')}</h3>
                   <span className="text-xs text-text-muted">
-                    {billingSummary.paidCount}/{billingSummary.totalPossible} lunas
+                    {billingSummary.paidCount}/{billingSummary.totalPossible} {t('kas.paid')}
                   </span>
                 </div>
                 <PaymentTable
@@ -354,17 +356,17 @@ export default function KelolaKasPage() {
                 <CardBody>
                   <EmptyState
                     icon={<HiDocumentText className="h-8 w-8" />}
-                    title="Belum ada tagihan"
+                    title={t('kas.noBill')}
                     description={
                       canManageKas
-                        ? "Buat tagihan untuk mulai mencatat pembayaran anggota"
-                        : "Bendahara belum membuat tagihan"
+                        ? t('kas.noBillManageDesc')
+                        : t('kas.noBillNotManageDesc')
                     }
                     action={
                       canManageKas ? (
                         <Button onClick={() => setBillModalOpen(true)}>
                           <HiPlus className="h-4 w-4" />
-                          Buat Tagihan
+                          {t('action.createBill')}
                         </Button>
                       ) : undefined
                     }
@@ -378,19 +380,19 @@ export default function KelolaKasPage() {
           <div className="grid gap-4 sm:grid-cols-3 mb-6">
             <Card>
               <CardBody>
-                <p className="text-sm text-text-secondary">Pemasukan (Kas Lama)</p>
+                <p className="text-sm text-text-secondary">{t('kas.legacyIncome')}</p>
                 <p className="text-2xl font-bold text-success">{formatRupiah(kasSummary.totalPemasukan)}</p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <p className="text-sm text-text-secondary">Pengeluaran (Kas Lama)</p>
+                <p className="text-sm text-text-secondary">{t('kas.legacyExpense')}</p>
                 <p className="text-2xl font-bold text-danger">{formatRupiah(kasSummary.totalPengeluaran)}</p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <p className="text-sm text-text-secondary">Saldo (Kas Lama)</p>
+                <p className="text-sm text-text-secondary">{t('kas.legacyBalance')}</p>
                 <p className={`text-2xl font-bold ${kasSummary.saldo >= 0 ? "text-primary-600" : "text-danger"}`}>
                   {formatRupiah(kasSummary.saldo)}
                 </p>
@@ -402,14 +404,14 @@ export default function KelolaKasPage() {
           <div className="mb-6">
             <Card>
               <CardHeader>
-                <h3 className="font-semibold text-text-primary">Transaksi Baru</h3>
+                <h3 className="font-semibold text-text-primary">{t('kas.newTransactions')}</h3>
               </CardHeader>
               <CardBody>
                 {newTx.length === 0 ? (
                   <EmptyState
                     icon={<HiCash className="h-8 w-8" />}
-                    title="Belum ada transaksi"
-                    description="Catat pemasukan atau pengeluaran baru"
+                    title={t('kas.noTransaction')}
+                    description={t('kas.noTxManageDesc')}
                   />
                 ) : (
                   <div className="space-y-1">
@@ -451,13 +453,13 @@ export default function KelolaKasPage() {
           {/* Transaksi Lama (legacy) */}
           <Card>
             <CardHeader>
-              <h3 className="font-semibold text-text-primary">Riwayat Transaksi (Kas Lama)</h3>
+              <h3 className="font-semibold text-text-primary">{t('kas.history')} (Kas Lama)</h3>
             </CardHeader>
             <CardBody>
               {legacyTx.length === 0 ? (
                 <EmptyState
                   icon={<HiCash className="h-8 w-8" />}
-                  title="Belum ada transaksi lama"
+                  title={t('kas.noTransaction')}
                   description="Tidak ada transaksi dari sistem kas sebelumnya"
                 />
               ) : (
@@ -516,7 +518,7 @@ export default function KelolaKasPage() {
       />
 
       {/* Modal: Tambah Transaksi Baru */}
-      <Modal isOpen={showAddTx} onClose={() => setShowAddTx(false)} title="Tambah Transaksi Baru">
+      <Modal isOpen={showAddTx} onClose={() => setShowAddTx(false)} title={t('kas.addTransactionNew')}>
         <form onSubmit={handleSubmit(async (data) => {
           try {
             await addNewTx(data as TxFormData);
@@ -528,7 +530,7 @@ export default function KelolaKasPage() {
           }
         })} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1.5">Tipe</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">{t('kas.type')}</label>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -539,7 +541,7 @@ export default function KelolaKasPage() {
                     : "bg-surface text-text-secondary hover:bg-surface-hover border border-border"
                 }`}
               >
-                Pemasukan
+                {t('kas.income')}
               </button>
               <button
                 type="button"
@@ -550,33 +552,33 @@ export default function KelolaKasPage() {
                     : "bg-surface text-text-secondary hover:bg-surface-hover border border-border"
                 }`}
               >
-                Pengeluaran
+                {t('kas.expense')}
               </button>
             </div>
           </div>
           <input type="hidden" {...register("type")} />
           <Input
-            label="Jumlah"
+            label={t('kas.amount')}
             type="number"
             placeholder="0"
             error={errors.amount?.message}
             {...register("amount")}
           />
           <Input
-            label="Deskripsi"
-            placeholder="Deskripsi transaksi"
+            label={t('kas.description')}
+            placeholder={t('kas.descriptionPlaceholder')}
             error={errors.description?.message}
             {...register("description")}
           />
           <Input
-            label="Kategori (opsional)"
-            placeholder="Contoh: Iuran, Alat Tulis, dll"
+            label={t('kas.category')}
+            placeholder={t('kas.categoryPlaceholder')}
             error={errors.category?.message}
             {...register("category")}
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setShowAddTx(false)}>Batal</Button>
-            <Button type="submit" disabled={isSubmitting}>Simpan</Button>
+            <Button type="button" variant="ghost" onClick={() => setShowAddTx(false)}>{t('action.cancel')}</Button>
+            <Button type="submit" disabled={isSubmitting}>{t('action.save')}</Button>
           </div>
         </form>
       </Modal>
@@ -585,20 +587,20 @@ export default function KelolaKasPage() {
       <Modal
         isOpen={!!deleteNewTxTarget}
         onClose={() => setDeleteNewTxTarget(null)}
-        title="Hapus Transaksi"
+        title={t('action.delete') + " " + t('kas.title')}
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus transaksi ini?</p>
+          <p className="text-sm text-text-secondary">{t('common.confirmDelete')}</p>
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setDeleteNewTxTarget(null)}>Batal</Button>
+            <Button variant="ghost" onClick={() => setDeleteNewTxTarget(null)}>{t('action.cancel')}</Button>
             <Button variant="danger" onClick={async () => {
               if (deleteNewTxTarget) {
                 await deleteNewTx(deleteNewTxTarget);
                 toast.success("Transaksi berhasil dihapus");
                 setDeleteNewTxTarget(null);
               }
-            }}>Hapus</Button>
+            }}>{t('action.delete')}</Button>
           </div>
         </div>
       </Modal>
@@ -607,20 +609,20 @@ export default function KelolaKasPage() {
       <Modal
         isOpen={!!legacyDeleteTarget}
         onClose={() => setLegacyDeleteTarget(null)}
-        title="Hapus Transaksi (Lama)"
+        title={t('action.delete') + " " + t('kas.title') + " (Lama)"}
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus transaksi <strong>{legacyDeleteTarget?.description}</strong>?</p>
+          <p className="text-sm text-text-secondary">{t('common.confirmDelete')} <strong>{legacyDeleteTarget?.description}</strong>?</p>
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setLegacyDeleteTarget(null)}>Batal</Button>
+            <Button variant="ghost" onClick={() => setLegacyDeleteTarget(null)}>{t('action.cancel')}</Button>
             <Button variant="danger" onClick={async () => {
               if (legacyDeleteTarget) {
                 await deleteLegacyTx(legacyDeleteTarget.id);
                 toast.success("Transaksi berhasil dihapus");
                 setLegacyDeleteTarget(null);
               }
-            }}>Hapus</Button>
+            }}>{t('action.delete')}</Button>
           </div>
         </div>
       </Modal>

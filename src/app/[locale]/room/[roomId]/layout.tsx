@@ -16,6 +16,7 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
+import { useLocale } from "@/lib/locale-context";
 import { HiArrowLeft, HiAcademicCap } from "react-icons/hi";
 import { roomTabs, TabDefinition } from "@/lib/navigation";
 
@@ -24,6 +25,7 @@ export default function RoomLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useLocale();
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -59,7 +61,7 @@ export default function RoomLayout({
   if (loading) {
     return (
       <AuthGuard>
-        <LoadingSpinner size="lg" message="Memuat kelas..." />
+        <LoadingSpinner size="lg" message={t('common.loadingClass')} />
       </AuthGuard>
     );
   }
@@ -79,10 +81,10 @@ export default function RoomLayout({
           <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-2">
             <HiAcademicCap className="h-8 w-8 text-danger" />
           </div>
-          <p className="text-text-primary font-semibold text-lg">Kelas tidak ditemukan</p>
-          <p className="text-text-secondary text-sm">Kelas yang kamu cari mungkin sudah dihapus</p>
+          <p className="text-text-primary font-semibold text-lg">{t('common.roomNotFound')}</p>
+          <p className="text-text-secondary text-sm">{t('common.roomNotFoundDesc')}</p>
           <Button onClick={() => router.push("/dashboard")} className="mt-2">
-            Kembali ke Dashboard
+            {t('action.back')} ke {t('nav.dashboard')}
           </Button>
         </div>
       </AuthGuard>
@@ -107,7 +109,7 @@ export default function RoomLayout({
                     {currentRoom.name}
                   </h1>
                   <p className="text-xs text-text-muted">
-                    Kode: <span className="font-mono font-medium text-primary-600">{currentRoom.code}</span>
+                    {t('common.code')} <span className="font-mono font-medium text-primary-600">{currentRoom.code}</span>
                   </p>
                 </div>
               </div>
@@ -131,7 +133,7 @@ export default function RoomLayout({
                   : pathname.startsWith(displayHref);
                 return (
                   <Link
-                    key={tab.label}
+                    key={tab.labelKey}
                     href={displayHref}
                     className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive
@@ -140,7 +142,7 @@ export default function RoomLayout({
                     }`}
                   >
                     <tab.icon className="h-4 w-4" />
-                    {tab.label}
+                    {t('nav.' + tab.labelKey)}
                     {isActive && (
                       <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-primary-500" />
                     )}

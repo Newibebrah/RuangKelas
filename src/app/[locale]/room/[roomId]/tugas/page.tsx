@@ -13,11 +13,13 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { AssignmentCard } from "@/components/tugas/AssignmentCard";
 import { AssignmentModal } from "@/components/tugas/AssignmentModal";
 import { Timestamp } from "firebase/firestore";
+import { useLocale } from "@/lib/locale-context";
 import toast from "react-hot-toast";
 import { HiClipboardList, HiPlus } from "react-icons/hi";
 import { Assignment } from "@/types";
 
 export default function TugasPage() {
+  const { t } = useLocale();
   const params = useParams();
   const roomId = params.roomId as string;
   const { assignments, loading, error, createAssignment, updateAssignment, deleteAssignment } =
@@ -85,15 +87,15 @@ export default function TugasPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Tugas</h2>
+          <h2 className="text-xl font-bold text-text-primary">{t('nav.tugas')}</h2>
           <p className="text-sm text-text-secondary mt-1">
-            Daftar tugas dan tenggat waktu
+            {t('tugas.desc')}
           </p>
         </div>
         {canManage && (
           <Button onClick={handleCreate}>
             <HiPlus className="h-4 w-4" />
-            Tugas Baru
+            {t('tugas.newTask')}
           </Button>
         )}
       </div>
@@ -105,11 +107,11 @@ export default function TugasPage() {
       ) : assignments.length === 0 ? (
         <EmptyState
           icon={<HiClipboardList className="h-8 w-8" />}
-          title="Belum ada tugas"
+          title={t('tugas.empty')}
           description={
             canManage
-              ? "Buat tugas pertama untuk kelas ini"
-              : "Belum ada tugas yang diberikan"
+              ? t('tugas.emptyManageDesc')
+              : t('tugas.emptyNotManageDesc')
           }
         />
       ) : (

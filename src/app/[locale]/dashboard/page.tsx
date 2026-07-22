@@ -14,9 +14,11 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { useLocale } from "@/lib/locale-context";
 import { HiAcademicCap, HiPlus, HiLogin } from "react-icons/hi";
 
 export default function DashboardPage() {
+  const { t } = useLocale();
   const { user } = useAuth();
   const { rooms, loading, error } = useRoom();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -31,7 +33,7 @@ export default function DashboardPage() {
               <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
                 <HiAcademicCap className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-text-primary">RuangKelas</span>
+              <span className="text-xl font-bold tracking-tight text-text-primary">{t('app.name')}</span>
             </div>
           }
           right={
@@ -42,11 +44,11 @@ export default function DashboardPage() {
                 onClick={() => setShowJoinModal(true)}
               >
                 <HiLogin className="h-4 w-4" />
-                Gabung
+                {t('action.join')}
               </Button>
               <Button size="sm" onClick={() => setShowCreateModal(true)}>
                 <HiPlus className="h-4 w-4" />
-                Buat Kelas
+                {t('action.createClass')}
               </Button>
               <UserMenu />
             </>
@@ -56,10 +58,10 @@ export default function DashboardPage() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-text-primary">
-              Kelas Saya
+              {t('nav.myClasses')}
             </h1>
             <p className="text-text-secondary mt-1">
-              Kelola kelas yang kamu ikuti atau buat
+              {t('dashboard.subtitle')}
             </p>
           </div>
 
@@ -70,20 +72,20 @@ export default function DashboardPage() {
           ) : rooms.length === 0 ? (
             <EmptyState
               icon={<HiAcademicCap className="h-8 w-8" />}
-              title="Belum ada kelas"
-              description="Buat kelas baru atau gabung dengan kode kelas yang sudah ada"
+              title={t('common.emptyClass')}
+              description={t('dashboard.emptyDesc')}
               action={
                 <div className="flex gap-3">
                   <Button onClick={() => setShowCreateModal(true)}>
                     <HiPlus className="h-4 w-4" />
-                    Buat Kelas
+                    {t('action.createClass')}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowJoinModal(true)}
                   >
                     <HiLogin className="h-4 w-4" />
-                    Gabung Kelas
+                    {t('action.joinClass')}
                   </Button>
                 </div>
               }

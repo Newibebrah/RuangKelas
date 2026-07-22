@@ -6,9 +6,11 @@ import { LoginButton } from "@/components/auth/LoginButton";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { AppHeader } from "@/components/ui/AppHeader";
 import { useRouter } from "@/i18n/navigation";
+import { useLocale } from "@/lib/locale-context";
 import { HiAcademicCap } from "react-icons/hi";
 
 export default function HomePage() {
+  const { t } = useLocale();
   const { user, loading } = useAuth();
   const router = useRouter();
   const wasLoggedOut = useRef(true);
@@ -24,11 +26,11 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   if (loading) {
-    return <LoadingSpinner size="lg" message="Memuat..." />;
+    return <LoadingSpinner size="lg" message={t('common.loading')} />;
   }
 
   if (user) {
-    return <LoadingSpinner size="lg" message="Mengarahkan ke dashboard..." />;
+    return <LoadingSpinner size="lg" message={t('common.redirecting')} />;
   }
 
   return (
@@ -39,7 +41,7 @@ export default function HomePage() {
             <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center">
               <HiAcademicCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-text-primary">RuangKelas</span>
+            <span className="text-xl font-bold tracking-tight text-text-primary">{t('app.name')}</span>
           </div>
         }
       />
@@ -50,11 +52,10 @@ export default function HomePage() {
             <HiAcademicCap className="h-10 w-10 text-primary-600" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-text-primary mb-4">
-            Kelola Kelas Jadi Lebih Mudah
+            {t('app.heroTitle')}
           </h1>
           <p className="text-lg text-text-secondary mb-10 max-w-lg mx-auto leading-relaxed">
-            Platform digital untuk mengelola kelas, tugas, kas kelas, dan
-            pengurus organisasi. Semua dalam satu tempat.
+            {t('app.heroDesc')}
           </p>
           <div className="flex justify-center">
             <LoginButton />

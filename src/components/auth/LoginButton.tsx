@@ -1,11 +1,13 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 import { Button } from "@/components/ui/Button";
 import { FcGoogle } from "react-icons/fc";
 import { HiExclamationCircle } from "react-icons/hi";
 
 export function LoginButton() {
+  const { t } = useLocale();
   const { signInWithGoogle, loading, error } = useAuth();
 
   return (
@@ -18,7 +20,7 @@ export function LoginButton() {
         className="w-full max-w-sm"
       >
         <FcGoogle className="mr-2 h-5 w-5" />
-        Masuk dengan Google
+        {t('auth.login')}
       </Button>
       {error && (
         <div className="flex items-start gap-3 max-w-sm p-3.5 bg-danger-light rounded-xl">

@@ -14,6 +14,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PaymentTable } from "@/components/kas/PaymentTable";
 import { FinanceChart } from "@/components/kas/FinanceChart";
+import { useLocale } from "@/lib/locale-context";
 import { formatRupiah, combineKas, normalizeTransactions } from "@/lib/kas-utils";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -29,6 +30,7 @@ import {
 } from "react-icons/hi";
 
 export default function KasPage() {
+  const { t } = useLocale();
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
@@ -99,7 +101,7 @@ export default function KasPage() {
   );
 
   if (loading) {
-    return <LoadingSpinner size="lg" message="Memuat data kas..." />;
+    return <LoadingSpinner size="lg" message={t('common.loadingKas')} />;
   }
 
   if (errorMessage) {
@@ -108,7 +110,7 @@ export default function KasPage() {
         <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-4">
           <HiExclamationCircle className="h-8 w-8 text-danger" />
         </div>
-        <h3 className="text-lg font-semibold text-text-primary mb-1">Gagal Memuat Data</h3>
+        <h3 className="text-lg font-semibold text-text-primary mb-1">{t('common.failedLoad')}</h3>
         <p className="text-sm text-text-secondary">{errorMessage}</p>
       </div>
     );
@@ -119,17 +121,17 @@ export default function KasPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Kas Kelas</h2>
+          <h2 className="text-xl font-bold text-text-primary">{t('kas.title')}</h2>
           <p className="text-sm text-text-secondary mt-1">
             {bill
-              ? `Tagihan ${formatRupiah(bill.amount)} / ${bill.frequency === "weekly" ? "minggu" : "bulan"}`
-              : "Pantau pemasukan, pengeluaran, dan pembayaran anggota"}
+              ? `Tagihan ${formatRupiah(bill.amount)} / ${bill.frequency === "weekly" ? t('kas.frequencyWeekly') : t('kas.frequencyMonthly')}`
+              : t('kas.manageDesc')}
           </p>
         </div>
         {canViewKasManagement && (
           <Button onClick={() => router.push(`/room/${roomId}/kelola-kas`)}>
             <HiCog className="h-4 w-4" />
-            Kelola Kas
+            {t('kas.manage')}
           </Button>
         )}
       </div>
@@ -143,7 +145,7 @@ export default function KasPage() {
                 <HiCurrencyDollar className="h-6 w-6 text-success" />
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Total Pemasukan</p>
+                <p className="text-sm text-text-secondary">{t('kas.totalIncome')}</p>
                 <p className="text-2xl font-bold text-success">{formatRupiah(combinedIncome)}</p>
               </div>
             </div>
@@ -156,7 +158,7 @@ export default function KasPage() {
                 <HiCash className="h-6 w-6 text-danger" />
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Total Pengeluaran</p>
+                <p className="text-sm text-text-secondary">{t('kas.totalExpense')}</p>
                 <p className="text-2xl font-bold text-danger">{formatRupiah(combinedExpense)}</p>
               </div>
             </div>
@@ -169,7 +171,7 @@ export default function KasPage() {
                 <HiCash className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-white/80 font-medium">Saldo Kas</p>
+                <p className="text-sm text-white/80 font-medium">{t('kas.balance')}</p>
                 <p className="text-2xl font-bold text-white">
                   {formatRupiah(combinedBalance)}
                 </p>
@@ -192,9 +194,9 @@ export default function KasPage() {
           <Card>
             <CardBody className="!pb-1">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-base font-semibold text-text-primary">Status Pembayaran Anggota</h3>
+                <h3 className="text-base font-semibold text-text-primary">{t('kas.paymentStatus')}</h3>
                 <span className="text-xs font-medium text-text-muted bg-surface-hover px-2 py-1 rounded-lg">
-                  {billingSummary.paidCount}/{billingSummary.totalPossible} lunas
+                  {billingSummary.paidCount}/{billingSummary.totalPossible} {t('kas.paid')}
                 </span>
               </div>
               <PaymentTable
@@ -210,16 +212,16 @@ export default function KasPage() {
           <Card>
             <CardBody>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-semibold text-text-primary">Progres Anggota</h3>
+                <h3 className="text-base font-semibold text-text-primary">{t('kas.memberProgress')}</h3>
                 <span className="text-xs text-text-muted">
-                  {memberArrearsCount} anggota tertunda
+                  {memberArrearsCount} {t('kas.membersArrears')}
                 </span>
               </div>
               {memberPaymentStats.length === 0 ? (
                 <EmptyState
                   icon={<HiUserGroup className="h-8 w-8" />}
-                  title="Belum ada anggota"
-                  description="Tambahkan anggota kelas untuk memantau pembayaran"
+                  title={t('common.emptyMembers')}
+                  description={t('kas.noMemberPaymentDesc')}
                 />
               ) : (
                 <div className="space-y-3">
@@ -273,8 +275,8 @@ export default function KasPage() {
           <CardBody>
             <EmptyState
               icon={<HiDocumentText className="h-12 w-12" />}
-              title="Belum ada tagihan"
-              description={canViewKasManagement ? "Buat tagihan di menu Kelola Kas untuk mulai memantau pembayaran anggota" : "Bendahara belum membuat tagihan"}
+              title={t('kas.noBill')}
+              description={canViewKasManagement ? t('kas.noBillManageDesc') : t('kas.noBillNotManageDesc')}
             />
           </CardBody>
         </Card>
@@ -283,12 +285,12 @@ export default function KasPage() {
       {/* Row 3 — Riwayat Transaksi */}
       <Card>
         <CardBody>
-          <h3 className="text-base font-semibold text-text-primary mb-1">Riwayat Transaksi</h3>
+          <h3 className="text-base font-semibold text-text-primary mb-1">{t('kas.history')}</h3>
           {allTransactions.length === 0 ? (
             <EmptyState
               icon={<HiCash className="h-12 w-12" />}
-              title="Belum ada transaksi"
-              description={canViewKasManagement ? "Catat transaksi di menu Kelola Kas" : "Belum ada transaksi kas"}
+              title={t('kas.noTransaction')}
+              description={canViewKasManagement ? t('kas.noTxManageDesc') : t('kas.noTxNotManageDesc')}
             />
           ) : (
             <div className="space-y-1 mt-3">
@@ -347,7 +349,7 @@ export default function KasPage() {
                     size="sm"
                     onClick={() => setDisplayCount((prev) => prev + 30)}
                   >
-                    Tampilkan lebih banyak ({allTransactions.length - displayCount} tersisa)
+                    {t('action.showMore')} ({allTransactions.length - displayCount} {t('action.remaining')})
                   </Button>
                 </div>
               )}

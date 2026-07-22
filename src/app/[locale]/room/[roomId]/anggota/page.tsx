@@ -6,8 +6,10 @@ import { useRoom } from "@/lib/room-context";
 import { MemberList } from "@/components/room/MemberList";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import { useLocale } from "@/lib/locale-context";
 
 export default function AnggotaPage() {
+  const { t } = useLocale();
   const params = useParams();
   const roomId = params.roomId as string;
   const { user } = useAuth();
@@ -16,15 +18,15 @@ export default function AnggotaPage() {
   const currentMember = members.find((m) => m.userId === user?.id);
   const isAdmin = currentMember?.role === "admin";
 
-  if (loading) return <LoadingSpinner size="lg" message="Memuat anggota..." />;
+  if (loading) return <LoadingSpinner size="lg" message={t('common.loadingAnggota')} />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-text-primary">Anggota Kelas</h2>
+        <h2 className="text-xl font-bold text-text-primary">{t('nav.anggota')}</h2>
         <p className="text-sm text-text-secondary mt-1">
-          {members.length} anggota terdaftar
+          {members.length} {t('common.memberCount')}
         </p>
       </div>
 
