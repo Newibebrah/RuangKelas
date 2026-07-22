@@ -20,6 +20,7 @@ interface ElectionWheelProps {
   members: Member[];
   onConfirm: (winner: Member) => Promise<void>;
   label: string;
+  excludeIds?: string[];
 }
 
 const CONFETTI_COLORS = [
@@ -39,7 +40,7 @@ function createConfetti(count = 40) {
   }));
 }
 
-export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps) {
+export function ElectionWheel({ members, onConfirm, label, excludeIds }: ElectionWheelProps) {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [winner, setWinner] = useState<Member | null>(null);
@@ -48,7 +49,11 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
   const wheelRef = useRef<HTMLDivElement>(null);
   const [wheelSize, setWheelSize] = useState(320);
 
-  const N = members.length;
+  const eligible = useMemo(
+    () => excludeIds?.length ? members.filter((m) => !excludeIds.includes(m.userId)) : members,
+    [members, excludeIds]
+  );
+  const N = eligible.length;
   const rotationRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -75,13 +80,13 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
 
   const gradient = useMemo(() => {
     if (N === 0) return "";
-    return `conic-gradient(${members.map((_, i) => {
+    return `conic-gradient(${eligible.map((_, i) => {
       const c = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
       const s = i * seg;
       const e = (i + 1) * seg;
       return `${c} ${s}deg ${e}deg`;
     }).join(", ")})`;
-  }, [members, seg, N]);
+  }, [eligible, seg, N]);
 
   const spin = useCallback(() => {
     if (spinning || N === 0) return;
@@ -108,11 +113,11 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
       const gradAngle = ((360 - (finalRotation % 360)) + 360) % 360;
       const computedIndex = Math.round(gradAngle / seg - 0.5);
       const finalIndex = ((computedIndex % N) + N) % N;
-      setWinner(members[finalIndex]);
+      setWinner(eligible[finalIndex]);
       setSpinning(false);
       setConfetti(createConfetti());
     }, 4500);
-  }, [spinning, N, members, seg]);
+  }, [spinning, N, eligible, seg]);
 
   const handleConfirm = async (member?: Member) => {
     const target = member || winner;
@@ -134,7 +139,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
     );
   }
 
-  const singleMember = N === 1 ? members[0] : null;
+  const singleMember = N === 1 ? eligible[0] : null;
   const cx = wheelSize / 2;
   const cy = wheelSize / 2;
   const labelR = wheelSize * 0.38;
@@ -197,7 +202,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
         {/* The wheel */}
         <div
           ref={wheelRef}
-          className="relative w-[min(85vw,340px)] aspect-square rounded-full shadow-2xl ring-[3px] ring-white/40 dark:ring-slate-700/60"
+          className="relative w-[min(85vw,340px)] aspect-square rounded-full shadow-2xl ring-[3px] ring-white/40 dark:ring-slate-700/60 overflow-hidden"
           style={{
             background: gradient,
             transform: `rotate(${rotation}deg) rotateX(6deg)`,
@@ -210,7 +215,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
           }}
         >
           {/* Segment labels */}
-          {N > 0 && members.map((m, i) => {
+          {N > 0 && eligible.map((m, i) => {
             // CSS conic-gradient: 0° = top, clockwise
             const localAngle = (i + 0.5) * seg; // degrees from top, clockwise
             const rad = (localAngle * Math.PI) / 180;
@@ -227,7 +232,7 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
                   maxWidth: wheelSize * 0.28,
                   textShadow: "0 2px 6px rgba(0,0,0,0.6)",
                   lineHeight: 1.15,
-                  rotate: `${-rotation}deg`,
+                  rotate: `${-(rotation % 360)}deg`,
                 }}
               >
                 {m.displayName.length > 12

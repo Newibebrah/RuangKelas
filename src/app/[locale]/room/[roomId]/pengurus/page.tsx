@@ -102,6 +102,13 @@ export default function PengurusPage() {
     [subjects]
   );
 
+  const excludedIds = useMemo(() => {
+    const ids = new Set<string>();
+    pengurus.forEach((p) => { if (p.userId) ids.add(p.userId); });
+    subjects.forEach((s) => { if (s.userId) ids.add(s.userId); });
+    return Array.from(ids);
+  }, [pengurus, subjects]);
+
   const loading = pengurusLoading;
   const hasError = pengurusError;
 
@@ -244,6 +251,7 @@ export default function PengurusPage() {
           isOpen={electionOpen}
           onClose={() => setElectionOpen(false)}
           members={memberOptions}
+          excludeIds={excludedIds}
           pjSubjects={pjSubjectNames}
           onConfirmPJ={async (subjectName, winner) => {
             const s = subjects.find((s) => s.subjectName === subjectName);

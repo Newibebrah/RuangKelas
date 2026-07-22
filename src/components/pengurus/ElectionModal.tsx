@@ -11,6 +11,7 @@ interface ElectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   members: MemberOption[];
+  excludeIds?: string[];
   pjSubjects: string[];
   onConfirmPJ: (subjectName: string, winner: MemberOption) => Promise<void>;
   onConfirmPengurus: (jabatan: string, winner: MemberOption) => Promise<void>;
@@ -22,6 +23,7 @@ export function ElectionModal({
   isOpen,
   onClose,
   members,
+  excludeIds,
   pjSubjects,
   onConfirmPJ,
   onConfirmPengurus,
@@ -127,6 +129,7 @@ export function ElectionModal({
           </p>
           <ElectionWheel
             members={members}
+            excludeIds={excludeIds}
             onConfirm={handleConfirm}
             label={target}
           />
