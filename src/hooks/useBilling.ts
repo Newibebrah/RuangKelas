@@ -48,9 +48,13 @@ export function useBilling(roomId: string, memberCount?: number) {
         );
         const activeBill = bills[0] || null;
         setBill(activeBill);
+        setLoading(false);
         queryClient.setQueryData(billingKeys.bill(roomId), activeBill);
       },
-      () => setError("Gagal memuat tagihan. Periksa Firestore indexes.")
+      () => {
+        setError("Gagal memuat tagihan. Periksa Firestore indexes.");
+        setLoading(false);
+      }
     );
 
     return unsubBill;
