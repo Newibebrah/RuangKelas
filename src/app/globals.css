@@ -217,3 +217,69 @@ html[data-theme="dark"] .glass {
 .animate-bounce-in {
   animation: bounce-in 0.5s ease-out forwards;
 }
+
+/* ── Mobile compact styles ── */
+@media (max-width: 639px) {
+  html {
+    font-size: 15px;
+  }
+
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  [class*="p-"]:where(
+    :not(.no-mobile-compact)
+  ) {
+    padding: 0.75rem !important;
+  }
+
+  [class*="gap-"]:where(
+    :not(.no-mobile-compact)
+  ) {
+    gap: 0.5rem !important;
+  }
+
+  h1:where(:not(.no-mobile-compact)) {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  h2:where(:not(.no-mobile-compact)) {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .sm\:flex-row {
+    flex-direction: column !important;
+  }
+
+  .sm\:text-2xl {
+    font-size: 1.125rem !important;
+  }
+
+  .sm\:p-8 {
+    padding: 1rem !important;
+  }
+
+  .sm\:p-6 {
+    padding: 0.75rem !important;
+  }
+
+  .rounded-2xl {
+    border-radius: 0.75rem !important;
+  }
+}
