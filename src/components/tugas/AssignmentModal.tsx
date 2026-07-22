@@ -46,6 +46,7 @@ interface AssignmentModalProps {
   onClose: () => void;
   assignment?: Assignment | null;
   subjects?: string[];
+  initialSubject?: string;
   onSubmit: (data: {
     subject: string;
     description: string;
@@ -80,6 +81,7 @@ export function AssignmentModal({
   onClose,
   assignment,
   subjects,
+  initialSubject,
   onSubmit,
 }: AssignmentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -114,14 +116,14 @@ export function AssignmentModal({
         });
       } else {
         reset({
-          subject: "",
+          subject: initialSubject || "",
           description: "",
           deadline: "",
           teacherNote: "",
         });
       }
     }
-  }, [isOpen, assignment, reset]);
+  }, [isOpen, assignment, initialSubject, reset]);
 
   useEffect(() => {
     if (!isOpen) return;

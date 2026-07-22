@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSubjectPJ } from "@/hooks/useSubjectPJ";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -30,7 +30,7 @@ const subjectEmojis: Record<string, string> = {
   ppkn: "⚖️",
   agama: "🕌",
   "seni budaya": "🎨",
-  "penjaskes": "⚽",
+  penjaskes: "⚽",
   prakarya: "🛠️",
   informatika: "💻",
 };
@@ -90,12 +90,24 @@ export function SubjectPJSection({
   members,
   subjectsList,
 }: SubjectPJSectionProps) {
-  const { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject } =
+  const { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject, upsertPJ } =
     useSubjectPJ(roomId);
+
+  const isCentralized = !!(subjectsList && subjectsList.length > 0);
+
+  const displaySubjects = useMemo(() => {
+    if (isCentralized) {
+      return subjectsList.map((name) => {
+        const pj = subjects.find((s) => s.subjectName === name);
+        return { subjectName: name, id: pj?.id || name, userId: pj?.userId || null, displayName: pj?.displayName || null, kkm: pj?.kkm, semester: pj?.semester };
+      });
+    }
+    return subjects.map((s) => ({ subjectName: s.subjectName, id: s.id, userId: s.userId, displayName: s.displayName, kkm: s.kkm, semester: s.semester }));
+  }, [isCentralized, subjectsList, subjects]);
 
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState<string | null>(null);
-  const [assignOpen, setAssignOpen] = useState<string | null>(null);
+  const [assignSubjectName, setAssignSubjectName] = useState<string | null>(null);
   const [subjectName, setSubjectName] = useState("");
   const [kkm, setKkm] = useState("");
   const [semester, setSemester] = useState("");
@@ -147,13 +159,18 @@ export function SubjectPJSection({
   };
 
   const handleAssign = async () => {
-    if (!assignOpen || !selectedUser) return;
+    if (!assignSubjectName || !selectedUser) return;
     setIsLoading(true);
     try {
       const member = members.find((m) => m.userId === selectedUser);
-      await assignPJ(assignOpen, selectedUser, member?.displayName || null);
+      if (isCentralized) {
+        await upsertPJ(assignSubjectName, selectedUser, member?.displayName || null);
+      } else {
+        const s = subjects.find((s) => s.subjectName === assignSubjectName);
+        if (s) await assignPJ(s.id, selectedUser, member?.displayName || null);
+      }
       toast.success("PJ berhasil ditugaskan!");
-      setAssignOpen(null);
+      setAssignSubjectName(null);
       setSelectedUser("");
     } catch {
       toast.error("Gagal menugaskan PJ");
@@ -162,16 +179,21 @@ export function SubjectPJSection({
     }
   };
 
-  const handleUnassign = async (subjectId: string) => {
+  const handleUnassign = async (subjectName: string) => {
     try {
-      await assignPJ(subjectId, null, null);
+      if (isCentralized) {
+        await upsertPJ(subjectName, null, null);
+      } else {
+        const s = subjects.find((s) => s.subjectName === subjectName);
+        if (s) await assignPJ(s.id, null, null);
+      }
       toast.success("PJ berhasil dihapus");
     } catch {
       toast.error("Gagal menghapus PJ");
     }
   };
 
-  const handleDelete = async (subjectId: string, name: string) => {
+  const handleDeleteLegacy = async (subjectId: string, name: string) => {
     if (!window.confirm(`Hapus mata pelajaran "${name}"?`)) return;
     try {
       await deleteSubject(subjectId);
@@ -188,8 +210,8 @@ export function SubjectPJSection({
     setEditOpen(s.id);
   };
 
-  if (loading) return <LoadingSkeleton variant="card" count={2} />;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading && !isCentralized) return <LoadingSkeleton variant="card" count={2} />;
+  if (error && !isCentralized) return <ErrorMessage message={error} />;
 
   return (
     <div>
@@ -198,7 +220,7 @@ export function SubjectPJSection({
           <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
           PJ Mata Pelajaran
         </h3>
-        {canManage && (
+        {canManage && !isCentralized && (
           <Button size="sm" onClick={() => { resetForm(); setAddOpen(true); }}>
             <HiPlus className="h-4 w-4 mr-1" />
             Tambah Mapel
@@ -206,14 +228,16 @@ export function SubjectPJSection({
         )}
       </div>
 
-      {subjects.length === 0 ? (
+      {displaySubjects.length === 0 ? (
         <EmptyState
           icon={<HiBookOpen className="h-12 w-12" />}
-          title="Belum ada mata pelajaran"
+          title={isCentralized ? "Belum ada jadwal matkul" : "Belum ada mata pelajaran"}
           description={
-            canManage
-              ? "Tambahkan mata pelajaran dan tugaskan PJ"
-              : "Ketua belum menambahkan mata pelajaran"
+            isCentralized
+              ? "Atur jadwal matkul di halaman Jadwal"
+              : canManage
+                ? "Tambahkan mata pelajaran dan tugaskan PJ"
+                : "Ketua belum menambahkan mata pelajaran"
           }
         />
       ) : (
@@ -223,29 +247,30 @@ export function SubjectPJSection({
           initial="hidden"
           animate="visible"
         >
-          {subjects.map((s) => {
+          {displaySubjects.map((s) => {
             const member = members.find((m) => m.userId === s.userId);
             const color = getSubjectColor(s.subjectName);
             const emoji = getSubjectEmoji(s.subjectName);
+            const cardId = isCentralized ? s.subjectName : s.id;
             return (
-              <motion.div key={s.id} variants={cardVariants} className="group">
+              <motion.div key={cardId} variants={cardVariants} className="group">
                 <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300">
                   <div className={`bg-gradient-to-br ${color} px-5 pt-5 pb-4`}>
                     <div className="flex items-start justify-between">
                       <span className="text-3xl" role="img" aria-label={s.subjectName}>
                         {emoji}
                       </span>
-                      {canManage && (
+                      {canManage && !isCentralized && (
                         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => openEdit(s)}
+                            onClick={() => openEdit(s as typeof subjects[0])}
                             className="p-1.5 text-text-muted hover:text-blue-600 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors"
                             title="Edit mapel"
                           >
                             <HiPencil className="h-3.5 w-3.5" />
                           </button>
                           <button
-                            onClick={() => handleDelete(s.id, s.subjectName)}
+                            onClick={() => handleDeleteLegacy(s.id, s.subjectName)}
                             className="p-1.5 text-text-muted hover:text-red-600 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors"
                             title="Hapus mapel"
                           >
@@ -281,7 +306,7 @@ export function SubjectPJSection({
                           <>
                             <button
                               onClick={() => {
-                                setAssignOpen(s.id);
+                                setAssignSubjectName(s.subjectName);
                                 setSelectedUser(s.userId || "");
                               }}
                               className="p-1.5 text-text-muted hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
@@ -291,7 +316,7 @@ export function SubjectPJSection({
                             </button>
                             {s.userId && (
                               <button
-                                onClick={() => handleUnassign(s.id)}
+                                onClick={() => handleUnassign(s.subjectName)}
                                 className="p-1.5 text-text-muted hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
                                 title="Hapus PJ"
                               >
@@ -302,18 +327,20 @@ export function SubjectPJSection({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      {s.kkm && (
-                        <span className="text-[10px] px-2 py-0.5 font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-full">
-                          KKM: {s.kkm}
-                        </span>
-                      )}
-                      {s.semester && (
-                        <span className="text-[10px] px-2 py-0.5 font-medium bg-surface-hover text-text-muted rounded-full">
-                          {s.semester}
-                        </span>
-                      )}
-                    </div>
+                    {(!isCentralized && (s.kkm || s.semester)) && (
+                      <div className="flex items-center gap-2 mt-2">
+                        {s.kkm && (
+                          <span className="text-[10px] px-2 py-0.5 font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-full">
+                            KKM: {s.kkm}
+                          </span>
+                        )}
+                        {s.semester && (
+                          <span className="text-[10px] px-2 py-0.5 font-medium bg-surface-hover text-text-muted rounded-full">
+                            {s.semester}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </CardBody>
                 </Card>
               </motion.div>
@@ -322,123 +349,129 @@ export function SubjectPJSection({
         </motion.div>
       )}
 
-      {/* Add Modal */}
-      <Modal
-        isOpen={addOpen}
-        onClose={() => { setAddOpen(false); resetForm(); }}
-        title="Tambah Mata Pelajaran"
-      >
-        <div className="space-y-4">
-          {subjectsList && subjectsList.length > 0 ? (
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Nama Mata Pelajaran
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
-                value={subjectName}
-                onChange={(e) => setSubjectName(e.target.value)}
-              >
-                <option value="">Pilih matkul...</option>
-                {subjectsList.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+      {!isCentralized && (
+        <>
+          <Modal
+            isOpen={addOpen}
+            onClose={() => { setAddOpen(false); resetForm(); }}
+            title="Tambah Mata Pelajaran"
+          >
+            <div className="space-y-4">
+              {subjectsList && subjectsList.length > 0 ? (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Nama Mata Pelajaran
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
+                    value={subjectName}
+                    onChange={(e) => setSubjectName(e.target.value)}
+                  >
+                    <option value="">Pilih matkul...</option>
+                    {subjectsList.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <Input
+                  label="Nama Mata Pelajaran"
+                  placeholder="Contoh: Matematika"
+                  value={subjectName}
+                  onChange={(e) => setSubjectName(e.target.value)}
+                />
+              )}
+              <Input
+                label="KKM (opsional)"
+                type="number"
+                placeholder="Contoh: 75"
+                value={kkm}
+                onChange={(e) => setKkm(e.target.value)}
+              />
+              <Input
+                label="Semester (opsional)"
+                placeholder="Contoh: Ganjil 2025"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              />
+              <div className="flex justify-end gap-3">
+                <Button variant="ghost" onClick={() => { setAddOpen(false); resetForm(); }}>
+                  Batal
+                </Button>
+                <Button onClick={handleAdd} isLoading={isLoading}>
+                  Tambah
+                </Button>
+              </div>
             </div>
-          ) : (
-            <Input
-              label="Nama Mata Pelajaran"
-              placeholder="Contoh: Matematika"
-              value={subjectName}
-              onChange={(e) => setSubjectName(e.target.value)}
-            />
-          )}
-          <Input
-            label="KKM (opsional)"
-            type="number"
-            placeholder="Contoh: 75"
-            value={kkm}
-            onChange={(e) => setKkm(e.target.value)}
-          />
-          <Input
-            label="Semester (opsional)"
-            placeholder="Contoh: Ganjil 2025"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-          />
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => { setAddOpen(false); resetForm(); }}>
-              Batal
-            </Button>
-            <Button onClick={handleAdd} isLoading={isLoading}>
-              Tambah
-            </Button>
-          </div>
-        </div>
-      </Modal>
+          </Modal>
 
-      {/* Edit Modal */}
-      <Modal
-        isOpen={!!editOpen}
-        onClose={() => { setEditOpen(null); resetForm(); }}
-        title="Edit Mata Pelajaran"
-      >
-        <div className="space-y-4">
-          {subjectsList && subjectsList.length > 0 ? (
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Nama Mata Pelajaran
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
-                value={subjectName}
-                onChange={(e) => setSubjectName(e.target.value)}
-              >
-                <option value="">Pilih matkul...</option>
-                {subjectsList.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+          <Modal
+            isOpen={!!editOpen}
+            onClose={() => { setEditOpen(null); resetForm(); }}
+            title="Edit Mata Pelajaran"
+          >
+            <div className="space-y-4">
+              {subjectsList && subjectsList.length > 0 ? (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Nama Mata Pelajaran
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800/50"
+                    value={subjectName}
+                    onChange={(e) => setSubjectName(e.target.value)}
+                  >
+                    <option value="">Pilih matkul...</option>
+                    {subjectsList.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <Input
+                  label="Nama Mata Pelajaran"
+                  placeholder="Contoh: Matematika"
+                  value={subjectName}
+                  onChange={(e) => setSubjectName(e.target.value)}
+                />
+              )}
+              <Input
+                label="KKM (opsional)"
+                type="number"
+                placeholder="Contoh: 75"
+                value={kkm}
+                onChange={(e) => setKkm(e.target.value)}
+              />
+              <Input
+                label="Semester (opsional)"
+                placeholder="Contoh: Ganjil 2025"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              />
+              <div className="flex justify-end gap-3">
+                <Button variant="ghost" onClick={() => { setEditOpen(null); resetForm(); }}>
+                  Batal
+                </Button>
+                <Button onClick={handleEdit} isLoading={isLoading}>
+                  Simpan
+                </Button>
+              </div>
             </div>
-          ) : (
-            <Input
-              label="Nama Mata Pelajaran"
-              placeholder="Contoh: Matematika"
-              value={subjectName}
-              onChange={(e) => setSubjectName(e.target.value)}
-            />
-          )}
-          <Input
-            label="KKM (opsional)"
-            type="number"
-            placeholder="Contoh: 75"
-            value={kkm}
-            onChange={(e) => setKkm(e.target.value)}
-          />
-          <Input
-            label="Semester (opsional)"
-            placeholder="Contoh: Ganjil 2025"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-          />
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => { setEditOpen(null); resetForm(); }}>
-              Batal
-            </Button>
-            <Button onClick={handleEdit} isLoading={isLoading}>
-              Simpan
-            </Button>
-          </div>
-        </div>
-      </Modal>
+          </Modal>
+        </>
+      )}
 
-      {/* Assign Modal */}
       <Modal
-        isOpen={!!assignOpen}
-        onClose={() => { setAssignOpen(null); setSelectedUser(""); }}
+        isOpen={!!assignSubjectName}
+        onClose={() => { setAssignSubjectName(null); setSelectedUser(""); }}
         title="Tugaskan PJ"
       >
         <div className="space-y-4">
+          {assignSubjectName && (
+            <p className="text-sm text-text-secondary">
+              Mata Kuliah: <strong>{assignSubjectName}</strong>
+            </p>
+          )}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
               Pilih Anggota
@@ -459,7 +492,7 @@ export function SubjectPJSection({
           <div className="flex justify-end gap-3">
             <Button
               variant="ghost"
-              onClick={() => { setAssignOpen(null); setSelectedUser(""); }}
+              onClick={() => { setAssignSubjectName(null); setSelectedUser(""); }}
             >
               Batal
             </Button>

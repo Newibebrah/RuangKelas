@@ -24,6 +24,17 @@ export function useSubjectPJ(roomId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getSubjectPJByName = useCallback(async (subjectName: string) => {
+    const snap = await getDocs(
+      query(
+        collection(db, "subjectPJ"),
+        where("roomId", "==", roomId),
+        where("subjectName", "==", subjectName)
+      )
+    );
+    return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() } as SubjectPJ;
+  }, [roomId]);
+
   useEffect(() => {
     if (!roomId) return;
 
@@ -107,5 +118,27 @@ export function useSubjectPJ(roomId: string) {
     await deleteDoc(doc(db, "subjectPJ", subjectId));
   }, []);
 
-  return { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject };
+  const upsertPJ = useCallback(
+    async (subjectName: string, userId: string | null, displayName: string | null) => {
+      const existing = await getSubjectPJByName(subjectName);
+      if (existing) {
+        await updateDoc(doc(db, "subjectPJ", existing.id), { userId, displayName });
+      } else {
+        if (!user) throw new Error("Harus login");
+        await addDoc(collection(db, "subjectPJ"), {
+          roomId,
+          subjectName,
+          userId,
+          displayName,
+          kkm: null,
+          semester: null,
+          createdBy: user.id,
+          createdAt: serverTimestamp(),
+        });
+      }
+    },
+    [roomId, user, getSubjectPJByName]
+  );
+
+  return { subjects, loading, error, addSubject, updateSubject, assignPJ, deleteSubject, upsertPJ, getSubjectPJByName };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -10,8 +10,8 @@ import { HiUpload, HiX, HiPaperClip, HiDocumentText } from "react-icons/hi";
 interface MaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
-  roomId: string;
   subjects: string[];
+  initialSubject?: string;
   onSubmit: (data: {
     title: string;
     description?: string;
@@ -21,13 +21,19 @@ interface MaterialModalProps {
   }) => Promise<void>;
 }
 
-export function MaterialModal({ isOpen, onClose, roomId, subjects, onSubmit }: MaterialModalProps) {
+export function MaterialModal({ isOpen, onClose, subjects, initialSubject, onSubmit }: MaterialModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [subject, setSubject] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSubject(initialSubject || "");
+    }
+  }, [isOpen, initialSubject]);
 
   const onDrop = useCallback((accepted: File[]) => {
     setFiles((prev) => [...prev, ...accepted]);

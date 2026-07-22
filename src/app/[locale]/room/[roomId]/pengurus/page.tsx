@@ -78,7 +78,7 @@ export default function PengurusPage() {
     deletePengurus,
   } = usePengurus(roomId);
   const { subjects: roomSubjects } = useSubjects(roomId);
-  const { subjects, assignPJ } = useSubjectPJ(roomId);
+  const { subjects, assignPJ, upsertPJ } = useSubjectPJ(roomId);
 
   const [roleModal, setRoleModal] = useState<Pengurus | null>(null);
   const [electionOpen, setElectionOpen] = useState(false);
@@ -100,8 +100,8 @@ export default function PengurusPage() {
   );
 
   const pjSubjectNames = useMemo(
-    () => subjects.map((s) => s.subjectName),
-    [subjects]
+    () => roomSubjects.map((s) => s.name),
+    [roomSubjects]
   );
 
   const excludedIds = useMemo(() => {
@@ -257,10 +257,7 @@ export default function PengurusPage() {
           excludeIds={excludedIds}
           pjSubjects={pjSubjectNames}
           onConfirmPJ={async (subjectName, winner) => {
-            const s = subjects.find((s) => s.subjectName === subjectName);
-            if (s) {
-              await assignPJ(s.id, winner.userId, winner.displayName);
-            }
+            await upsertPJ(subjectName, winner.userId, winner.displayName);
             toast.success(`${winner.displayName} ditugaskan sebagai PJ ${subjectName}!`);
           }}
           onConfirmPengurus={async (jabatan, winner) => {

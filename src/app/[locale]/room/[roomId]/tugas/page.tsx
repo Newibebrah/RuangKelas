@@ -14,11 +14,50 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { AssignmentCard } from "@/components/tugas/AssignmentCard";
 import { AssignmentModal } from "@/components/tugas/AssignmentModal";
+import { Card, CardBody } from "@/components/ui/Card";
 import { Timestamp } from "firebase/firestore";
 import { useLocale } from "@/lib/locale-context";
 import toast from "react-hot-toast";
-import { HiClipboardList, HiPlus } from "react-icons/hi";
+import { HiClipboardList, HiPlus, HiArrowLeft, HiAcademicCap } from "react-icons/hi";
 import { Assignment } from "@/types";
+
+const SUBJECT_COLORS = [
+  "from-pink-100 to-rose-200 dark:from-pink-900/30 dark:to-rose-900/30",
+  "from-sky-100 to-blue-200 dark:from-sky-900/30 dark:to-blue-900/30",
+  "from-emerald-100 to-teal-200 dark:from-emerald-900/30 dark:to-teal-900/30",
+  "from-amber-100 to-orange-200 dark:from-amber-900/30 dark:to-orange-900/30",
+  "from-violet-100 to-purple-200 dark:from-violet-900/30 dark:to-purple-900/30",
+  "from-lime-100 to-green-200 dark:from-lime-900/30 dark:to-green-900/30",
+  "from-cyan-100 to-indigo-200 dark:from-cyan-900/30 dark:to-indigo-900/30",
+  "from-fuchsia-100 to-pink-200 dark:from-fuchsia-900/30 dark:to-pink-900/30",
+];
+
+const SUBJECT_EMOJIS: Record<string, string> = {
+  matematika: "📐",
+  "bahasa indonesia": "📖",
+  "bahasa inggris": "🌍",
+  ipa: "🔬",
+  ips: "🌏",
+  ppkn: "⚖️",
+  agama: "🕌",
+  "seni budaya": "🎨",
+  penjaskes: "⚽",
+  prakarya: "🛠️",
+  informatika: "💻",
+};
+
+function getSubjectColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return SUBJECT_COLORS[Math.abs(hash) % SUBJECT_COLORS.length];
+}
+
+function getSubjectEmoji(name: string) {
+  const key = name.toLowerCase();
+  return SUBJECT_EMOJIS[key] || "📚";
+}
 
 export default function TugasPage() {
   const { t } = useLocale();
@@ -34,6 +73,7 @@ export default function TugasPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
   const currentMember = members.find((m) => m.userId === user?.id);
   const isAdmin = currentMember?.role === "admin";
@@ -42,24 +82,31 @@ export default function TugasPage() {
   );
   const canManage = isAdmin || isSekretaris;
 
-  const groupedAssignments = useMemo(() => {
-    const groups: Record<string, typeof assignments> = {};
-    const subjectOrder = roomSubjects.map((s) => s.name);
+  const filteredAssignments = useMemo(() => {
+    if (!selectedSubject) return [];
+    return assignments.filter((a) => a.subject === selectedSubject);
+  }, [assignments, selectedSubject]);
+
+  const subjectCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
     assignments.forEach((a) => {
       const key = a.subject || "Lainnya";
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(a);
+      counts[key] = (counts[key] || 0) + 1;
     });
-    const sorted = Object.entries(groups).sort(([a], [b]) => {
-      const ai = subjectOrder.indexOf(a);
-      const bi = subjectOrder.indexOf(b);
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-      return a.localeCompare(b);
-    });
-    return sorted;
-  }, [assignments, roomSubjects]);
+    return counts;
+  }, [assignments]);
+
+  const subjectsWithData = useMemo(() => {
+    const allSubjects = roomSubjects.map((s) => ({
+      name: s.name,
+      count: subjectCounts[s.name] || 0,
+    }));
+    const hasOther = assignments.some((a) => a.subject && !roomSubjects.find((s) => s.name === a.subject));
+    if (hasOther) {
+      allSubjects.push({ name: "Lainnya", count: subjectCounts["Lainnya"] || 0 });
+    }
+    return allSubjects;
+  }, [roomSubjects, subjectCounts, assignments]);
 
   const handleCreate = () => {
     setEditingAssignment(null);
@@ -105,85 +152,153 @@ export default function TugasPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="pb-20">
+        <LoadingSkeleton variant="card" count={3} />
+      </div>
+    );
+  }
+
+  if (error) return <ErrorMessage message={error} />;
+
   return (
     <div className="pb-20">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2.5 rounded-2xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm">
-            <HiClipboardList className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">{t('nav.tugas')}</h1>
-            <p className="text-sm text-text-secondary">
-              {assignments.length} tugas{" "}
-              {assignments.length > 0 && (
-                <span className="text-text-muted">
-                  — {assignments.filter((a) => a.deadline.toDate() < new Date()).length} terlewat
-                </span>
+      {selectedSubject ? (
+        <>
+          <div className="mb-6">
+            <button
+              onClick={() => setSelectedSubject(null)}
+              className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
+            >
+              <HiArrowLeft className="h-4 w-4" />
+              Kembali ke daftar matkul
+            </button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{getSubjectEmoji(selectedSubject)}</span>
+                <div>
+                  <h1 className="text-2xl font-bold text-text-primary">{selectedSubject}</h1>
+                  <p className="text-sm text-text-secondary">
+                    {filteredAssignments.length} tugas
+                  </p>
+                </div>
+              </div>
+              {canManage && (
+                <Button size="sm" onClick={handleCreate}>
+                  <HiPlus className="h-4 w-4" />
+                  Tambah Tugas
+                </Button>
               )}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="space-y-6">
-          <LoadingSkeleton variant="card" count={3} />
-        </div>
-      ) : error ? (
-        <ErrorMessage message={error} />
-      ) : assignments.length === 0 ? (
-        <div className="mt-12">
-          <EmptyState
-            icon={<HiClipboardList className="h-8 w-8" />}
-            title={t('tugas.empty')}
-            description={
-              canManage
-                ? t('tugas.emptyManageDesc')
-                : t('tugas.emptyNotManageDesc')
-            }
-          />
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {groupedAssignments.map(([subjectName, items]) => (
-            <div key={subjectName}>
-              <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                {subjectName}
-                <span className="text-xs font-normal text-text-muted">
-                  ({items.length})
-                </span>
-              </h3>
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: { transition: { staggerChildren: 0.06 } },
-                }}
-                className="space-y-3"
-              >
-                {items.map((tugas) => (
-                  <motion.div key={tugas.id} layout className="relative">
-                    <AssignmentCard
-                      assignment={tugas}
-                      canManage={canManage}
-                      isDeleting={deletingId === tugas.id}
-                      roomId={roomId}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      index={assignments.indexOf(tugas)}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
             </div>
-          ))}
-        </div>
+          </div>
+
+          {filteredAssignments.length === 0 ? (
+            <EmptyState
+              icon={<HiClipboardList className="h-8 w-8" />}
+              title="Belum ada tugas"
+              description={canManage ? "Buat tugas baru untuk matkul ini" : "Belum ada tugas untuk matkul ini"}
+            />
+          ) : (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.06 } },
+              }}
+              className="space-y-3"
+            >
+              {filteredAssignments.map((tugas) => (
+                <motion.div key={tugas.id} layout className="relative">
+                  <AssignmentCard
+                    assignment={tugas}
+                    canManage={canManage}
+                    isDeleting={deletingId === tugas.id}
+                    roomId={roomId}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    index={assignments.indexOf(tugas)}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2.5 rounded-2xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm">
+                <HiClipboardList className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-text-primary">{t('nav.tugas')}</h1>
+                <p className="text-sm text-text-secondary">
+                  {assignments.length} tugas, {roomSubjects.length} matkul
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {subjectsWithData.length === 0 ? (
+            <EmptyState
+              icon={<HiClipboardList className="h-8 w-8" />}
+              title={t('tugas.empty')}
+              description={
+                roomSubjects.length === 0
+                  ? "Belum ada jadwal matkul. Atur di halaman Jadwal"
+                  : canManage
+                    ? t('tugas.emptyManageDesc')
+                    : t('tugas.emptyNotManageDesc')
+              }
+            />
+          ) : (
+            <motion.div
+              className="grid gap-4 grid-cols-2 lg:grid-cols-3"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.06 } },
+              }}
+              initial="hidden"
+              animate="visible"
+            >
+              {subjectsWithData.map((subject) => (
+                <motion.button
+                  key={subject.name}
+                  variants={{
+                    hidden: { opacity: 0, y: 16, scale: 0.97 },
+                    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" } },
+                  }}
+                  onClick={() => setSelectedSubject(subject.name)}
+                  className="text-left"
+                >
+                  <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    <div className={`bg-gradient-to-br ${getSubjectColor(subject.name)} px-5 pt-5 pb-4`}>
+                      <span className="text-3xl" role="img" aria-label={subject.name}>
+                        {getSubjectEmoji(subject.name)}
+                      </span>
+                      <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight">
+                        {subject.name}
+                      </h4>
+                    </div>
+                    <CardBody className="!px-5 !py-3">
+                      <div className="flex items-center gap-2">
+                        <HiAcademicCap className="h-4 w-4 text-text-muted" />
+                        <span className="text-sm text-text-secondary">
+                          {subject.count} tugas
+                        </span>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </>
       )}
 
-      {canManage && (
+      {canManage && !selectedSubject && (
         <>
           <motion.button
             whileHover={{ scale: 1.08 }}
@@ -213,6 +328,7 @@ export default function TugasPage() {
         }}
         assignment={editingAssignment}
         subjects={roomSubjects.map((s) => s.name)}
+        initialSubject={selectedSubject || undefined}
         onSubmit={handleSubmit}
       />
     </div>
