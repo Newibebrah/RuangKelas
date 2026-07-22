@@ -46,8 +46,11 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
   const [saving, setSaving] = useState(false);
   const [confetti, setConfetti] = useState<ReturnType<typeof createConfetti>>([]);
   const wheelRef = useRef<HTMLDivElement>(null);
+  const [wheelSize, setWheelSize] = useState(320);
 
   const N = members.length;
+  const rotationRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (confetti.length > 0) {
@@ -56,16 +59,29 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
     }
   }, [confetti]);
 
+  useEffect(() => {
+    if (wheelRef.current) {
+      setWheelSize(wheelRef.current.offsetWidth);
+    }
+  }, [members.length]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const seg = N > 0 ? 360 / N : 0;
+
   const gradient = useMemo(() => {
     if (N === 0) return "";
-    const seg = 360 / N;
     return `conic-gradient(${members.map((_, i) => {
       const c = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
       const s = i * seg;
       const e = (i + 1) * seg;
       return `${c} ${s}deg ${e}deg`;
     }).join(", ")})`;
-  }, [members]);
+  }, [members, seg, N]);
 
   const spin = useCallback(() => {
     if (spinning || N === 0) return;
@@ -74,25 +90,29 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
     setSpinning(true);
 
     const winnerIndex = Math.floor(Math.random() * N);
-    const seg = 360 / N;
     const centerAngle = (winnerIndex + 0.5) * seg;
-    // Pointer is at 12 o'clock (270° from 3 o'clock in standard position)
-    // For segment center to align with pointer: rotation = 270 - centerAngle
-    const target = ((270 - centerAngle) % 360 + 360) % 360;
+    const target = ((360 - centerAngle % 360) + 360) % 360;
     const extra = 360 * (5 + Math.floor(Math.random() * 5));
-    const currentAngle = ((rotation % 360) + 360) % 360;
+    const currentAngle = ((rotationRef.current % 360) + 360) % 360;
     let diff = target - currentAngle;
     if (diff < 0) diff += 360;
     const total = diff + extra;
 
-    setRotation((prev) => prev + total);
+    const newRotation = rotationRef.current + total;
+    rotationRef.current = newRotation;
+    setRotation(newRotation);
 
-    setTimeout(() => {
-      setWinner(members[winnerIndex]);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const finalRotation = rotationRef.current;
+      const gradAngle = ((360 - (finalRotation % 360)) + 360) % 360;
+      const computedIndex = Math.round(gradAngle / seg - 0.5);
+      const finalIndex = ((computedIndex % N) + N) % N;
+      setWinner(members[finalIndex]);
       setSpinning(false);
       setConfetti(createConfetti());
     }, 4500);
-  }, [spinning, N, members, rotation]);
+  }, [spinning, N, members, seg]);
 
   const handleConfirm = async (member?: Member) => {
     const target = member || winner;
@@ -115,6 +135,9 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
   }
 
   const singleMember = N === 1 ? members[0] : null;
+  const cx = wheelSize / 2;
+  const cy = wheelSize / 2;
+  const labelR = wheelSize * 0.38;
 
   return (
     <div className="flex flex-col items-center gap-6 relative">
@@ -154,38 +177,45 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
         style={{ perspective: "1000px" }}
       >
         {/* Pointer */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 -mt-1.5">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 -mt-1">
           <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[20px] border-l-transparent border-r-transparent border-t-indigo-500 drop-shadow-lg" />
         </div>
 
         {/* Glow behind wheel */}
         <div className="absolute w-[90%] h-[90%] rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-3xl" />
 
+        {/* Outer ring */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: "calc(100% + 16px)",
+            height: "calc(100% + 16px)",
+            border: "4px solid rgba(99,102,241,0.15)",
+          }}
+        />
+
         {/* The wheel */}
         <div
           ref={wheelRef}
-          className="relative w-[min(80vw,320px)] h-[min(80vw,320px)] rounded-full shadow-2xl ring-[3px] ring-white/40 dark:ring-slate-700/60"
+          className="relative w-[min(85vw,340px)] aspect-square rounded-full shadow-2xl ring-[3px] ring-white/40 dark:ring-slate-700/60"
           style={{
             background: gradient,
-            transform: `rotate(${rotation}deg) rotateX(8deg)`,
+            transform: `rotate(${rotation}deg) rotateX(6deg)`,
             transition: spinning
               ? "transform 4.5s cubic-bezier(0.08, 0.72, 0.12, 1)"
-              : "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              : "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
             boxShadow: spinning
               ? "0 0 40px rgba(99,102,241,0.3), 0 20px 60px rgba(0,0,0,0.2)"
               : "0 8px 32px rgba(0,0,0,0.12)",
           }}
         >
           {/* Segment labels */}
-          {members.map((m, i) => {
-            const seg = 360 / N;
-            const angle = (i + 0.5) * seg;
-            const rad = (angle * Math.PI) / 180;
-            const r = 125;
-            const cx = 160;
-            const cy = 160;
-            const x = cx + r * Math.sin(rad);
-            const y = cy - r * Math.cos(rad);
+          {N > 0 && members.map((m, i) => {
+            // CSS conic-gradient: 0° = top, clockwise
+            const localAngle = (i + 0.5) * seg; // degrees from top, clockwise
+            const rad = (localAngle * Math.PI) / 180;
+            const x = cx + labelR * Math.sin(rad);
+            const y = cy - labelR * Math.cos(rad);
             return (
               <span
                 key={m.userId}
@@ -194,14 +224,14 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
                   left: x,
                   top: y,
                   transform: "translate(-50%, -50%)",
-                  maxWidth: 90,
+                  maxWidth: wheelSize * 0.28,
                   textShadow: "0 2px 6px rgba(0,0,0,0.6)",
                   lineHeight: 1.15,
-                  rotate: `${-(rotation + angle)}deg`,
+                  rotate: `${-rotation}deg`,
                 }}
               >
-                {m.displayName.length > 10
-                  ? m.displayName.slice(0, 10) + "…"
+                {m.displayName.length > 12
+                  ? m.displayName.slice(0, 12) + "…"
                   : m.displayName}
               </span>
             );
@@ -215,17 +245,6 @@ export function ElectionWheel({ members, onConfirm, label }: ElectionWheelProps)
           </div>
         </div>
       </div>
-
-      {/* Outer ring decoration */}
-      <div
-        className="absolute rounded-full pointer-events-none"
-        style={{
-          width: "calc(min(80vw,320px) + 16px)",
-          height: "calc(min(80vw,320px) + 16px)",
-          border: "4px solid rgba(99,102,241,0.15)",
-          borderRadius: "50%",
-        }}
-      />
 
       {/* Winner announcement */}
       <AnimatePresence>
