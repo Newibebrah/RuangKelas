@@ -59,19 +59,19 @@ const panelVariants = {
   visible: {
     x: 0,
     opacity: 1,
-    transition: { type: "spring" as const, damping: 28, stiffness: 300, mass: 0.8 },
+    transition: { type: "spring", damping: 28, stiffness: 300, mass: 0.8 } as const,
   },
   exit: {
     x: "100%",
     opacity: 0,
-    transition: { duration: 0.2, ease: "easeIn" },
+    transition: { duration: 0.2, ease: "easeIn" } as const,
   },
 };
 
 const overlayVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.15 } },
+  visible: { opacity: 1, transition: { duration: 0.2 } as const },
+  exit: { opacity: 0, transition: { duration: 0.15 } as const },
 };
 
 export function AssignmentModal({
