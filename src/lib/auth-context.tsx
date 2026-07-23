@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch {
           setError("Popup diblokir dan redirect gagal. Coba browser lain.");
         }
-      } else if (e.code === "auth/popup-closed-by-user") {
+      } else if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") {
         setError("");
       } else if (e.code === "auth/unauthorized-domain") {
         setError("Domain belum terdaftar. Admin: tambahkan domain Vercel ke Firebase Console > Authentication > Settings > Authorized domains.");

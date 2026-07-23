@@ -21,8 +21,11 @@ export function LoginButton() {
   const { signInWithGoogle, loading, error } = useAuth();
   const ref = useRef<HTMLButtonElement>(null);
   const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isSigningIn) return;
+    setIsSigningIn(true);
     const rect = ref.current?.getBoundingClientRect();
     if (rect) {
       const x = e.clientX - rect.left;
@@ -31,7 +34,11 @@ export function LoginButton() {
       setRipples((prev) => [...prev, { x, y, id }]);
       setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 600);
     }
-    signInWithGoogle();
+    try {
+      await signInWithGoogle();
+    } finally {
+      setIsSigningIn(false);
+    }
   };
 
   return (
@@ -39,10 +46,10 @@ export function LoginButton() {
       <button
         ref={ref}
         onClick={handleClick}
-        disabled={loading}
+        disabled={loading || isSigningIn}
         className="relative inline-flex items-center justify-center gap-3 px-10 py-4 w-full max-w-sm text-base font-bold rounded-2xl bg-white text-slate-900 hover:bg-slate-50 shadow-2xl shadow-black/10 hover:shadow-black/20 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden transition-all duration-300"
       >
-        {loading ? (
+        {loading || isSigningIn ? (
           <svg className="animate-spin h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
