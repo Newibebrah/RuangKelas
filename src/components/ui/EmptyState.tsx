@@ -27,7 +27,7 @@ export function EmptyState({
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-        className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 flex items-center justify-center text-indigo-500 dark:text-indigo-400 mb-6 ring-1 ring-indigo-200/50 dark:ring-indigo-700/30"
+        className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-100 to-purple-100 dark:from-primary-900/30 dark:to-purple-900/30 flex items-center justify-center text-primary-500 dark:text-primary-400 mb-6 ring-1 ring-primary-200/50 dark:ring-primary-700/30"
       >
         {icon || (
           <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -35,7 +35,7 @@ export function EmptyState({
           </svg>
         )}
       </motion.div>
-      <h3 className="text-xl font-bold text-text-primary mb-2">{title}</h3>
+      <h3 className="text-xl font-bold text-text-primary mb-2 font-heading">{title}</h3>
       {description && (
         <p className="text-sm text-text-secondary text-center max-w-sm mb-6 leading-relaxed">
           {description}

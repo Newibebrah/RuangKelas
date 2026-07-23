@@ -40,7 +40,7 @@ export function LoginButton() {
         ref={ref}
         onClick={handleClick}
         disabled={loading}
-        className="relative inline-flex items-center justify-center gap-3 px-8 py-3.5 w-full max-w-sm text-base font-medium rounded-2xl border border-border text-text-secondary bg-surface hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/50 hover:shadow-lg hover:shadow-indigo-500/15 hover:scale-[1.02] dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden transition-all duration-300"
+        className="relative inline-flex items-center justify-center gap-3 px-8 py-3.5 w-full max-w-sm text-base font-semibold rounded-2xl border border-border/70 text-text-secondary bg-surface hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 hover:shadow-lg hover:shadow-primary-500/15 hover:scale-[1.02] dark:hover:bg-primary-900/20 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden transition-all duration-300"
       >
         {loading ? (
           <svg className="animate-spin h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@ export function LoginButton() {
         {ripples.map((ripple) => (
           <span
             key={ripple.id}
-            className="absolute rounded-full bg-indigo-400/30 animate-ripple pointer-events-none"
+            className="absolute rounded-full bg-primary-400/30 animate-ripple pointer-events-none"
             style={{
               left: ripple.x - 10,
               top: ripple.y - 10,
@@ -65,7 +65,7 @@ export function LoginButton() {
         ))}
       </button>
       {error && (
-        <div className="flex items-start gap-3 max-w-sm p-3.5 bg-danger-light rounded-xl">
+        <div className="flex items-start gap-3 max-w-sm p-3.5 bg-danger-light dark:bg-danger/10 rounded-xl border border-danger/20">
           <HiExclamationCircle className="h-5 w-5 text-danger shrink-0 mt-0.5" />
           <p className="text-sm font-medium text-danger">{error}</p>
         </div>

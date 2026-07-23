@@ -146,7 +146,7 @@ export default function KasPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">{t('kas.title')}</h2>
+          <h2 className="text-xl font-bold text-text-primary font-heading">{t('kas.title')}</h2>
           <p className="text-sm text-text-secondary mt-1">
             {bill
               ? `Tagihan ${formatRupiah(bill.amount)} / ${bill.frequency === "weekly" ? t('kas.frequencyWeekly') : t('kas.frequencyMonthly')}`

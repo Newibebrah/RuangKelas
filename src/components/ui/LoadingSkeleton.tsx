@@ -1,22 +1,15 @@
-interface LoadingSkeletonProps {
-  variant?: "card" | "list" | "table" | "text" | "avatar";
-  count?: number;
-}
+const shimmerBase = "bg-gradient-to-r from-border/40 via-border/70 to-border/40 dark:from-slate-700/40 dark:via-slate-600/60 dark:to-slate-700/40 bg-[length:200%_100%] animate-shimmer rounded-lg";
 
 function SkeletonBar({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse bg-border rounded ${className}`}
-    />
-  );
+  return <div className={`${shimmerBase} ${className}`} />;
 }
 
 function CardSkeleton() {
   return (
-    <div className="bg-surface rounded-2xl border border-border p-6 space-y-4 shadow-card">
+    <div className="bg-surface rounded-2xl border border-border/60 p-6 space-y-4 shadow-sm">
       <div className="flex items-start justify-between">
         <SkeletonBar className="h-5 w-2/3" />
-        <SkeletonBar className="h-5 w-5 shrink-0" />
+        <SkeletonBar className="h-5 w-5 shrink-0 rounded-full" />
       </div>
       <SkeletonBar className="h-4 w-full" />
       <SkeletonBar className="h-4 w-4/5" />
@@ -81,6 +74,11 @@ function AvatarSkeleton() {
       </div>
     </div>
   );
+}
+
+interface LoadingSkeletonProps {
+  variant?: "card" | "list" | "table" | "text" | "avatar";
+  count?: number;
 }
 
 export function LoadingSkeleton({

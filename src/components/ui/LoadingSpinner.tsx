@@ -22,7 +22,7 @@ export function LoadingSpinner({
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className={`${sizes[size]} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[3px]`}
+        className={`${sizes[size]} rounded-full bg-gradient-to-br from-primary-500 to-purple-600 p-[3px]`}
       >
         <div className="w-full h-full rounded-full bg-surface" />
       </motion.div>

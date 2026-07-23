@@ -9,7 +9,7 @@ import { useLocale } from "@/lib/locale-context";
 import { useRoom } from "@/lib/room-context";
 import { useAuth } from "@/lib/auth-context";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
-import { HiUsers, HiClipboardList, HiCash } from "react-icons/hi";
+import { HiUsers, HiClipboardList, HiCash, HiAcademicCap } from "react-icons/hi";
 
 export default function RoomHomePage() {
   const { t } = useLocale();
@@ -33,7 +33,7 @@ export default function RoomHomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-text-primary">
+        <h2 className="text-xl font-bold text-text-primary font-heading">
           {currentRoom?.name}
         </h2>
         <p className="text-text-secondary mt-1">{currentRoom?.description}</p>
@@ -42,15 +42,15 @@ export default function RoomHomePage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary-50">
-              <HiUsers className="h-6 w-6 text-primary-600" />
+            <div className="p-3 rounded-xl bg-primary-50 dark:bg-primary-900/30 shadow-sm">
+              <HiUsers className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-text-primary">
+              <p className="text-2xl font-bold text-text-primary font-heading">
                 {members.length}
               </p>
               <p className="text-sm text-text-secondary">{t('nav.anggota')}</p>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-text-muted mt-0.5">
                 {guruCount > 0 && `${guruCount} guru `}
                 {siswaCount > 0 && `${siswaCount} siswa `}
                 {adminCount > 0 && `${adminCount} admin`}
@@ -61,11 +61,11 @@ export default function RoomHomePage() {
 
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-success-light">
+            <div className="p-3 rounded-xl bg-success-light dark:bg-success/10 shadow-sm">
               <HiClipboardList className="h-6 w-6 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-text-primary">{activeTasks}</p>
+              <p className="text-2xl font-bold text-text-primary font-heading">{activeTasks}</p>
               <p className="text-sm text-text-secondary">{t('room.activeTasks')}</p>
             </div>
           </CardBody>
@@ -73,11 +73,11 @@ export default function RoomHomePage() {
 
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-warning-light">
+            <div className="p-3 rounded-xl bg-warning-light dark:bg-warning/10 shadow-sm">
               <HiCash className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-text-primary">Rp 0</p>
+              <p className="text-2xl font-bold text-text-primary font-heading">Rp 0</p>
               <p className="text-sm text-text-secondary">{t('room.saldoKas')}</p>
             </div>
           </CardBody>
@@ -87,7 +87,7 @@ export default function RoomHomePage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-text-primary">{t('room.latestMembers')}</h3>
+            <h3 className="font-bold text-text-primary font-heading">{t('room.latestMembers')}</h3>
           </CardHeader>
           <CardBody>
             {members.length === 0 ? (
@@ -99,23 +99,23 @@ export default function RoomHomePage() {
                     key={member.id}
                     className="flex items-center gap-3"
                   >
-                    <div className="h-8 w-8 rounded-full bg-surface-hover flex items-center justify-center overflow-hidden ring-2 ring-border">
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-100 to-purple-100 dark:from-primary-900/30 dark:to-purple-900/30 flex items-center justify-center overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-sm">
                       {member.photoURL ? (
                         <Image
                           src={member.photoURL}
                           alt={member.displayName}
-                          width={32}
-                          height={32}
+                          width={36}
+                          height={36}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span className="text-sm font-semibold text-text-secondary">
+                        <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
                           {member.displayName.charAt(0)}
                         </span>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-text-primary">
+                      <p className="text-sm font-semibold text-text-primary">
                         {member.displayName}
                       </p>
                       <p className="text-xs text-text-muted capitalize">

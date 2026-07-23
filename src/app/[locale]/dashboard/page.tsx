@@ -40,9 +40,9 @@ const itemVariants = {
 function HeroIllustration() {
   return (
     <svg viewBox="0 0 200 140" className="w-full h-auto max-w-[220px]" fill="none">
-      <rect x="20" y="20" width="70" height="50" rx="10" className="fill-indigo-100 dark:fill-indigo-900/40" />
-      <rect x="30" y="30" width="18" height="12" rx="3" className="fill-indigo-300 dark:fill-indigo-600" />
-      <rect x="54" y="30" width="18" height="12" rx="3" className="fill-indigo-200 dark:fill-indigo-500/60" />
+      <rect x="20" y="20" width="70" height="50" rx="10" className="fill-primary-100 dark:fill-primary-900/40" />
+      <rect x="30" y="30" width="18" height="12" rx="3" className="fill-primary-300 dark:fill-primary-600" />
+      <rect x="54" y="30" width="18" height="12" rx="3" className="fill-primary-200 dark:fill-primary-500/60" />
       <rect x="30" y="46" width="12" height="8" rx="2" className="fill-amber-300 dark:fill-amber-500/60" />
       <rect x="46" y="46" width="12" height="8" rx="2" className="fill-emerald-300 dark:fill-emerald-500/60" />
       <rect x="62" y="46" width="12" height="8" rx="2" className="fill-rose-300 dark:fill-rose-500/60" />
@@ -54,9 +54,9 @@ function HeroIllustration() {
       />
       <rect x="115" y="47" width="20" height="10" rx="3" className="fill-emerald-300 dark:fill-emerald-500/60" />
       <rect x="140" y="47" width="20" height="10" rx="3" className="fill-emerald-200 dark:fill-emerald-500/40" />
-      <rect x="115" y="62" width="18" height="8" rx="2" className="fill-indigo-300 dark:fill-indigo-500/50" />
+      <rect x="115" y="62" width="18" height="8" rx="2" className="fill-primary-300 dark:fill-primary-500/50" />
       <rect x="137" y="62" width="18" height="8" rx="2" className="fill-amber-300 dark:fill-amber-500/50" />
-      <circle cx="55" cy="85" r="5" className="fill-indigo-400 dark:fill-indigo-500" />
+      <circle cx="55" cy="85" r="5" className="fill-primary-400 dark:fill-primary-500" />
       <circle cx="80" cy="80" r="4" className="fill-emerald-400 dark:fill-emerald-500" />
       <circle cx="145" cy="90" r="5" className="fill-amber-400 dark:fill-amber-500" />
       <motion.path
@@ -64,13 +64,13 @@ function HeroIllustration() {
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
-        className="stroke-indigo-300 dark:stroke-indigo-600/50"
+        className="stroke-primary-300 dark:stroke-primary-600/50"
         fill="none"
         animate={{ d: ["M20 110 Q60 95 100 110 Q140 125 180 110", "M20 112 Q60 125 100 112 Q140 95 180 112"] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
       <circle cx="30" cy="15" r="3" className="fill-amber-300 dark:fill-amber-500/50" />
-      <circle cx="170" cy="18" r="2.5" className="fill-indigo-300 dark:fill-indigo-500/50" />
+      <circle cx="170" cy="18" r="2.5" className="fill-primary-300 dark:fill-primary-500/50" />
       <circle cx="110" cy="10" r="2" className="fill-emerald-300 dark:fill-emerald-500/50" />
     </svg>
   );
@@ -83,6 +83,14 @@ export default function DashboardPage() {
   const { isMobile } = useMobile();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Selamat pagi";
+    if (hour < 15) return "Selamat siang";
+    if (hour < 19) return "Selamat sore";
+    return "Selamat malam";
+  }, []);
 
   const activities = useMemo(() => {
     if (rooms.length === 0) return [];
@@ -105,7 +113,7 @@ export default function DashboardPage() {
         text: "Semua ruang kelas siap digunakan. Ayo mulai aktivitas!",
         time: "",
         icon: <HiSparkles className="h-3.5 w-3.5" />,
-        color: "text-indigo-500",
+        color: "text-primary-500",
       });
     }
     return items.slice(0, 5);
@@ -114,25 +122,19 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-surface-muted relative overflow-hidden">
-        <div
-          className="fixed inset-0 pointer-events-none -z-10"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0)`,
-            backgroundSize: "24px 24px",
-            opacity: 0.4,
-          }}
-        />
-        <div className="fixed top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/3 dark:bg-indigo-500/5 blur-3xl pointer-events-none -z-10" />
-        <div className="fixed bottom-[-10%] left-[-5%] w-[300px] h-[300px] rounded-full bg-emerald-500/3 dark:bg-emerald-500/5 blur-3xl pointer-events-none -z-10" />
+        {/* Background decorations */}
+        <div className="fixed inset-0 pointer-events-none -z-10 dot-pattern opacity-[0.3]" />
+        <div className="fixed top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary-500/3 dark:bg-primary-500/5 blur-3xl pointer-events-none -z-10" />
+        <div className="fixed bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-emerald-500/3 dark:bg-emerald-500/5 blur-3xl pointer-events-none -z-10" />
 
         <AppHeader
           left={
             <div className="flex items-center gap-2.5">
-              <div className={`${isMobile ? "w-8 h-8" : "w-9 h-9"} rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20`}>
+              <div className={`${isMobile ? "w-8 h-8" : "w-9 h-9"} rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary-500/20`}>
                 <HiAcademicCap className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} text-white`} />
               </div>
               {!isMobile && (
-                <span className="text-xl font-bold tracking-tight text-text-primary">
+                <span className="text-xl font-bold tracking-tight text-text-primary font-heading">
                   {t("app.name")}
                 </span>
               )}
@@ -175,8 +177,12 @@ export default function DashboardPage() {
             {/* ───── Hero ───── */}
             <motion.div variants={itemVariants} className={`${isMobile ? "flex flex-col items-center text-center gap-4 mb-6" : "flex items-center justify-between gap-10 mb-12"}`}>
               <div className={isMobile ? "" : "flex-1 max-w-lg"}>
-                <h1 className={`${isMobile ? "text-2xl" : "text-4xl sm:text-5xl"} font-bold text-text-primary tracking-tight leading-tight`}>
-                  Halo, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">{user?.displayName || "Pengguna"}</span>!
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-xs font-semibold mb-4 ring-1 ring-primary-200/50 dark:ring-primary-700/30">
+                  <HiSparkles className="h-3 w-3" />
+                  {greeting}
+                </div>
+                <h1 className={`${isMobile ? "text-2xl" : "text-4xl sm:text-5xl"} font-bold text-text-primary tracking-tight leading-tight font-heading`}>
+                  Halo, <span className="bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400 bg-clip-text text-transparent">{user?.displayName || "Pengguna"}</span>!
                 </h1>
                 <p className={`text-text-secondary mt-2 ${isMobile ? "text-sm" : "text-lg"}`}>
                   {t("dashboard.subtitle")}
@@ -185,7 +191,7 @@ export default function DashboardPage() {
                   <Button
                     size={isMobile ? "md" : "lg"}
                     onClick={() => setShowCreateModal(true)}
-                    className="shadow-lg shadow-indigo-500/20"
+                    className="shadow-lg shadow-primary-500/20"
                   >
                     <HiPlus className="h-4 w-4" />
                     {t("action.createClass")}
@@ -207,21 +213,34 @@ export default function DashboardPage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="shrink-0"
                 >
-                  <HeroIllustration />
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-br from-primary-500/10 to-purple-500/10 rounded-full blur-2xl" />
+                    <HeroIllustration />
+                  </div>
                 </motion.div>
               )}
             </motion.div>
 
             {isMobile && (
               <motion.div variants={itemVariants} className="flex justify-center mb-6">
-                <HeroIllustration />
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-br from-primary-500/10 to-purple-500/10 rounded-full blur-2xl" />
+                  <HeroIllustration />
+                </div>
               </motion.div>
             )}
 
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-16 bg-surface rounded-xl border border-border animate-pulse" />
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    <div className="h-16 bg-surface rounded-xl border border-border/60 animate-pulse shadow-sm" />
+                  </motion.div>
                 ))}
               </div>
             ) : error ? (
@@ -255,15 +274,17 @@ export default function DashboardPage() {
                 {/* ───── Room List ───── */}
                 <motion.div variants={itemVariants}>
                   <div className={`flex items-center gap-2 ${isMobile ? "mb-3" : "mb-5"}`}>
-                    <HiAcademicCap className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} text-primary-500`} />
-                    <h2 className={`${isMobile ? "text-base" : "text-xl"} font-bold text-text-primary`}>
+                    <div className={`${isMobile ? "w-7 h-7" : "w-8 h-8"} rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-sm shadow-primary-500/20`}>
+                      <HiAcademicCap className={`${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"} text-white`} />
+                    </div>
+                    <h2 className={`${isMobile ? "text-base" : "text-xl"} font-bold text-text-primary font-heading flex-1`}>
                       {t("nav.myClasses")}
                     </h2>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium ml-auto">
+                    <span className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-xs font-bold ring-1 ring-primary-200/50 dark:ring-primary-700/30">
                       {rooms.length}
                     </span>
                   </div>
-                  <div className={isMobile ? "space-y-2" : "grid gap-5 sm:grid-cols-2"}>
+                  <div className={isMobile ? "space-y-2" : "grid gap-5 sm:grid-cols-2 lg:grid-cols-3"}>
                     {rooms.map((room, i) => (
                       <motion.div
                         key={room.id}
@@ -281,11 +302,11 @@ export default function DashboardPage() {
                 {/* ───── Divider ───── */}
                 <div className={`relative ${isMobile ? "my-6" : "my-12"}`}>
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border" />
+                    <div className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-surface-muted px-3 text-xs text-text-muted">
-                      <HiSparkles className="h-4 w-4" />
+                    <span className="bg-surface-muted px-3 rounded-full">
+                      <HiSparkles className="h-4 w-4 text-text-muted" />
                     </span>
                   </div>
                 </div>
@@ -294,11 +315,11 @@ export default function DashboardPage() {
                 <motion.div variants={itemVariants}>
                   <div className={`flex items-center gap-2 ${isMobile ? "mb-3" : "mb-5"}`}>
                     <HiLightningBolt className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} text-amber-500`} />
-                    <h2 className={`${isMobile ? "text-base" : "text-xl"} font-bold text-text-primary`}>
+                    <h2 className={`${isMobile ? "text-base" : "text-xl"} font-bold text-text-primary font-heading`}>
                       Aktivitas Terbaru
                     </h2>
                   </div>
-                  <div className="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                  <div className="bg-surface/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden">
                     {activities.length > 0 ? (
                       <div className={`divide-y divide-border-light ${isMobile ? "text-sm" : ""}`}>
                         {activities.map((act, i) => (
@@ -308,7 +329,7 @@ export default function DashboardPage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className={`flex items-start gap-3 ${isMobile ? "px-3 py-2.5" : "px-5 py-3.5"}`}
+                            className={`flex items-start gap-3 ${isMobile ? "px-3 py-2.5" : "px-5 py-3.5"} hover:bg-surface-hover/50 transition-colors`}
                           >
                             <div className={`mt-0.5 ${act.color}`}>{act.icon}</div>
                             <div className="flex-1 min-w-0">

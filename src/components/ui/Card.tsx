@@ -21,15 +21,15 @@ export function Card({
   const Comp = onClick ? motion.div : motion.div;
   return (
     <Comp
-      whileHover={hover ? { y: -4, scale: 1.01 } : undefined}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      whileHover={hover ? { y: -3, scale: 1.005 } : undefined}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={`${
         glass
-          ? "bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/30"
-          : "bg-surface shadow-card border border-border"
-      } rounded-2xl transition-shadow duration-300 ${
+          ? "bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/30"
+          : "bg-surface shadow-[0_1px_3px_0_rgba(0,0,0,0.04),0_1px_2px_-1px_rgba(0,0,0,0.06)] border border-border/60"
+      } rounded-2xl transition-all duration-200 ${
         hover
-          ? "hover:shadow-card-hover cursor-pointer"
+          ? "hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.06)] cursor-pointer"
           : ""
       } ${className}`}
       onClick={onClick}
@@ -47,7 +47,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-6 py-5 border-b border-border-light dark:border-slate-700/50 ${className}`}>
+    <div className={`px-5 py-4 border-b border-border-light ${className}`}>
       {children}
     </div>
   );
@@ -60,5 +60,5 @@ export function CardBody({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`px-6 py-5 ${className}`}>{children}</div>;
+  return <div className={`px-5 py-4 ${className}`}>{children}</div>;
 }

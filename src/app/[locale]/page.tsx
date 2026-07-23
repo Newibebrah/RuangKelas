@@ -104,7 +104,7 @@ export default function HomePage() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
               <HiAcademicCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-text-primary">{t('app.name')}</span>
+            <span className="text-xl font-bold tracking-tight text-text-primary font-heading">{t('app.name')}</span>
           </div>
         }
       />

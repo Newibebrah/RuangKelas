@@ -167,18 +167,19 @@ export default function TugasPage() {
       {selectedSubject ? (
         <>
           <div className="mb-6">
-            <button
+            <motion.button
+              whileHover={{ x: -3 }}
               onClick={() => setSelectedSubject(null)}
               className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
             >
               <HiArrowLeft className="h-4 w-4" />
               Kembali ke daftar matkul
-            </button>
-            <div className="flex items-center justify-between">
+            </motion.button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{getSubjectEmoji(selectedSubject)}</span>
+                <span className="text-3xl">{getSubjectEmoji(selectedSubject)}</span>
                 <div>
-                  <h1 className="text-2xl font-bold text-text-primary">{selectedSubject}</h1>
+                  <h1 className="text-2xl font-bold text-text-primary font-heading">{selectedSubject}</h1>
                   <p className="text-sm text-text-secondary">
                     {filteredAssignments.length} tugas
                   </p>
@@ -229,11 +230,11 @@ export default function TugasPage() {
         <>
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-1">
-              <div className="p-2.5 rounded-2xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 text-white shadow-lg shadow-primary-500/20">
                 <HiClipboardList className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-text-primary">{t('nav.tugas')}</h1>
+                <h1 className="text-2xl font-bold text-text-primary font-heading">{t('nav.tugas')}</h1>
                 <p className="text-sm text-text-secondary">
                   {assignments.length} tugas, {roomSubjects.length} matkul
                 </p>
@@ -270,6 +271,8 @@ export default function TugasPage() {
                     hidden: { opacity: 0, y: 16, scale: 0.97 },
                     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" } },
                   }}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedSubject(subject.name)}
                   className="text-left"
                 >
@@ -278,14 +281,14 @@ export default function TugasPage() {
                       <span className="text-3xl" role="img" aria-label={subject.name}>
                         {getSubjectEmoji(subject.name)}
                       </span>
-                      <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight">
+                      <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight font-heading">
                         {subject.name}
                       </h4>
                     </div>
                     <CardBody className="!px-5 !py-3">
                       <div className="flex items-center gap-2">
                         <HiAcademicCap className="h-4 w-4 text-text-muted" />
-                        <span className="text-sm text-text-secondary">
+                        <span className="text-sm text-text-secondary font-medium">
                           {subject.count} tugas
                         </span>
                       </div>
@@ -304,7 +307,7 @@ export default function TugasPage() {
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleCreate}
-            className="md:hidden fixed bottom-6 right-6 z-40 p-4 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="md:hidden fixed bottom-6 right-6 z-40 p-4 bg-gradient-to-br from-primary-600 to-purple-600 text-white rounded-full shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             <HiPlus className="h-6 w-6" />
           </motion.button>
@@ -312,7 +315,7 @@ export default function TugasPage() {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleCreate}
-            className="hidden md:inline-flex fixed bottom-8 right-8 z-40 items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-sm"
+            className="hidden md:inline-flex fixed bottom-8 right-8 z-40 items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-2xl shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/35 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 font-semibold text-sm"
           >
             <HiPlus className="h-5 w-5" />
             {t('tugas.newTask')}

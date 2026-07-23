@@ -3,7 +3,7 @@ import "./globals.css";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { WebVitalsReporter } from "@/lib/web-vitals";
 import { Suspense } from "react";
-import { inter } from "@/lib/fonts";
+import { inter, headingFont } from "@/lib/fonts";
 
 const baseUrl = "https://ruang-kelas-beige.vercel.app";
 
@@ -41,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`h-full antialiased ${inter.variable}`} suppressHydrationWarning>
+    <html lang="id" className={`h-full antialiased ${inter.variable} ${headingFont.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

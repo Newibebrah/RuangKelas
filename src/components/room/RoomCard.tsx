@@ -12,7 +12,7 @@ interface RoomCardProps {
 }
 
 const gradients = [
-  "from-indigo-500 to-purple-600",
+  "from-primary-500 to-purple-600",
   "from-emerald-500 to-teal-600",
   "from-amber-500 to-orange-600",
   "from-rose-500 to-pink-600",
@@ -31,11 +31,11 @@ export function RoomCard({ room }: RoomCardProps) {
   if (isMobile) {
     return (
       <motion.div
-        onClick={() => router.push(`/room/${room.id}`)}
-        className="flex items-center gap-3 px-4 py-3.5 bg-surface rounded-xl border border-border active:scale-[0.98] transition-all cursor-pointer"
         whileTap={{ scale: 0.98 }}
+        onClick={() => router.push(`/room/${room.id}`)}
+        className="flex items-center gap-3 px-4 py-3.5 bg-surface/80 backdrop-blur-sm rounded-xl border border-border/60 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
       >
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}>
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-lg`}>
           <span className="text-white font-bold text-sm">
             {room.name.charAt(0).toUpperCase()}
           </span>
@@ -68,7 +68,7 @@ export function RoomCard({ room }: RoomCardProps) {
       <div className={`h-1.5 bg-gradient-to-r ${gradient}`} />
       <CardHeader>
         <div className="flex items-start justify-between">
-          <h3 className="font-semibold text-text-primary text-lg group-hover:text-primary-600 transition-colors">
+          <h3 className="font-bold text-text-primary text-lg group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors font-heading">
             {room.name}
           </h3>
           <span className="flex items-center gap-1.5 text-xs text-text-muted shrink-0 ml-3 mt-0.5">
@@ -82,7 +82,7 @@ export function RoomCard({ room }: RoomCardProps) {
           {room.description}
         </p>
         <div className="flex items-center gap-2 text-xs font-medium">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-50 text-primary-600">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 ring-1 ring-primary-200/50 dark:ring-primary-700/30">
             <HiCode className="h-3.5 w-3.5" />
             {room.code}
           </span>

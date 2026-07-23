@@ -6,3 +6,4 @@ export { LoadingSpinner } from "./LoadingSpinner";
 export { LoadingSkeleton } from "./LoadingSkeleton";
 export { EmptyState } from "./EmptyState";
 export { ErrorMessage } from "./ErrorMessage";
+export { Badge } from "./Badge";

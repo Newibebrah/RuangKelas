@@ -139,18 +139,19 @@ export default function MateriPage() {
       {selectedSubject ? (
         <>
           <div className="mb-6">
-            <button
+            <motion.button
+              whileHover={{ x: -3 }}
               onClick={() => setSelectedSubject(null)}
               className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
             >
               <HiArrowLeft className="h-4 w-4" />
               Kembali ke daftar matkul
-            </button>
-            <div className="flex items-center justify-between">
+            </motion.button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{getSubjectEmoji(selectedSubject)}</span>
                 <div>
-                  <h1 className="text-2xl font-bold text-text-primary">{selectedSubject}</h1>
+                  <h1 className="text-2xl font-bold text-text-primary font-heading">{selectedSubject}</h1>
                   <p className="text-sm text-text-secondary">
                     {subjectMaterials.length} materi
                   </p>
@@ -178,7 +179,7 @@ export default function MateriPage() {
                   <CardBody>
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-text-primary truncate">
+                        <h3 className="font-semibold text-text-primary truncate font-heading">
                           {m.title}
                         </h3>
                         {m.description && (
@@ -187,7 +188,7 @@ export default function MateriPage() {
                           </p>
                         )}
                         <div className="flex items-center gap-3 mt-2 text-xs text-text-muted">
-                          {m.displayName && <span>{m.displayName}</span>}
+                          {m.displayName && <span className="font-medium text-text-secondary">{m.displayName}</span>}
                           <span>{formatDate(m.createdAt)}</span>
                           <span>{m.attachments.length} file(s)</span>
                         </div>
@@ -212,7 +213,8 @@ export default function MateriPage() {
                         )}
                       </div>
                       {canManageMaterial && (
-                        <button
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
                           onClick={async () => {
                             if (confirm(`Hapus materi "${m.title}"?`)) {
                               try {
@@ -223,12 +225,12 @@ export default function MateriPage() {
                               }
                             }
                           }}
-                          className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                          className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors shrink-0"
                         >
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </CardBody>
@@ -239,12 +241,19 @@ export default function MateriPage() {
         </>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-xl font-bold text-text-primary">{t('nav.materi')}</h2>
-              <p className="text-sm text-text-secondary mt-1">
-                {t('materi.desc')}
-              </p>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 text-white shadow-lg shadow-primary-500/20">
+                  <HiBookOpen className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-text-primary font-heading">{t('nav.materi')}</h1>
+                  <p className="text-sm text-text-secondary mt-1">
+                    {t('materi.desc')}
+                  </p>
+                </div>
+              </div>
             </div>
             {canDeploy && (
               <Button onClick={() => setDeployOpen(true)}>
@@ -256,8 +265,8 @@ export default function MateriPage() {
 
           {subjects.length > 0 && (
             <section className="mb-8">
-              <h3 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+              <h3 className="text-base font-bold text-text-primary mb-4 flex items-center gap-2 font-heading">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
                 Materi Pelajaran
               </h3>
               {subjects.length === 0 ? (
@@ -283,6 +292,8 @@ export default function MateriPage() {
                         hidden: { opacity: 0, y: 16, scale: 0.97 },
                         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" } },
                       }}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedSubject(subject.name)}
                       className="text-left"
                     >
@@ -291,14 +302,14 @@ export default function MateriPage() {
                           <span className="text-3xl" role="img" aria-label={subject.name}>
                             {getSubjectEmoji(subject.name)}
                           </span>
-                          <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight">
+                          <h4 className="font-bold text-text-primary mt-3 text-sm leading-tight font-heading">
                             {subject.name}
                           </h4>
                         </div>
                         <CardBody className="!px-5 !py-3">
                           <div className="flex items-center gap-2">
                             <HiAcademicCap className="h-4 w-4 text-text-muted" />
-                            <span className="text-sm text-text-secondary">
+                            <span className="text-sm text-text-secondary font-medium">
                               {subject.count} materi
                             </span>
                           </div>
@@ -312,7 +323,7 @@ export default function MateriPage() {
           )}
 
           <section>
-            <h3 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+            <h3 className="text-base font-bold text-text-primary mb-4 flex items-center gap-2 font-heading">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Pengumuman &amp; Materi Umum
             </h3>

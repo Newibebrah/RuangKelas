@@ -94,7 +94,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
             aria-hidden="true"
           />
@@ -108,17 +108,17 @@ export function Modal({
               onKeyDown={(e) => {
                 if (e.key === "Escape") { e.stopPropagation(); onClose(); }
               }}
-              className="fixed bottom-0 left-0 right-0 w-full max-h-[90vh] flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-2xl shadow-2xl border-t border-white/20 dark:border-slate-700/30"
+              className="fixed bottom-0 left-0 right-0 w-full max-h-[90vh] flex flex-col bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-t-2xl shadow-2xl border-t border-white/20 dark:border-slate-700/30"
             >
               <div className="flex justify-center pt-2 pb-1 shrink-0">
                 <div className="w-10 h-1 rounded-full bg-text-muted/30" />
               </div>
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-slate-700/50 shrink-0">
-                <h2 className="text-base font-semibold text-text-primary" id="modal-title">{title}</h2>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-light shrink-0">
+                <h2 className="text-base font-bold text-text-primary font-heading">{title}</h2>
                 <button
                   onClick={onClose}
                   aria-label="Tutup"
-                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200"
+                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:rotate-90"
                 >
                   <HiX className="h-5 w-5" />
                 </button>
@@ -135,14 +135,14 @@ export function Modal({
               onKeyDown={(e) => {
                 if (e.key === "Escape") { e.stopPropagation(); onClose(); }
               }}
-              className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/30 mx-4`}
+              className={`relative w-full ${sizes[size]} max-h-[85vh] flex flex-col bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.2),0_8px_24px_-6px_rgba(0,0,0,0.1)] border border-white/20 dark:border-slate-700/30 mx-4`}
             >
-              <div className="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-slate-700/50 shrink-0">
-                <h2 className="text-lg font-semibold text-text-primary" id="modal-title">{title}</h2>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border-light shrink-0">
+                <h2 className="text-lg font-bold text-text-primary font-heading">{title}</h2>
                 <button
                   onClick={onClose}
                   aria-label="Tutup"
-                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:scale-110"
+                  className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200 hover:rotate-90 hover:scale-110"
                 >
                   <HiX className="h-5 w-5" />
                 </button>

@@ -24,6 +24,15 @@ const DAY_COLORS: Record<string, string> = {
   Sabtu: "border-l-purple-400",
 };
 
+const DAY_DOTS: Record<string, string> = {
+  Senin: "bg-indigo-500",
+  Selasa: "bg-emerald-500",
+  Rabu: "bg-amber-500",
+  Kamis: "bg-rose-500",
+  Jumat: "bg-cyan-500",
+  Sabtu: "bg-purple-500",
+};
+
 const SUBJECT_COLORS = [
   "#6366F1", "#EC4899", "#F59E0B", "#10B981",
   "#8B5CF6", "#F97316", "#06B6D4", "#EF4444",
@@ -104,10 +113,15 @@ export default function JadwalPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-text-primary">Jadwal Mata Kuliah</h2>
-          <p className="text-sm text-text-secondary mt-1">Atur jadwal matkul kelas</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 text-white shadow-lg shadow-primary-500/20">
+            <HiAcademicCap className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary font-heading">Jadwal Mata Kuliah</h1>
+            <p className="text-sm text-text-secondary mt-1">Atur jadwal matkul kelas</p>
+          </div>
         </div>
         {canManage && (
           <Button onClick={openAdd}>
@@ -120,15 +134,15 @@ export default function JadwalPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse h-24 bg-surface-muted rounded-2xl" />
+            <div key={i} className="animate-pulse h-24 bg-surface-muted rounded-2xl border border-border/60" />
           ))}
         </div>
       ) : subjects.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-surface-muted flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-surface-muted flex items-center justify-center mb-4 ring-1 ring-border/60">
             <HiAcademicCap className="h-8 w-8 text-text-muted" />
           </div>
-          <p className="text-text-primary font-semibold">Belum ada jadwal matkul</p>
+          <p className="text-text-primary font-bold font-heading text-lg">Belum ada jadwal matkul</p>
           <p className="text-sm text-text-secondary mt-1">Tambahkan matkul untuk mulai</p>
         </div>
       ) : (
@@ -136,21 +150,21 @@ export default function JadwalPage() {
           {grouped.map(({ day: dayName, items }) =>
             items.length === 0 ? null : (
               <div key={dayName}>
-                <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3 flex items-center gap-2 font-heading">
+                  <span className={`w-2 h-2 rounded-full ${DAY_DOTS[dayName] || "bg-primary-500"}`} />
                   {dayName}
                 </h3>
                 <div className="space-y-2">
                   {items.map((s) => (
                     <div
                       key={s.id}
-                      className={`bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-xl p-4 border border-border/50 border-l-4 ${DAY_COLORS[dayName] || "border-l-indigo-400"} hover:shadow-md transition-shadow`}
+                      className={`bg-surface/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 border-l-4 ${DAY_COLORS[dayName] || "border-l-primary-400"} hover:shadow-md transition-all duration-200 hover:border-l-[5px]`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-text-primary truncate">{s.name}</p>
+                          <p className="font-bold text-text-primary truncate">{s.name}</p>
                           <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 font-medium">
                               <HiClock className="h-3 w-3" />
                               {s.startTime} – {s.endTime}
                             </span>
@@ -166,13 +180,13 @@ export default function JadwalPage() {
                           <div className="flex gap-1 shrink-0">
                             <button
                               onClick={() => openEdit(s)}
-                              className="p-1.5 text-text-muted hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all"
+                              className="p-1.5 text-text-muted hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-all"
                             >
                               <HiPencil className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(s.id, s.name)}
-                              className="p-1.5 text-text-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                              className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-light/50 dark:hover:bg-danger/10 rounded-lg transition-all"
                             >
                               <HiTrash className="h-3.5 w-3.5" />
                             </button>
@@ -197,9 +211,9 @@ export default function JadwalPage() {
         <div className="space-y-4">
           <Input label="Nama Mata Kuliah" placeholder="Contoh: Matematika Wajib" value={name} onChange={(e) => setName(e.target.value)} />
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">Hari</label>
+            <label className="block text-sm font-semibold text-text-primary mb-1.5">Hari</label>
             <select
-              className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-800/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-surface border-2 border-border/70 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all"
               value={day}
               onChange={(e) => setDay(e.target.value)}
             >

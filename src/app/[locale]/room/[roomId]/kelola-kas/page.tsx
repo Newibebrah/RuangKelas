@@ -263,7 +263,7 @@ export default function KelolaKasPage() {
             >
               <HiArrowLeft className="h-5 w-5 text-text-secondary" />
             </button>
-            <h2 className="text-xl font-bold text-text-primary">{t('kas.manage')}</h2>
+            <h2 className="text-xl font-bold text-text-primary font-heading">{t('kas.manage')}</h2>
           </div>
           <p className="text-sm text-text-secondary mt-1">
             {canManageKas ? t('kas.manageDesc') : t('kas.viewReportDesc')}

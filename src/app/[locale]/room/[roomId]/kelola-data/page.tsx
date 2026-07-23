@@ -197,7 +197,7 @@ export default function KelolaDataPage() {
     <div className="pb-20 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Kelola Data</h2>
+          <h2 className="text-xl font-bold text-text-primary font-heading">Kelola Data</h2>
           <p className="text-sm text-text-secondary mt-1">Manajemen semua data kelas (khusus admin)</p>
         </div>
         <button

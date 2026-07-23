@@ -127,7 +127,7 @@ export default function PengurusPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-text-primary">{t('pengurus.title')}</h2>
+          <h2 className="text-2xl font-bold text-text-primary font-heading">{t('pengurus.title')}</h2>
           <p className="text-sm text-text-secondary mt-1">
             {t('pengurus.structureDesc')}
           </p>
@@ -147,8 +147,8 @@ export default function PengurusPage() {
       ) : (
         <>
           <section className="mb-10">
-            <h3 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+            <h3 className="text-base font-bold text-text-primary mb-4 flex items-center gap-2 font-heading">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
               {t('pengurus.structure')}
             </h3>
             {sortedPengurus.length === 0 ? (

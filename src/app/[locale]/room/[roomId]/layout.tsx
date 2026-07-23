@@ -29,6 +29,10 @@ function hashToColor(roomId: string): { hue: number; sat: number; light: number 
   return { hue: Math.abs(hash % 360), sat: 72, light: 48 };
 }
 
+function getAvatarFallback(name: string) {
+  return name.charAt(0).toUpperCase();
+}
+
 export default function RoomLayout({
   children,
 }: {
@@ -115,7 +119,7 @@ export default function RoomLayout({
           <div className="w-16 h-16 rounded-2xl bg-danger-light flex items-center justify-center mb-2">
             <HiAcademicCap className="h-8 w-8 text-danger" />
           </div>
-          <p className="text-text-primary font-semibold text-lg">{t('common.roomNotFound')}</p>
+          <p className="text-text-primary font-bold text-lg font-heading">{t('common.roomNotFound')}</p>
           <p className="text-text-secondary text-sm">{t('common.roomNotFoundDesc')}</p>
           <Button onClick={() => router.push("/dashboard")} className="mt-2">
             {t('action.back')} ke {t('nav.dashboard')}
@@ -128,12 +132,13 @@ export default function RoomLayout({
   return (
     <AuthGuard>
       <div className="min-h-screen bg-surface-muted pb-16 md:pb-0 relative">
+        {/* Background decoration */}
         <div
           className="fixed inset-0 pointer-events-none -z-10"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, hsl(${roomColor.hue}, 20%, 70%) 1px, transparent 0)`,
             backgroundSize: "32px 32px",
-            opacity: 0.08,
+            opacity: 0.06,
           }}
         />
         <div
@@ -143,6 +148,7 @@ export default function RoomLayout({
           }}
         />
 
+        {/* ───── Cover / Header ───── */}
         <div
           className="relative overflow-hidden"
           style={{ background: coverGradient }}
@@ -155,12 +161,14 @@ export default function RoomLayout({
 
           <div className={`relative max-w-7xl mx-auto ${isMobile ? "px-3 pt-3 pb-5" : "px-4 sm:px-6 lg:px-8 pt-5 pb-10"}`}>
             <div className="flex items-center justify-between mb-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => router.push("/dashboard")}
-                className={`${isMobile ? "p-1.5" : "p-2"} rounded-xl bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 active:scale-95 transition-all`}
+                className={`${isMobile ? "p-1.5" : "p-2"} rounded-xl bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 transition-all`}
               >
                 <HiArrowLeft className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-              </button>
+              </motion.button>
               <div className="flex items-center gap-1">
                 <LanguageSwitcher />
                 <ThemeToggle />
@@ -171,44 +179,55 @@ export default function RoomLayout({
 
             <div className={`flex ${isMobile ? "flex-col gap-2" : "flex-col sm:flex-row sm:items-end sm:justify-between gap-4"}`}>
               <div className={isMobile ? "space-y-2" : "space-y-3"}>
-                <h1 className={`${isMobile ? "text-xl" : "text-3xl md:text-4xl"} font-bold text-white drop-shadow-sm tracking-tight`}>
+                <h1 className={`${isMobile ? "text-xl" : "text-3xl md:text-4xl"} font-bold text-white drop-shadow-sm tracking-tight font-heading`}>
                   {currentRoom.name}
                 </h1>
                 {!isMobile && (
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-sm font-mono font-medium">
+                    <motion.span
+                      whileHover={{ scale: 1.02 }}
+                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-sm font-mono font-medium"
+                    >
                       <span className="text-white/50 text-[10px] font-sans uppercase tracking-wider">{t('common.code')}</span>
                       {currentRoom.code}
-                      <button
+                      <motion.button
+                        whileTap={{ scale: 0.8 }}
                         onClick={handleCopyCode}
-                        className="p-0.5 rounded-md hover:bg-white/20 active:scale-90 transition-all"
+                        className="p-0.5 rounded-md hover:bg-white/20 transition-all"
                         aria-label="Copy room code"
                       >
                         {copied ? (
-                          <HiCheck className="h-3.5 w-3.5 text-green-300" />
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            key="check"
+                          >
+                            <HiCheck className="h-3.5 w-3.5 text-green-300" />
+                          </motion.div>
                         ) : (
                           <HiClipboardCopy className="h-3.5 w-3.5 text-white/70" />
                         )}
-                      </button>
-                    </span>
+                      </motion.button>
+                    </motion.span>
 
                     {visibleMembers.length > 0 && (
                       <div className="flex items-center">
                         <div className="flex -space-x-2">
                           {visibleMembers.map((member) => (
-                            <div
+                            <motion.div
                               key={member.userId}
-                              className="w-8 h-8 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/20"
+                              whileHover={{ scale: 1.15, zIndex: 10 }}
+                              className="w-8 h-8 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/20 cursor-default"
                               title={member.displayName}
                             >
                               {member.photoURL ? (
                                 <img src={member.photoURL} alt={member.displayName} className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white">
-                                  {member.displayName.charAt(0).toUpperCase()}
+                                  {getAvatarFallback(member.displayName)}
                                 </div>
                               )}
-                            </div>
+                            </motion.div>
                           ))}
                         </div>
                         {members.length > 6 && (
@@ -242,7 +261,7 @@ export default function RoomLayout({
                             <img src={member.photoURL} alt={member.displayName} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-white">
-                              {member.displayName.charAt(0).toUpperCase()}
+                              {getAvatarFallback(member.displayName)}
                             </div>
                           )}
                         </div>
@@ -258,34 +277,37 @@ export default function RoomLayout({
           </div>
         </div>
 
+        {/* ───── Main content + Sidebar ───── */}
         <div className={`max-w-7xl mx-auto ${isMobile ? "px-3 pt-4" : "px-4 sm:px-6 lg:px-8 pt-6"}`}>
           <div className="flex gap-8">
+            {/* Desktop sidebar */}
             <aside className="hidden md:block w-56 shrink-0">
-              <nav className="sticky top-24 space-y-1 p-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/30 shadow-sm">
+              <nav className="sticky top-24 space-y-1 p-2.5 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
                 {visibleTabs.map((tab) => {
                   const href = tab.getHref(roomId);
                   const isActive = tab.exact
                     ? pathname === href
                     : pathname.startsWith(href);
+                  const Icon = tab.icon;
                   return (
                     <Link
                       key={tab.labelKey}
                       href={href}
-                      className={`relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${
+                      className={`relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
                         isActive
                           ? "text-white"
-                          : "text-text-muted hover:text-text-secondary hover:bg-surface-hover"
+                          : "text-text-muted hover:text-text-secondary hover:bg-surface-hover/80"
                       }`}
                     >
                       {isActive && (
                         <motion.span
                           layoutId="activeTab"
                           transition={{ type: "spring" as const, stiffness: 500, damping: 35 }}
-                          className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20"
+                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 shadow-md shadow-primary-500/20"
                         />
                       )}
                       <span className="relative z-10 flex items-center gap-3">
-                        <tab.icon className="h-4 w-4" />
+                        <Icon className="h-4 w-4 shrink-0" />
                         {t('nav.' + tab.labelKey)}
                       </span>
                     </Link>
@@ -294,6 +316,7 @@ export default function RoomLayout({
               </nav>
             </aside>
 
+            {/* Content area */}
             <main className="flex-1 min-w-0 pb-8">
               <AnimatePresence mode="wait">
                 <motion.div
