@@ -42,6 +42,13 @@ service cloud.firestore {
       allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
     }
 
+    match /wallets/{docId} {
+      allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
+      allow update: if resource.data.roomId is string && isMember(resource.data.roomId);
+      allow delete: if resource.data.roomId is string && isMember(resource.data.roomId);
+    }
+
     match /bills/{docId} {
       allow read: if resource.data.roomId is string && isMember(resource.data.roomId);
       allow create: if request.resource.data.roomId is string && isMember(request.resource.data.roomId);
