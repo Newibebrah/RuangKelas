@@ -6,7 +6,6 @@ import {
   query,
   where,
   getDocs,
-  updateDoc,
   doc,
   writeBatch,
   serverTimestamp,
@@ -94,7 +93,7 @@ export function useBatchPayment(roomId: string) {
             title: action === "approve" ? "Pembayaran Disetujui" : "Pembayaran Ditolak",
             message:
               action === "approve"
-                ? `Pembayaran Anda sebesar Rp ${(p as Payment & { amount?: number }).amount || 0} telah diverifikasi`
+                ? `Pembayaran Anda senilai telah diverifikasi`
                 : "Pembayaran Anda ditolak, silakan upload ulang bukti",
             roomId,
             link: `/room/${roomId}/kas`,

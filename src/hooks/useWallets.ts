@@ -21,32 +21,74 @@ import { Wallet, Bill, PaymentPeriod, Payment } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { notifyAllMembers } from "@/lib/notifications";
 
+export interface WalletWithData {
+  wallet: Wallet;
+  bill: Bill | null;
+  periods: PaymentPeriod[];
+  payments: Payment[];
+}
+
 export function useWallets(roomId: string) {
   const { user } = useAuth();
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [periods, setPeriods] = useState<PaymentPeriod[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!roomId) return;
-    const q = query(
-      collection(db, "wallets"),
-      where("roomId", "==", roomId),
-      orderBy("createdAt", "desc")
+    setLoading(true);
+
+    const unsubWallets = onSnapshot(
+      query(collection(db, "wallets"), where("roomId", "==", roomId), orderBy("createdAt", "desc")),
+      (snap) => setWallets(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Wallet)),
+      () => { setError("Gagal memuat dompet kas"); setLoading(false); }
     );
-    const unsub = onSnapshot(
-      q,
+
+    const unsubBills = onSnapshot(
+      query(collection(db, "bills"), where("roomId", "==", roomId), where("isActive", "==", true)),
       (snap) => {
-        setWallets(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Wallet));
+        setBills(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Bill));
         setLoading(false);
       },
-      () => {
-        setError("Gagal memuat dompet kas");
-        setLoading(false);
-      }
+      () => { setError("Gagal memuat tagihan"); setLoading(false); }
     );
-    return unsub;
+
+    const unsubPeriods = onSnapshot(
+      query(collection(db, "paymentPeriods"), where("roomId", "==", roomId)),
+      (snap) => {
+        setPeriods(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as PaymentPeriod));
+        setLoading(false);
+      },
+      () => { setError("Gagal memuat periode"); setLoading(false); }
+    );
+
+    const unsubPayments = onSnapshot(
+      query(collection(db, "payments"), where("roomId", "==", roomId)),
+      (snap) => {
+        setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Payment));
+        setLoading(false);
+      },
+      () => { setError("Gagal memuat pembayaran"); setLoading(false); }
+    );
+
+    return () => { unsubWallets(); unsubBills(); unsubPeriods(); unsubPayments(); };
   }, [roomId]);
+
+  const getWalletData = useCallback(
+    (walletId: string): WalletWithData => {
+      const wallet = wallets.find((w) => w.id === walletId)!;
+      const bill = bills.find((b) => b.walletId === walletId) || null;
+      const walletPeriods = periods.filter((p) => p.walletId === walletId);
+      const walletPayments = payments.filter((p) => p.walletId === walletId);
+      return { wallet, bill, periods: walletPeriods, payments: walletPayments };
+    },
+    [wallets, bills, periods, payments]
+  );
+
+  const walletsWithData = wallets.map((w) => getWalletData(w.id));
 
   const createWallet = useCallback(
     async (data: {
@@ -70,8 +112,7 @@ export function useWallets(roomId: string) {
         type: data.type,
         frequency: data.frequency || null,
         totalPeriods: data.totalPeriods || null,
-        startDate: null,
-        endDate: null,
+        startDate: null, endDate: null,
         paymentMethod: data.paymentMethod,
         createdBy: user.id,
         createdAt: serverTimestamp(),
@@ -79,14 +120,10 @@ export function useWallets(roomId: string) {
 
       const billRef = doc(collection(db, "bills"));
       batch.set(billRef, {
-        roomId,
-        walletId: walletRef.id,
-        amount: data.amount,
-        frequency: data.frequency || "monthly",
+        roomId, walletId: walletRef.id,
+        amount: data.amount, frequency: data.frequency || "monthly",
         periodsPerMonth: data.periodsPerMonth,
-        createdBy: user.id,
-        createdAt: serverTimestamp(),
-        isActive: true,
+        createdBy: user.id, createdAt: serverTimestamp(), isActive: true,
       });
 
       const now = new Date();
@@ -95,18 +132,11 @@ export function useWallets(roomId: string) {
       for (let i = 1; i <= total; i++) {
         const periodRef = doc(collection(db, "paymentPeriods"));
         const dueDate = new Date(now);
-        if (data.frequency === "weekly") {
-          dueDate.setDate(dueDate.getDate() + i * 7);
-        } else {
-          dueDate.setDate(dueDate.getDate() + Math.round((i / total) * 30));
-        }
+        if (data.frequency === "weekly") dueDate.setDate(dueDate.getDate() + i * 7);
+        else dueDate.setDate(dueDate.getDate() + Math.round((i / total) * 30));
         batch.set(periodRef, {
-          billId: billRef.id,
-          walletId: walletRef.id,
-          roomId,
-          periodNumber: i,
-          dueDate: Timestamp.fromDate(dueDate),
-          status: "open",
+          billId: billRef.id, walletId: walletRef.id, roomId,
+          periodNumber: i, dueDate: Timestamp.fromDate(dueDate), status: "open",
         });
         periodIds.push(periodRef.id);
       }
@@ -121,14 +151,9 @@ export function useWallets(roomId: string) {
         for (const member of memberList) {
           const paymentRef = doc(collection(db, "payments"));
           batch.set(paymentRef, {
-            billId: billRef.id,
-            walletId: walletRef.id,
-            periodId,
-            roomId,
-            userId: member.userId,
-            displayName: member.displayName,
-            status: "unpaid",
-            paidAt: null,
+            billId: billRef.id, walletId: walletRef.id, periodId, roomId,
+            userId: member.userId, displayName: member.displayName,
+            status: "unpaid", paidAt: null,
           });
         }
       }
@@ -136,11 +161,9 @@ export function useWallets(roomId: string) {
       await batch.commit();
 
       await notifyAllMembers(roomId, {
-        type: "bill",
-        title: "Tagihan Baru",
+        type: "bill", title: "Tagihan Baru",
         message: `Tagihan "${data.name}" Rp ${data.amount.toLocaleString("id-ID")} telah dibuat`,
-        roomId,
-        link: `/room/${roomId}/kas`,
+        roomId, link: `/room/${roomId}/kas`,
       });
 
       return walletRef.id;
@@ -148,37 +171,23 @@ export function useWallets(roomId: string) {
     [roomId, user]
   );
 
-  const updateWallet = useCallback(
-    async (walletId: string, data: Partial<Wallet>) => {
-      await updateDoc(doc(db, "wallets", walletId), {
-        ...data,
-      });
-    },
-    []
-  );
+  const updateWallet = useCallback(async (walletId: string, data: Partial<Wallet>) => {
+    await updateDoc(doc(db, "wallets", walletId), data);
+  }, []);
 
-  const deleteWallet = useCallback(
-    async (walletId: string) => {
-      const batch = writeBatch(db);
-      batch.delete(doc(db, "wallets", walletId));
+  const deleteWallet = useCallback(async (walletId: string) => {
+    const batchW = writeBatch(db);
+    batchW.delete(doc(db, "wallets", walletId));
+    const billsSnap = await getDocs(query(collection(db, "bills"), where("walletId", "==", walletId)));
+    for (const billDoc of billsSnap.docs) {
+      batchW.delete(billDoc.ref);
+      const periodsSnap = await getDocs(query(collection(db, "paymentPeriods"), where("billId", "==", billDoc.id)));
+      for (const pDoc of periodsSnap.docs) batchW.delete(pDoc.ref);
+      const paymentsSnap = await getDocs(query(collection(db, "payments"), where("billId", "==", billDoc.id)));
+      for (const payDoc of paymentsSnap.docs) batchW.delete(payDoc.ref);
+    }
+    await batchW.commit();
+  }, []);
 
-      const billsSnap = await getDocs(query(collection(db, "bills"), where("walletId", "==", walletId)));
-      for (const billDoc of billsSnap.docs) {
-        batch.delete(billDoc.ref);
-        const periodsSnap = await getDocs(query(collection(db, "paymentPeriods"), where("billId", "==", billDoc.id)));
-        for (const pDoc of periodsSnap.docs) {
-          batch.delete(pDoc.ref);
-        }
-        const paymentsSnap = await getDocs(query(collection(db, "payments"), where("billId", "==", billDoc.id)));
-        for (const payDoc of paymentsSnap.docs) {
-          batch.delete(payDoc.ref);
-        }
-      }
-
-      await batch.commit();
-    },
-    []
-  );
-
-  return { wallets, loading, error, createWallet, updateWallet, deleteWallet };
+  return { wallets, walletsWithData, bills, periods, payments, loading, error, createWallet, updateWallet, deleteWallet, getWalletData };
 }
