@@ -5,10 +5,10 @@ import { useRouter } from "@/i18n/navigation";
 import { useNotifications } from "@/hooks/useNotifications";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
-import { HiBell, HiCheck } from "react-icons/hi";
+import { HiBell, HiCheck, HiTrash } from "react-icons/hi";
 
 export function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications } =
     useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -28,6 +28,11 @@ export function NotificationBell() {
     markAsRead(n.id);
     setOpen(false);
     router.push(n.link);
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    deleteNotification(id);
   };
 
   return (
@@ -50,14 +55,25 @@ export function NotificationBell() {
             <h3 className="text-sm font-semibold text-text-primary">
               Notifikasi
             </h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-xs text-primary-600 hover:text-primary-700 font-semibold"
-              >
-                Tandai semua dibaca
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {notifications.length > 0 && (
+                <button
+                  onClick={clearAllNotifications}
+                  className="text-xs text-text-muted hover:text-danger transition-colors"
+                  title="Hapus semua"
+                >
+                  Hapus semua
+                </button>
+              )}
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs text-primary-600 hover:text-primary-700 font-semibold"
+                >
+                  Tandai semua dibaca
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="overflow-y-auto flex-1">
@@ -67,35 +83,46 @@ export function NotificationBell() {
               </p>
             ) : (
               notifications.map((n) => (
-                <button
+                <div
                   key={n.id}
-                  onClick={() => handleClick(n)}
-                  className={`w-full text-left px-4 py-3 hover:bg-surface-hover transition-colors border-b border-border-light last:border-0 ${
+                  className={`group flex items-start gap-1 px-4 py-3 hover:bg-surface-hover transition-colors border-b border-border-light last:border-0 ${
                     !n.read ? "bg-primary-50/50" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${n.read ? "text-text-primary" : "font-semibold text-text-primary"} truncate`}>
-                        {n.title}
-                      </p>
-                      <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">
-                        {n.message}
-                      </p>
-                      <p className="text-[10px] text-text-muted mt-1">
-                        {n.createdAt?.toDate
-                          ? formatDistanceToNow(n.createdAt.toDate(), {
-                              addSuffix: true,
-                              locale: id,
-                            })
-                          : ""}
-                      </p>
+                  <button
+                    onClick={() => handleClick(n)}
+                    className="flex-1 text-left min-w-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${n.read ? "text-text-primary" : "font-semibold text-text-primary"} truncate`}>
+                          {n.title}
+                        </p>
+                        <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">
+                          {n.message}
+                        </p>
+                        <p className="text-[10px] text-text-muted mt-1">
+                          {n.createdAt?.toDate
+                            ? formatDistanceToNow(n.createdAt.toDate(), {
+                                addSuffix: true,
+                                locale: id,
+                              })
+                            : ""}
+                        </p>
+                      </div>
+                      {!n.read && (
+                        <span className="mt-1.5 h-2 w-2 rounded-full bg-primary-500 shrink-0" />
+                      )}
                     </div>
-                    {!n.read && (
-                      <span className="mt-1.5 h-2 w-2 rounded-full bg-primary-500 shrink-0" />
-                    )}
-                  </div>
-                </button>
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(e, n.id)}
+                    className="p-1.5 text-text-muted hover:text-danger rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-1"
+                    title="Hapus notifikasi"
+                  >
+                    <HiTrash className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               ))
             )}
           </div>

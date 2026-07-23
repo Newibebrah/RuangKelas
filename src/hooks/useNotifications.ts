@@ -8,7 +8,9 @@ import {
   limit,
   onSnapshot,
   updateDoc,
+  deleteDoc,
   doc,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { AppNotification } from "@/types";
@@ -62,5 +64,22 @@ export function useNotifications() {
     );
   }, [user, notifications]);
 
-  return { notifications, unreadCount, markAsRead, markAllAsRead };
+  const deleteNotification = useCallback(
+    async (notificationId: string) => {
+      if (!user) return;
+      await deleteDoc(doc(db, "notifications", user.id, "items", notificationId));
+    },
+    [user]
+  );
+
+  const clearAllNotifications = useCallback(async () => {
+    if (!user) return;
+    const batch = writeBatch(db);
+    notifications.forEach((n) => {
+      batch.delete(doc(db, "notifications", user.id, "items", n.id));
+    });
+    await batch.commit();
+  }, [user, notifications]);
+
+  return { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications };
 }
