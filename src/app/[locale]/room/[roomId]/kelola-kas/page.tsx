@@ -18,6 +18,8 @@ import { VerificationModal } from "@/components/kas/VerificationModal";
 import { FinanceChart } from "@/components/kas/FinanceChart";
 import { useLocale } from "@/lib/locale-context";
 import { formatRupiah } from "@/lib/kas-utils";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Payment, Wallet } from "@/types";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -265,15 +267,14 @@ export default function KelolaKasPage() {
                       <h3 className="text-base font-semibold text-text-primary mb-3">Tabel Pembayaran</h3>
                       <PaymentTable members={memberRows} periods={walletPeriods} payments={walletPayments}
                         canManage={canManageKas}
-                        onToggle={async (userId, periodId) => {
+                        onToggle={async (userId, periodId, displayName) => {
                           try {
-                            const { doc, updateDoc, serverTimestamp } = await import("firebase/firestore");
-                            const { db } = await import("@/lib/firebase");
                             const existing = walletPayments.find((p) => p.userId === userId && p.periodId === periodId);
                             if (existing) {
+                              const nextStatus = existing.status === "paid" ? "unpaid" : existing.status === "pending" ? "paid" : "paid";
                               await updateDoc(doc(db, "payments", existing.id), {
-                                status: existing.status === "paid" ? "unpaid" : "paid",
-                                paidAt: existing.status === "paid" ? null : serverTimestamp(),
+                                status: nextStatus,
+                                paidAt: nextStatus === "unpaid" ? null : serverTimestamp(),
                               });
                             }
                             toast.success("Status diperbarui");

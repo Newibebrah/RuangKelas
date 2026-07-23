@@ -28,7 +28,7 @@ export default function KasPage() {
   const { user } = useAuth();
   const { wallets, walletsWithData, payments, loading, error } = useWallets(roomId);
   const { canViewKasManagement } = useRoleAccess(roomId);
-  const { submitBatch } = useBatchPayment(roomId);
+  const { submitManual, submitProof } = useBatchPayment(roomId);
 
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
   const [selectedPeriods, setSelectedPeriods] = useState<Set<string>>(new Set());
@@ -42,15 +42,10 @@ export default function KasPage() {
   const walletPayments = walletData?.payments || [];
   const walletBillAmount = walletBill?.amount || 0;
 
-  const myPayments = useMemo(
-    () => walletPayments.filter((p) => p.userId === user?.id),
-    [walletPayments, user?.id]
-  );
-
+  const myPayments = useMemo(() => walletPayments.filter((p) => p.userId === user?.id), [walletPayments, user?.id]);
   const myProgress = useMemo(() => {
     if (!walletPeriods.length || !user) return 0;
-    const paid = myPayments.filter((p) => p.status === "paid").length;
-    return Math.round((paid / walletPeriods.length) * 100);
+    return Math.round((myPayments.filter((p) => p.status === "paid").length / walletPeriods.length) * 100);
   }, [walletPeriods, myPayments, user]);
 
   const allPaidAnyWallet = walletsWithData.map((wd) => {
@@ -60,6 +55,7 @@ export default function KasPage() {
   });
 
   const totalSelected = selectedPeriods.size * walletBillAmount;
+  const isManual = wallet?.paymentMethod.type === "manual";
 
   const togglePeriod = (periodId: string) => {
     setSelectedPeriods((prev) => {
@@ -70,9 +66,13 @@ export default function KasPage() {
     });
   };
 
-  const handleBatchSubmit = async (proofUrl: string) => {
+  const handleBatchPay = async (proofUrl?: string) => {
     const periodIds = Array.from(selectedPeriods);
-    await submitBatch(periodIds, proofUrl);
+    if (isManual) {
+      await submitManual(periodIds);
+    } else if (proofUrl) {
+      await submitProof(periodIds, proofUrl);
+    }
     setSelectedPeriods(new Set());
   };
 
@@ -130,7 +130,9 @@ export default function KasPage() {
             {wallet && wallet.paymentMethod.type !== "manual" && (
               <Card glass><CardBody>
                 <p className="text-xs font-semibold text-text-secondary mb-1">Metode Pembayaran</p>
-                <p className="text-sm text-text-primary">{wallet.paymentMethod.type === "qris" ? "QRIS" : wallet.paymentMethod.type === "bank" ? `Transfer ${wallet.paymentMethod.accountName} — ${wallet.paymentMethod.accountNumber}` : "Manual"}</p>
+                <p className="text-sm text-text-primary">
+                  {wallet.paymentMethod.type === "qris" ? "QRIS" : `Transfer ke ${wallet.paymentMethod.accountName} — ${wallet.paymentMethod.accountNumber}`}
+                </p>
               </CardBody></Card>
             )}
             {walletPeriods.length === 0 ? (
@@ -158,7 +160,9 @@ export default function KasPage() {
       {wallet && (
         <PaymentModal isOpen={paymentModalOpen} onClose={() => setPaymentModalOpen(false)}
           wallet={wallet} amount={totalSelected} periodCount={selectedPeriods.size}
-          onSubmit={handleBatchSubmit} />
+          onManualPay={() => handleBatchPay()}
+          onProofPay={(url) => handleBatchPay(url)}
+        />
       )}
 
       {receiptPayment && (() => {

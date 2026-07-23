@@ -18,33 +18,53 @@ import { addNotification } from "@/lib/notifications";
 export function useBatchPayment(roomId: string) {
   const { user } = useAuth();
 
-  const submitBatch = useCallback(
+  const submitManual = useCallback(
+    async (periodIds: string[]) => {
+      if (!user) throw new Error("Harus login");
+
+      const snap = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
+      const matched = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }) as Payment)
+        .filter((p) => p.userId === user.id && periodIds.includes(p.periodId) && p.status === "unpaid");
+
+      if (matched.length === 0) throw new Error("Tidak ada periode yang bisa dibayar");
+
+      const batch = writeBatch(db);
+      for (const p of matched) {
+        batch.update(doc(db, "payments", p.id), {
+          status: "paid",
+          paidAt: serverTimestamp(),
+        });
+      }
+      await batch.commit();
+      return matched.length;
+    },
+    [roomId, user]
+  );
+
+  const submitProof = useCallback(
     async (periodIds: string[], proofUrl: string) => {
       if (!user) throw new Error("Harus login");
 
-      const allPayments = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
-      const matched = allPayments.docs
+      const snap = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
+      const matched = snap.docs
         .map((d) => ({ id: d.id, ...d.data() }) as Payment)
-        .filter((p) => p.userId === user.id && periodIds.includes(p.periodId));
+        .filter((p) => p.userId === user.id && periodIds.includes(p.periodId) && p.status !== "paid");
+
+      if (matched.length === 0) throw new Error("Tidak ada periode yang bisa dibayar");
 
       const batchId = crypto.randomUUID();
       const batch = writeBatch(db);
-      let updatedCount = 0;
-
       for (const p of matched) {
-        if (p.status === "paid") continue;
         batch.update(doc(db, "payments", p.id), {
           status: "pending",
           proofUrl,
           batchId,
           paidAt: serverTimestamp(),
         });
-        updatedCount++;
       }
-
-      if (updatedCount === 0) throw new Error("Semua periode sudah lunas");
       await batch.commit();
-      return { batchId, updatedCount };
+      return { batchId, count: matched.length };
     },
     [roomId, user]
   );
@@ -54,8 +74,8 @@ export function useBatchPayment(roomId: string) {
       if (!user) throw new Error("Harus login");
       const batch = writeBatch(db);
 
-      for (const paymentId of paymentIds) {
-        const ref = doc(db, "payments", paymentId);
+      for (const pid of paymentIds) {
+        const ref = doc(db, "payments", pid);
         if (action === "approve") {
           batch.update(ref, {
             status: "paid", paidAt: serverTimestamp(),
@@ -68,20 +88,21 @@ export function useBatchPayment(roomId: string) {
           });
         }
       }
-
       await batch.commit();
 
-      for (const paymentId of paymentIds) {
-        const snap = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
-        const p = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }) as Payment)
-          .find((d) => d.id === paymentId);
+      const snap = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
+      const allPayments = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Payment);
+
+      for (const pid of paymentIds) {
+        const p = allPayments.find((d) => d.id === pid);
         if (!p) continue;
         addNotification({
           userId: p.userId,
           type: action === "approve" ? "payment_verified" : "payment_rejected",
           title: action === "approve" ? "Pembayaran Disetujui" : "Pembayaran Ditolak",
-          message: action === "approve" ? "Pembayaran Anda telah diverifikasi" : "Pembayaran Anda ditolak, silakan upload ulang bukti",
+          message: action === "approve"
+            ? "Pembayaran Anda telah diverifikasi"
+            : "Pembayaran Anda ditolak, silakan hubungi bendahara",
           roomId, link: `/room/${roomId}/kas`,
         });
       }
@@ -89,5 +110,5 @@ export function useBatchPayment(roomId: string) {
     [roomId, user]
   );
 
-  return { submitBatch, verifyBatch };
+  return { submitManual, submitProof, verifyBatch };
 }
