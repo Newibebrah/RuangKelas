@@ -147,7 +147,7 @@ export default function KelolaDataPage() {
   const isAdmin = currentMember?.role === "admin";
 
   const subjects = useSnapshotCollection("subjects", "roomId", roomId);
-  const assignments = useSnapshotCollection("assignments", "roomId", roomId);
+  const assignments = useSnapshotCollection("tugas", "roomId", roomId);
   const materials = useSnapshotCollection("materials", "roomId", roomId);
   const deployments = useSnapshotCollection("deployments", "roomId", roomId);
 
@@ -184,7 +184,7 @@ export default function KelolaDataPage() {
     };
 
     try {
-      await deleteMatching("assignments", "subject");
+      await deleteMatching("tugas", "subject");
       await deleteMatching("materials", "subject");
       await deleteMatching("subjectPJ", "subjectName");
       toast.success(`${count} data yatim berhasil dihapus`);
@@ -224,11 +224,11 @@ export default function KelolaDataPage() {
       />
 
       <Section
-        title="Tugas (assignments)"
+        title="Tugas (tugas)"
         data={assignments.data}
         loading={assignments.loading}
         error={assignments.error}
-        onDelete={deleteDocById("assignments")}
+        onDelete={deleteDocById("tugas")}
         columns={[
           { key: "subject", label: "Matkul" },
           { key: "description", label: "Deskripsi", fmt: (v: unknown) => fmtStr(v).slice(0, 60) },

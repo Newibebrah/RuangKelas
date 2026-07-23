@@ -116,7 +116,7 @@ export function useSubjects(roomId: string) {
 
     if (subjectName) {
       const [assignSnap, materialSnap, pjSnap] = await Promise.all([
-        getDocs(query(collection(db, "assignments"), where("roomId", "==", roomId), where("subject", "==", subjectName))),
+        getDocs(query(collection(db, "tugas"), where("roomId", "==", roomId), where("subject", "==", subjectName))),
         getDocs(query(collection(db, "materials"), where("roomId", "==", roomId), where("subject", "==", subjectName))),
         getDocs(query(collection(db, "subjectPJ"), where("roomId", "==", roomId), where("subjectName", "==", subjectName))),
       ]);
