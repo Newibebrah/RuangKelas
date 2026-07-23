@@ -40,7 +40,7 @@ export function LoginButton() {
         ref={ref}
         onClick={handleClick}
         disabled={loading}
-        className="relative inline-flex items-center justify-center gap-3 px-8 py-3.5 w-full max-w-sm text-base font-semibold rounded-2xl border border-border/70 text-text-secondary bg-surface hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 hover:shadow-lg hover:shadow-primary-500/15 hover:scale-[1.02] dark:hover:bg-primary-900/20 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden transition-all duration-300"
+        className="relative inline-flex items-center justify-center gap-3 px-10 py-4 w-full max-w-sm text-base font-bold rounded-2xl bg-white text-slate-900 hover:bg-slate-50 shadow-2xl shadow-black/10 hover:shadow-black/20 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden transition-all duration-300"
       >
         {loading ? (
           <svg className="animate-spin h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@ export function LoginButton() {
         {ripples.map((ripple) => (
           <span
             key={ripple.id}
-            className="absolute rounded-full bg-primary-400/30 animate-ripple pointer-events-none"
+            className="absolute rounded-full bg-indigo-500/20 animate-ripple pointer-events-none"
             style={{
               left: ripple.x - 10,
               top: ripple.y - 10,
@@ -65,9 +65,9 @@ export function LoginButton() {
         ))}
       </button>
       {error && (
-        <div className="flex items-start gap-3 max-w-sm p-3.5 bg-danger-light dark:bg-danger/10 rounded-xl border border-danger/20">
-          <HiExclamationCircle className="h-5 w-5 text-danger shrink-0 mt-0.5" />
-          <p className="text-sm font-medium text-danger">{error}</p>
+        <div className="flex items-start gap-3 max-w-sm p-4 bg-red-500/10 rounded-xl border border-red-500/20 backdrop-blur-sm">
+          <HiExclamationCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+          <p className="text-sm font-medium text-red-300">{error}</p>
         </div>
       )}
     </div>

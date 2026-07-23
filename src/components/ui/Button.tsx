@@ -33,25 +33,25 @@ export function Button({
   };
 
   const base =
-    "relative inline-flex items-center justify-center font-semibold tracking-tight rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] select-none overflow-hidden";
+    "relative inline-flex items-center justify-center font-bold tracking-tight rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.95] select-none overflow-hidden";
 
   const variants: Record<string, string> = {
     primary:
-      "bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 hover:brightness-110",
+      "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/35 hover:scale-[1.04] dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500",
     secondary:
-      "bg-surface-hover text-text-primary border border-border/80 hover:bg-border hover:shadow-sm",
+      "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:shadow-lg hover:shadow-indigo-500/10",
     outline:
-      "border border-border text-text-secondary hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-900/15 hover:shadow-sm",
+      "border-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:shadow-lg hover:shadow-indigo-500/10",
     ghost:
-      "text-text-secondary hover:bg-surface-hover hover:text-text-primary",
+      "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400",
     danger:
-      "bg-gradient-to-r from-danger to-rose-600 text-white shadow-md shadow-danger/20 hover:shadow-lg hover:shadow-danger/30 hover:brightness-110",
+      "bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 text-white shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/35 hover:scale-[1.04] dark:from-red-500 dark:via-rose-500 dark:to-pink-500",
   };
 
   const sizes: Record<string, string> = {
-    sm: "px-3.5 py-1.5 text-xs gap-1.5",
-    md: "px-5 py-2.5 text-sm gap-2",
-    lg: "px-7 py-3 text-base gap-2.5",
+    sm: "px-4 py-1.5 text-xs gap-1.5",
+    md: "px-6 py-2.5 text-sm gap-2",
+    lg: "px-8 py-3.5 text-base gap-2.5",
   };
 
   return (

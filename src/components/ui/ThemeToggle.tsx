@@ -9,9 +9,9 @@ export function ThemeToggle() {
 
   return (
     <motion.button
-      whileTap={{ scale: 0.85 }}
+      whileTap={{ scale: 0.8 }}
       onClick={toggle}
-      className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all"
+      className="relative p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors"
       aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
     >
       <motion.div

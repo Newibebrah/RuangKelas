@@ -21,15 +21,15 @@ export function Card({
   const Comp = onClick ? motion.div : motion.div;
   return (
     <Comp
-      whileHover={hover ? { y: -3, scale: 1.005 } : undefined}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      whileHover={hover ? { y: -6, scale: 1.015 } : undefined}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={`${
         glass
-          ? "bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/30"
-          : "bg-surface shadow-[0_1px_3px_0_rgba(0,0,0,0.04),0_1px_2px_-1px_rgba(0,0,0,0.06)] border border-border/60"
+          ? "bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-lg shadow-black/5 dark:shadow-black/20"
+          : "bg-white dark:bg-slate-900/80 shadow-lg shadow-black/5 dark:shadow-black/20 border border-slate-200/80 dark:border-slate-700/50"
       } rounded-2xl transition-all duration-200 ${
         hover
-          ? "hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.06)] cursor-pointer"
+          ? "hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-indigo-500/5 cursor-pointer"
           : ""
       } ${className}`}
       onClick={onClick}
@@ -47,7 +47,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`px-5 py-4 border-b border-border-light ${className}`}>
+    <div className={`px-5 py-4 border-b border-slate-100 dark:border-slate-700/50 ${className}`}>
       {children}
     </div>
   );
