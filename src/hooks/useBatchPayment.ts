@@ -22,23 +22,18 @@ export function useBatchPayment(roomId: string) {
     async (periodIds: string[], proofUrl: string) => {
       if (!user) throw new Error("Harus login");
 
-      const paymentsSnap = await getDocs(
-        query(
-          collection(db, "payments"),
-          where("roomId", "==", roomId),
-          where("userId", "==", user.id),
-          where("periodId", "in", periodIds)
-        )
-      );
+      const allPayments = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
+      const matched = allPayments.docs
+        .map((d) => ({ id: d.id, ...d.data() }) as Payment)
+        .filter((p) => p.userId === user.id && periodIds.includes(p.periodId));
 
       const batchId = crypto.randomUUID();
       const batch = writeBatch(db);
       let updatedCount = 0;
 
-      for (const payDoc of paymentsSnap.docs) {
-        const data = payDoc.data() as Payment;
-        if (data.status === "paid") continue;
-        batch.update(payDoc.ref, {
+      for (const p of matched) {
+        if (p.status === "paid") continue;
+        batch.update(doc(db, "payments", p.id), {
           status: "pending",
           proofUrl,
           batchId,
@@ -63,18 +58,13 @@ export function useBatchPayment(roomId: string) {
         const ref = doc(db, "payments", paymentId);
         if (action === "approve") {
           batch.update(ref, {
-            status: "paid",
-            paidAt: serverTimestamp(),
-            verifiedBy: user.id,
-            verifiedAt: serverTimestamp(),
+            status: "paid", paidAt: serverTimestamp(),
+            verifiedBy: user.id, verifiedAt: serverTimestamp(),
           });
         } else {
           batch.update(ref, {
-            status: "unpaid",
-            proofUrl: null,
-            batchId: "",
-            verifiedBy: user.id,
-            verifiedAt: serverTimestamp(),
+            status: "unpaid", proofUrl: null, batchId: "",
+            verifiedBy: user.id, verifiedAt: serverTimestamp(),
           });
         }
       }
@@ -82,22 +72,17 @@ export function useBatchPayment(roomId: string) {
       await batch.commit();
 
       for (const paymentId of paymentIds) {
-        const paySnap = await getDocs(
-          query(collection(db, "payments"), where("__name__", "==", paymentId))
-        );
-        paySnap.forEach((d) => {
-          const p = d.data() as Payment;
-          addNotification({
-            userId: p.userId,
-            type: action === "approve" ? "payment_verified" : "payment_rejected",
-            title: action === "approve" ? "Pembayaran Disetujui" : "Pembayaran Ditolak",
-            message:
-              action === "approve"
-                ? `Pembayaran Anda senilai telah diverifikasi`
-                : "Pembayaran Anda ditolak, silakan upload ulang bukti",
-            roomId,
-            link: `/room/${roomId}/kas`,
-          });
+        const snap = await getDocs(query(collection(db, "payments"), where("roomId", "==", roomId)));
+        const p = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }) as Payment)
+          .find((d) => d.id === paymentId);
+        if (!p) continue;
+        addNotification({
+          userId: p.userId,
+          type: action === "approve" ? "payment_verified" : "payment_rejected",
+          title: action === "approve" ? "Pembayaran Disetujui" : "Pembayaran Ditolak",
+          message: action === "approve" ? "Pembayaran Anda telah diverifikasi" : "Pembayaran Anda ditolak, silakan upload ulang bukti",
+          roomId, link: `/room/${roomId}/kas`,
         });
       }
     },

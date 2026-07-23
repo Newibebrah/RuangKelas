@@ -42,36 +42,56 @@ export function useWallets(roomId: string) {
     setLoading(true);
 
     const unsubWallets = onSnapshot(
-      query(collection(db, "wallets"), where("roomId", "==", roomId), orderBy("createdAt", "desc")),
-      (snap) => setWallets(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Wallet)),
-      () => { setError("Gagal memuat dompet kas"); setLoading(false); }
+      query(collection(db, "wallets"), where("roomId", "==", roomId)),
+      (snap) => {
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Wallet);
+        data.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+        setWallets(data);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("wallets error:", err);
+        setError("Gagal memuat dompet kas"); setLoading(false);
+      }
     );
 
     const unsubBills = onSnapshot(
-      query(collection(db, "bills"), where("roomId", "==", roomId), where("isActive", "==", true)),
+      query(collection(db, "bills"), where("roomId", "==", roomId)),
       (snap) => {
-        setBills(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Bill));
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Bill);
+        setBills(data.filter((b) => b.isActive));
         setLoading(false);
       },
-      () => { setError("Gagal memuat tagihan"); setLoading(false); }
+      (err) => {
+        console.error("bills error:", err);
+        setError("Gagal memuat tagihan"); setLoading(false);
+      }
     );
 
     const unsubPeriods = onSnapshot(
-      query(collection(db, "paymentPeriods"), where("roomId", "==", roomId)),
+      collection(db, "paymentPeriods"),
       (snap) => {
-        setPeriods(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as PaymentPeriod));
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as PaymentPeriod);
+        setPeriods(data.filter((p) => p.roomId === roomId));
         setLoading(false);
       },
-      () => { setError("Gagal memuat periode"); setLoading(false); }
+      (err) => {
+        console.error("periods error:", err);
+        setError("Gagal memuat periode"); setLoading(false);
+      }
     );
 
     const unsubPayments = onSnapshot(
-      query(collection(db, "payments"), where("roomId", "==", roomId)),
+      collection(db, "payments"),
       (snap) => {
-        setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Payment));
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Payment);
+        setPayments(data.filter((p) => p.roomId === roomId));
         setLoading(false);
       },
-      () => { setError("Gagal memuat pembayaran"); setLoading(false); }
+      (err) => {
+        console.error("payments error:", err);
+        setError("Gagal memuat pembayaran"); setLoading(false);
+      }
     );
 
     return () => { unsubWallets(); unsubBills(); unsubPeriods(); unsubPayments(); };
