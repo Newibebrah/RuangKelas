@@ -87,10 +87,10 @@ export default function JadwalPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus mata kuliah ini?")) return;
+  const handleDelete = async (id: string, name?: string) => {
+    if (!confirm(`Hapus mata kuliah "${name}"? Semua tugas, materi, dan PJ terkait akan ikut terhapus.`)) return;
     try {
-      await deleteSubject(id);
+      await deleteSubject(id, name);
       toast.success("Matkul dihapus");
     } catch {
       toast.error("Gagal menghapus");
@@ -171,7 +171,7 @@ export default function JadwalPage() {
                               <HiPencil className="h-3.5 w-3.5" />
                             </button>
                             <button
-                              onClick={() => handleDelete(s.id)}
+                              onClick={() => handleDelete(s.id, s.name)}
                               className="p-1.5 text-text-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
                             >
                               <HiTrash className="h-3.5 w-3.5" />
