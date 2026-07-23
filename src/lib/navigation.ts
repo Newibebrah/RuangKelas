@@ -8,6 +8,7 @@ import {
   HiCog,
   HiCalendar,
   HiDatabase,
+  HiClock,
 } from "react-icons/hi";
 import { ComponentType } from "react";
 
@@ -27,6 +28,7 @@ export const roomTabs: TabDefinition[] = [
   { labelKey: "anggota", icon: HiUserGroup, getHref: (id) => `/room/${id}/anggota`, exact: false },
   { labelKey: "jadwal", icon: HiCalendar, getHref: (id) => `/room/${id}/jadwal`, exact: false },
   { labelKey: "pengurus", icon: HiUsers, getHref: (id) => `/room/${id}/pengurus`, exact: false },
+  { labelKey: "riwayat", icon: HiClock, getHref: (id) => `/room/${id}/riwayat`, exact: false },
   { labelKey: "kelolaKas", icon: HiCog, getHref: (id) => `/room/${id}/kelola-kas`, exact: false, showIf: "bendahara" },
   { labelKey: "kelolaData", icon: HiDatabase, getHref: (id) => `/room/${id}/kelola-data`, exact: false, showIf: "admin" },
 ];

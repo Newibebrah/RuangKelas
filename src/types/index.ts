@@ -97,9 +97,30 @@ export interface Submission {
   comment?: string;
 }
 
+export interface Wallet {
+  id: string;
+  roomId: string;
+  name: string;
+  description?: string;
+  type: "recurring" | "one-time";
+  frequency?: "weekly" | "monthly";
+  totalPeriods?: number;
+  startDate?: Timestamp;
+  endDate?: Timestamp;
+  paymentMethod: {
+    type: "qris" | "bank" | "manual";
+    qrisImageUrl?: string;
+    accountNumber?: string;
+    accountName?: string;
+  };
+  createdBy: string;
+  createdAt: Timestamp;
+}
+
 export interface Bill {
   id: string;
   roomId: string;
+  walletId: string;
   amount: number;
   frequency: "weekly" | "monthly";
   periodsPerMonth: number;
@@ -111,6 +132,7 @@ export interface Bill {
 export interface PaymentPeriod {
   id: string;
   billId: string;
+  walletId: string;
   roomId: string;
   periodNumber: number;
   dueDate: Timestamp;
@@ -120,13 +142,17 @@ export interface PaymentPeriod {
 export interface Payment {
   id: string;
   billId: string;
+  walletId: string;
   periodId: string;
   roomId: string;
   userId: string;
   displayName: string;
-  status: "paid" | "unpaid";
+  status: "unpaid" | "paid" | "pending";
   paidAt: Timestamp | null;
   proofUrl?: string;
+  batchId?: string;
+  verifiedBy?: string;
+  verifiedAt?: Timestamp;
 }
 
 export interface Subject {
@@ -198,7 +224,7 @@ export type RoomSubject = Subject;
 
 export interface AppNotification {
   id: string;
-  type: "assignment" | "bill" | "role" | "materi";
+  type: "assignment" | "bill" | "role" | "materi" | "payment_verified" | "payment_rejected";
   title: string;
   message: string;
   roomId: string;

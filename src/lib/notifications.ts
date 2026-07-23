@@ -9,7 +9,7 @@ import { db } from "./firebase";
 
 interface AddNotificationParams {
   userId: string;
-  type: "assignment" | "bill" | "role" | "materi";
+  type: "assignment" | "bill" | "role" | "materi" | "payment_verified" | "payment_rejected";
   title: string;
   message: string;
   roomId: string;

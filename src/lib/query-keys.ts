@@ -8,3 +8,4 @@ export const billingKeys = {
 export const assignmentsKeys = { all: (roomId: string) => ['assignments', roomId] as const }
 export const pengurusKeys = { all: (roomId: string) => ['pengurus', roomId] as const }
 export const membersKeys = { all: (roomId: string) => ['members', roomId] as const }
+export const walletKeys = { all: (roomId: string) => ['wallets', roomId] as const }
